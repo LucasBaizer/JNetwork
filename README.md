@@ -14,7 +14,7 @@ between the two. It does not come with a ability to encrypt and decrypt objects.
 Current Version: 1.0
 
 This jar does not require JNetwork Core, but the two are recommended to be used together.
-It adds the ability to easily encrypt and decrypt objects.
+It adds the ability to easily encrypt and decrypt objects. It uses the Apache Commons Codec library.
 
 #Downloads
 JNetwork Core 1.1: https://www.dropbox.com/s/yt6tavaiytmwudy/jnetwork_core-v1.1.jar?dl=1
