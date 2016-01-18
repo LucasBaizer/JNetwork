@@ -6,11 +6,13 @@ All jars have a built-in source attachment.
 
 #JNetwork Core
 Current Version: 1.1
+
 This jar adds the ability to easily create servers and clients, and the ability to pass objects and files
 between the two. It does not come with a ability to encrypt and decrypt objects.
 
 #JNetwork Crypto
 Current Version: 1.0
+
 This jar does not require JNetwork Core, but the two are recommended to be used together.
 It adds the ability to easily encrypt and decrypt objects.
 
