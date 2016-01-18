@@ -15,6 +15,6 @@ This jar does not require JNetwork Core, but the two are recommended to be used 
 It adds the ability to easily encrypt and decrypt objects.
 
 #Downloads
-JNetwork Core 1.1: https://www.dropbox.com/s/yt6tavaiytmwudy/jnetwork_core-v1.1.jar?dl=0
+JNetwork Core 1.1: https://www.dropbox.com/s/yt6tavaiytmwudy/jnetwork_core-v1.1.jar?dl=1
 
-JNetwork Crypto 1.0: https://www.dropbox.com/s/3yuyfbefkvh7zu4/jnetwork_crypto-v1.0.jar?dl=0
+JNetwork Crypto 1.0: https://www.dropbox.com/s/3yuyfbefkvh7zu4/jnetwork_crypto-v1.0.jar?dl=1
