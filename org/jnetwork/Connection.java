@@ -11,20 +11,22 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 /**
- * A client-side class used for sending and reading objects easily from a
- * server. It is not recommended to use this class for any serverside code. It
- * is designed for client-side only.
+ * A class used for writing objects out to and reading objects from a server.
  * 
  * @see java.net.Socket
  * 
  * @author Lucas Baizer
  */
 public class Connection implements Closeable {
-	private Socket client;
+	private Socket connection;
 	private AdvancedOutputStream out;
 	private AdvancedInputStream in;
 	private InetSocketAddress address;
+	private Object closeWaiter = new Object();
 
 	/**
 	 * Constructs a new
@@ -78,12 +80,35 @@ public class Connection implements Closeable {
 			throw new NullPointerException();
 
 		if (connectNow) {
-			this.client = new Socket(host, port);
-			this.out = new AdvancedOutputStream(client.getOutputStream());
-			this.in = new AdvancedInputStream(client.getInputStream());
+			this.connection = SSLSocketFactory.getDefault().createSocket(host, port);
+			this.out = new AdvancedOutputStream(connection.getOutputStream());
+			this.in = new AdvancedInputStream(connection.getInputStream());
 		} else {
 			this.address = new InetSocketAddress(host, port);
 		}
+	}
+
+	/**
+	 * Constructs a new Connection object, with its internal socket as the
+	 * <code>socket</code> parameter. A new AdvancedInputStream and
+	 * AdvancedOutputStream get instantiated, so <b>do not have any
+	 * instantiated</b>!
+	 * 
+	 * @param socket
+	 *            - The internal socket that this instantiation of Connection
+	 *            will be built off of.
+	 * @throws IOException
+	 *             If an error occurs during instantiating the streams.
+	 * @throws NullPointerException
+	 *             If the <code>socket</code> parameter is null.
+	 */
+	public Connection(Socket socket) throws IOException {
+		if (socket == null)
+			throw new NullPointerException();
+
+		this.connection = socket;
+		this.out = new AdvancedOutputStream(socket.getOutputStream());
+		this.in = new AdvancedInputStream(socket.getInputStream());
 	}
 
 	/**
@@ -99,22 +124,22 @@ public class Connection implements Closeable {
 	 *             <code>Socket</code> and the streams.
 	 */
 	public Connection connect() throws UnknownHostException, IOException {
-		this.client = new Socket(address.getHostString(), address.getPort());
-		this.out = new AdvancedOutputStream(client.getOutputStream());
-		this.in = new AdvancedInputStream(client.getInputStream());
+		this.connection = new Socket(address.getHostString(), address.getPort());
+		this.out = new AdvancedOutputStream(connection.getOutputStream());
+		this.in = new AdvancedInputStream(connection.getInputStream());
 
 		return this;
 	}
 
 	/**
-	 * @return The client's output stream.
+	 * @return The connection's output stream.
 	 */
-	public ObjectOutputStream getOutputStream() {
+	public AdvancedOutputStream getOutputStream() {
 		return out;
 	}
 
 	/**
-	 * @return The client's input stream.
+	 * @return The connection's input stream.
 	 */
 	public AdvancedInputStream getInputStream() {
 		return in;
@@ -126,7 +151,7 @@ public class Connection implements Closeable {
 	 * @return The <code>SocketAddress</code>.
 	 */
 	public SocketAddress getRemoteSocketAddress() {
-		return client.getRemoteSocketAddress();
+		return connection.getRemoteSocketAddress();
 	}
 
 	/**
@@ -135,7 +160,7 @@ public class Connection implements Closeable {
 	 * @return The <code>SocketAddress</code>.
 	 */
 	public SocketAddress getLocalSocketAddress() {
-		return client.getLocalSocketAddress();
+		return connection.getLocalSocketAddress();
 	}
 
 	/**
@@ -144,15 +169,14 @@ public class Connection implements Closeable {
 	 * @return If the <code>Socket</code> is closed.
 	 */
 	public boolean isClosed() {
-		return client.isClosed();
+		return connection.isClosed();
 	}
 
 	/**
-	 * @return The socket that the <code>Connection</code> uses for internal
-	 *         connections.
+	 * @return The socket that the <code>Connection</code> is built off of.
 	 */
-	public Socket getSocket() {
-		return client;
+	public Socket getConnection() {
+		return connection;
 	}
 
 	/**
@@ -166,7 +190,11 @@ public class Connection implements Closeable {
 	 */
 	@Override
 	public void close() throws IOException {
-		client.close();
+		connection.close();
+
+		synchronized (closeWaiter) {
+			closeWaiter.notifyAll();
+		}
 	}
 
 	/**
@@ -174,6 +202,20 @@ public class Connection implements Closeable {
 	 */
 	@Override
 	public String toString() {
-		return client.getRemoteSocketAddress().toString();
+		return connection.getRemoteSocketAddress().toString();
+	}
+
+	/**
+	 * Causes the current thread to block until the connection is closed.
+	 * 
+	 * @throws InterruptedException
+	 *             Specified by {@link Object#wait()}.
+	 * 
+	 * @see #getConnection()
+	 */
+	public void waitUntilClose() throws InterruptedException {
+		synchronized (closeWaiter) {
+			closeWaiter.wait();
+		}
 	}
 }

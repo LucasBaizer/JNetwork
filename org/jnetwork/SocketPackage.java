@@ -1,9 +1,8 @@
 package org.jnetwork;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.SecureRandom;
 
 /**
  * (Functionally) a struct used to store all the data created when a client
@@ -12,10 +11,11 @@ import java.net.Socket;
  * @author Lucas Baizer
  */
 public class SocketPackage {
-	private Socket socket;
+	private Connection socket;
 	private AdvancedInputStream in;
 	private AdvancedOutputStream out;
 	private Object[] data;
+	private Thread holder;
 
 	/**
 	 * Creates a new SocketPackage with all the required data.
@@ -29,20 +29,41 @@ public class SocketPackage {
 	 * @param extraData
 	 *            - Any extra data to add to the package.
 	 */
-	public SocketPackage(Socket socket, AdvancedInputStream in, AdvancedOutputStream out, Server server,
-			Object... extraData) {
+	public SocketPackage(Connection socket, Object... extraData) {
 		this.socket = socket;
-		this.in = in;
-		this.out = out;
+		this.in = socket.getInputStream();
+		this.out = socket.getOutputStream();
 		this.data = extraData;
 	}
 
 	/**
-	 * Gets the <code>Socket</code> initialized at construction.
+	 * Creates a new SocketPackage with all the required data and a holding
+	 * thread.
 	 * 
-	 * @return The <code>Socket</code>.
+	 * @param socket
+	 *            - The socket.
+	 * @param in
+	 *            - The input stream.
+	 * @param out
+	 *            - The output stream.
+	 * @param holder
+	 *            - The thread which this SocketPackage is connected to.
+	 * @param extraData
+	 *            - Any extra data to add to the package.
 	 */
-	public Socket getSocket() {
+	SocketPackage(Connection socket, AdvancedInputStream in, AdvancedOutputStream out, Thread holder,
+			Object... extraData) {
+		this(socket, in, out, extraData);
+
+		this.holder = holder;
+	}
+
+	/**
+	 * Gets the <code>Connection</code> initialized at construction.
+	 * 
+	 * @return The <code>Connection</code>.
+	 */
+	public Connection getConnection() {
 		return this.socket;
 	}
 
@@ -82,6 +103,23 @@ public class SocketPackage {
 	 */
 	@Override
 	public String toString() {
-		return getSocket().getRemoteSocketAddress().toString();
+		return getConnection().getRemoteSocketAddress().toString();
+	}
+
+	/**
+	 * @return the thread that this SocketPackage is connected to.
+	 */
+	Thread getHoldingThread() {
+		return holder;
+	}
+
+	/**
+	 * Sets the thread that this SocketPackage is connected to.
+	 * 
+	 * @param holder
+	 *            - The thread.
+	 */
+	void setHoldingThread(Thread holder) {
+		this.holder = holder;
 	}
 }

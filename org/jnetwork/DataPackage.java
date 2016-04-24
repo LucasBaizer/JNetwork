@@ -1,6 +1,9 @@
 package org.jnetwork;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -12,10 +15,11 @@ import java.util.Objects;
  * 
  * @author Lucas Baizer
  */
-public class DataPackage implements Serializable, Cloneable {
+public class DataPackage implements Serializable {
 	private static final long serialVersionUID = -4084673611320301450L;
 	private String message = null;
 	private Serializable[] objects;
+	private String id = new BigInteger(130, new SecureRandom()).toString(32);
 
 	/**
 	 * Constructs a new DataPackage with all the needed data.
@@ -65,21 +69,41 @@ public class DataPackage implements Serializable, Cloneable {
 	 * 
 	 * @return Object[] - The objects.
 	 */
-	public Object[] getObjects() {
+	public Serializable[] getObjects() {
 		return objects;
 	}
 
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	/**
+	 * @return A random alphanumeric ID created at the time of this
+	 *         DataPackage's instantiation.
+	 */
+	public String getId() {
+		return id;
 	}
 
 	/**
-	 * Gets a String representation of the class in the form of the message. If
-	 * no message is set, <code>Object.toString()</code> is returned.
+	 * Gets a String representation of the class in the form of the message.
 	 */
 	@Override
 	public String toString() {
-		return hasMessage() ? getMessage() : super.toString();
+		return message;
+	}
+
+	/**
+	 * Gets if this DataPackage is equal to another.
+	 * 
+	 * @return <code>true</code> if the other object is of type DataPackage and
+	 *         has the same message as this DataPackage, as well as if the other
+	 *         object's contents are equal to this ones' (as defined by
+	 *         {@link Arrays#equals(Object[], Object[])}.
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof DataPackage) {
+			DataPackage op = (DataPackage) o;
+			return op.getMessage().equals(this.getMessage()) && Arrays.equals(op.getObjects(), this.getObjects())
+					&& op.getId().equals(this.getId());
+		}
+		return false;
 	}
 }

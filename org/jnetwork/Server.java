@@ -1,18 +1,18 @@
 package org.jnetwork;
 
 import java.io.Closeable;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
-import org.jnetwork.event.ClientConnectionListener;
-import org.jnetwork.event.ClientRemovedListener;
-import org.jnetwork.event.RefreshListener;
+import javax.net.ssl.SSLServerSocketFactory;
+
+import org.jnetwork.listener.ClientConnectionListener;
+import org.jnetwork.listener.ClientDisconnectionListener;
 
 /**
  * A server-side utility used for easily handling an infinite amount of
@@ -34,16 +34,18 @@ import org.jnetwork.event.RefreshListener;
  * parameterized with the client's <code>SocketPackage</code>. <br>
  * <br>
  * When {@link Server#removeClient(SocketPackage)} is called, every
- * <code>ClientRemovedListener</code> added with
- * {@link Server#addClientRemovedListener(ClientRemovedListener)} will be called
- * and parameterized with the client's <code>SocketPackage</code>. <br>
+ * <code>ClientDisconnectionListener</code> added with
+ * {@link Server#addClientDisconnectionListener(ClientDisconnectionListener)}
+ * will be called and parameterized with the client's <code>SocketPackage</code>
+ * . <br>
  * <br>
  * 
  * @see java.net.ServerSocket
  * @see org.jnetwork.SocketPackage
- * @see javax.network.event.RefreshListener
- * @see javax.network.event.ClientConnectionListener
- * @see javax.network.event.ClientRemovedListener
+ * @see org.jnetwork.listener.network.event.RefreshListener
+ * @see org.jnetwork.listener.network.event.ClientConnectionListener
+ * @see org.jnetwork.listener.ClientDisconnectionListener.event.
+ *      ClientRemovedListener
  * @see org.jnetwork.SocketPackage
  * 
  * @author Lucas Baizer
@@ -54,9 +56,10 @@ public class Server implements Closeable {
 	private int port;
 	private ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
 	private ArrayList<SavedData> savedData = new ArrayList<SavedData>();
-	private ArrayList<RefreshListener> refreshers = new ArrayList<RefreshListener>();
-	private ArrayList<ClientRemovedListener> removers = new ArrayList<ClientRemovedListener>();
+	private ArrayList<ClientDisconnectionListener> removers = new ArrayList<ClientDisconnectionListener>();
 	private int maxClients = Integer.MAX_VALUE;
+	private boolean started;
+	private Object closeWaiter = new Object();
 
 	/**
 	 * Constructs a new <code>Server</code> and starts a new
@@ -78,11 +81,29 @@ public class Server implements Closeable {
 		if (clientSocketThread == null)
 			throw new NullPointerException("ClientConnectionListener is null");
 
-		this.server = new ServerSocket(port);
+		this.server = SSLServerSocketFactory.getDefault().createServerSocket(port);
 		this.thread = clientSocketThread;
 		this.port = port;
+	}
 
-		launchNewThread();
+	public void start() throws ServerException {
+		if (started)
+			throw new ServerException("Server already started");
+
+		started ^= true;
+
+		Thread dispatcher = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					launchNewThread();
+				} catch (Exception e) {
+					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+				}
+			}
+		});
+		dispatcher.setName("JNetwork-Server-Accept-Dispatcher");
+		dispatcher.start();
 	}
 
 	/**
@@ -105,42 +126,6 @@ public class Server implements Closeable {
 	}
 
 	/**
-	 * Adds a <code>RefreshListener</code> to be called on when a client is
-	 * removed by <b><code>refresh()</code></b>
-	 * 
-	 * @param listener
-	 *            - The listener to be added.
-	 * 
-	 * @throws NullPointerException
-	 *             If <code>listener</code> is null.
-	 */
-	public void addRefreshListener(RefreshListener listener) {
-		if (listener == null)
-			throw new NullPointerException();
-
-		refreshers.add(listener);
-	}
-
-	/**
-	 * Removes a <code>RefreshListener</code> to be called on when a client is
-	 * removed by <b><code>refresh()</code></b>
-	 * 
-	 * @param listener
-	 *            - The listener to be removed.
-	 * 
-	 * @return boolean - If the listener was actually added in the first place.
-	 * 
-	 * @throws NullPointerException
-	 *             If <code>listener</code> is null.
-	 */
-	public boolean removeRefreshListener(RefreshListener listener) {
-		if (listener == null)
-			throw new NullPointerException();
-
-		return refreshers.remove(listener);
-	}
-
-	/**
 	 * Adds a <code>ClientRemoveListener</code> to be called on when a client is
 	 * removed by <b><code>removeClient(SocketPackage client)</code></b>
 	 * 
@@ -150,12 +135,12 @@ public class Server implements Closeable {
 	 * @throws NullPointerException
 	 *             If <code>listener</code> is null.
 	 */
-	public void addClientRemovedListener(ClientRemovedListener listener) {
+	public void addClientDisconnectionListener(ClientDisconnectionListener listener) {
 		removers.add(listener);
 	}
 
 	/**
-	 * Removes a <code>ClientRemovedListener</code> to be called on when a
+	 * Removes a <code>ClientDisconnectionListener</code> to be called on when a
 	 * client is removed by <b>
 	 * <code>removeClient(SocketPackage event)</code></b>
 	 * 
@@ -167,7 +152,7 @@ public class Server implements Closeable {
 	 * @throws NullPointerException
 	 *             If <code>listener</code> is null.
 	 */
-	public boolean removeClientRemovedListener(ClientRemovedListener listener) {
+	public boolean removeClientDisconnectionListener(ClientDisconnectionListener listener) {
 		return removers.remove(listener);
 	}
 
@@ -189,95 +174,22 @@ public class Server implements Closeable {
 		refresh();
 		SocketAddress[] addresses = new SocketAddress[clients.size()];
 		for (int i = 0; i < clients.size(); i++) {
-			addresses[i] = clients.get(i).getSocket().getRemoteSocketAddress();
+			addresses[i] = clients.get(i).getConnection().getRemoteSocketAddress();
 		}
 
 		return addresses;
 	}
 
 	/**
-	 * Gets every <code>RefreshListener</code> added with <b>
-	 * <code>addRefreshListener(RefreshListener listener)</code></b>.
+	 * Gets every <code>ClientDisconnectionListener</code> added with <b>
+	 * <code>addClientDisconnectionListener(ClientDisconnectionListener)</code>
+	 * </b>.
 	 * 
-	 * @return RefreshListener[] - The array containing the RefreshListeners.
-	 */
-	public RefreshListener[] getRefreshListeners() {
-		RefreshListener[] listeners = new RefreshListener[refreshers.size()];
-
-		for (int i = 0; i < refreshers.size() - 1; i++) {
-			listeners[i] = refreshers.get(i);
-		}
-
-		return listeners;
-	}
-
-	/**
-	 * Gets every <code>ClientRemovedListener</code> added with <b>
-	 * <code>addClientRemovedListener(ClientRemovedListener)</code></b>.
-	 * 
-	 * @return ClientRemovedListener[] - The array containing the
+	 * @return ClientDisconnectionListener[] - The array containing the
 	 *         ClientRemovedListeners.
 	 */
-	public ClientRemovedListener[] getSocketRemovedListeners() {
-		ClientRemovedListener[] listeners = new ClientRemovedListener[refreshers.size()];
-
-		for (int i = 0; i < removers.size() - 1; i++) {
-			listeners[i] = removers.get(i);
-		}
-
-		return listeners;
-	}
-
-	/**
-	 * Launches a new thread so a new client can connect.
-	 */
-	private void launchNewThread() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// wait until a client disconnects if the maximum amount of
-					// clients is full
-					while (clients.size() == maxClients) {
-						Thread.sleep(20);
-					}
-					Socket client = Server.this.server.accept();
-
-					AdvancedInputStream in = new AdvancedInputStream(client.getInputStream());
-					AdvancedOutputStream out = new AdvancedOutputStream(client.getOutputStream());
-
-					final SocketPackage event = new SocketPackage(client, in, out, Server.this);
-
-					refresh();
-					clients.add(event);
-					refresh();
-
-					// sets saved data
-					for (SavedData data : savedData)
-						if (event == data.pkg)
-							event.setExtraData(data.data);
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								thread.clientConnected(event);
-
-								// remove client after thread terminates
-								if (clients.contains(event))
-									removeClient(event);
-							} catch (IOException e) {
-								Thread.currentThread().getUncaughtExceptionHandler()
-										.uncaughtException(Thread.currentThread(), e);
-							}
-						}
-					}).start();
-
-					launchNewThread();
-				} catch (Exception ioe) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), ioe);
-				}
-			}
-		}).start();
+	public ClientDisconnectionListener[] getClientDisconnectionListeners() {
+		return removers.toArray(new ClientDisconnectionListener[removers.size()]);
 	}
 
 	/**
@@ -334,7 +246,7 @@ public class Server implements Closeable {
 	 * was not already closed.
 	 * 
 	 * @param client
-	 *            - The ConnectionEvent.
+	 *            - The SocketPackage of the client.
 	 * 
 	 * @returns boolean - If the client was actually in the server's
 	 *          {@code List <SocketPackage> }
@@ -342,27 +254,29 @@ public class Server implements Closeable {
 	 *             If there is an error closing the client if it is not already
 	 *             closed.
 	 */
-	public boolean removeClient(SocketPackage client) throws IOException {
+	public void removeClient(SocketPackage client) throws IOException {
 		if (clients.contains(client)) {
 			clients.remove(client);
 
-			if (!client.getSocket().isClosed())
-				client.getSocket().close();
-			for (ClientRemovedListener listener : removers) {
-				listener.clientRemoved(client);
+			refresh();
+			if (!client.getConnection().isClosed())
+				client.getConnection().close();
+			if (client.getHoldingThread().isAlive())
+				client.getHoldingThread().interrupt();
+
+			for (ClientDisconnectionListener listener : removers) {
+				listener.clientDisconnected(client);
 			}
-		} else {
-			return false;
+
+			refresh();
 		}
-		refresh();
-		return true;
 	}
 
 	/**
 	 * Removes the client from the server's list of clients and closes it if it
 	 * was not already closed.
 	 * 
-	 * @param client
+	 * @param addr
 	 *            - The client's address.
 	 * 
 	 * @returns boolean - If the client was actually in the server's
@@ -372,24 +286,8 @@ public class Server implements Closeable {
 	 *             If there is an error closing the client if it is not already
 	 *             closed.
 	 */
-	public boolean removeClient(SocketAddress client) throws IOException {
-		boolean legit = false;
-		refresh();
-		for (SocketPackage evt : clients) {
-			if (evt.getSocket().getRemoteSocketAddress().toString().equals(client.toString())) {
-				legit = true;
-				clients.remove(client);
-
-				if (!evt.getSocket().isClosed())
-					evt.getSocket().close();
-				evt = new SocketPackage(evt.getSocket(), evt.getInputStream(), evt.getOutputStream(), this);
-				for (ClientRemovedListener listener : removers) {
-					listener.clientRemoved(evt);
-				}
-			}
-		}
-		refresh();
-		return legit;
+	public void removeClient(SocketAddress addr) throws IOException {
+		removeClient(getClient(addr));
 	}
 
 	/**
@@ -405,7 +303,7 @@ public class Server implements Closeable {
 	 */
 	public SocketPackage getClient(SocketAddress addr) {
 		for (SocketPackage evt : clients) {
-			if (evt.getSocket().getRemoteSocketAddress().toString().equals(addr.toString()))
+			if (evt.getConnection().getRemoteSocketAddress().toString().equals(addr.toString()))
 				return evt;
 		}
 		return null;
@@ -426,7 +324,7 @@ public class Server implements Closeable {
 	 */
 	public SocketPackage getClient(Socket socket) {
 		for (SocketPackage evt : clients) {
-			if (evt.getSocket().equals(socket))
+			if (evt.getConnection().equals(socket))
 				return evt;
 		}
 		return null;
@@ -451,13 +349,8 @@ public class Server implements Closeable {
 				evts.add(clients.get(i));
 			}
 		}
-		SocketPackage[] pkg = new SocketPackage[evts.size()];
-		int i = 0;
-		for (SocketPackage pack : evts) {
-			if (pack != null)
-				pkg[i++] = pack;
-		}
-		return pkg;
+
+		return evts.toArray(new SocketPackage[evts.size()]);
 	}
 
 	/**
@@ -490,21 +383,16 @@ public class Server implements Closeable {
 
 		for (int i = 0; i < clients.size(); i++) {
 			try {
-				data = clients.get(i).getExtraData()[index].getClass().cast(data);
-				if (clients.get(i).getExtraData()[index].equals(data) || clients.get(i).getExtraData()[index] == data) {
+				data = clients.get(i).getExtraData()[index].getClass();
+				if (Objects.equals(clients.get(i).getExtraData()[index], data)) {
 					evts.add(clients.get(i));
 				}
 			} catch (ArrayIndexOutOfBoundsException ex) {
 				continue;
 			}
 		}
-		SocketPackage[] pkg = new SocketPackage[evts.size()];
-		int i = 0;
-		for (SocketPackage pack : evts) {
-			if (pack != null)
-				pkg[i++] = pack;
-		}
-		return pkg;
+
+		return evts.toArray(new SocketPackage[evts.size()]);
 	}
 
 	/**
@@ -512,19 +400,17 @@ public class Server implements Closeable {
 	 * {@code List<SocketPackage>}.
 	 **/
 	public void refresh() {
-		ArrayList<Socket> closedClients = new ArrayList<Socket>();
+		ArrayList<Connection> closedClients = new ArrayList<>();
 
 		for (SocketPackage ce : clients) {
-			Socket client = ce.getSocket();
+			Connection client = ce.getConnection();
 			if (client.isClosed()) {
-				for (RefreshListener listener : refreshers) {
-					listener.clientDisconnect(ce);
-				}
 				closedClients.add(client);
 			}
 		}
 
-		for (Socket closedClient : closedClients) {
+		// prevent CME
+		for (Connection closedClient : closedClients) {
 			clients.remove(closedClient);
 		}
 	}
@@ -538,32 +424,7 @@ public class Server implements Closeable {
 	 * @see java.net.Socket
 	 */
 	public SocketPackage[] getClients() {
-		refresh();
-		SocketPackage[] clientArray = new SocketPackage[clients.size()];
-
-		for (int i = 0; i < clients.size(); i++) {
-			clientArray[i] = clients.get(i);
-		}
-
-		return clientArray;
-	}
-
-	/**
-	 * Gets the <code>SocketPackage</code> of every connected client.
-	 * 
-	 * @return SocketPackage[] - The array containing the
-	 *         <code>SocketPackage</code> of every connected client.
-	 * 
-	 * @see org.jnetwork.SocketPackage
-	 */
-	public SocketPackage[] getConnectionEvents() {
-		refresh();
-		SocketPackage[] events = new SocketPackage[clients.size()];
-		for (int i = 0; i < clients.size(); i++) {
-			events[i] = clients.get(i);
-		}
-
-		return events;
+		return clients.toArray(new SocketPackage[clients.size()]);
 	}
 
 	/**
@@ -605,6 +466,20 @@ public class Server implements Closeable {
 	}
 
 	/**
+	 * Causes the current thread to block until the server is closed.
+	 * 
+	 * @throws InterruptedException
+	 *             Specified by {@link Object#wait()}.
+	 * 
+	 * @see #getServerSocket()
+	 */
+	public void waitUntilClose() throws InterruptedException {
+		synchronized (closeWaiter) {
+			closeWaiter.wait();
+		}
+	}
+
+	/**
 	 * Closes the <code>ServerSocket</code>.
 	 * 
 	 * @see java.io.Closeable#close()
@@ -612,6 +487,10 @@ public class Server implements Closeable {
 	@Override
 	public void close() throws IOException {
 		server.close();
+
+		synchronized (closeWaiter) {
+			closeWaiter.notifyAll();
+		}
 	}
 
 	/**
@@ -621,6 +500,50 @@ public class Server implements Closeable {
 	@Override
 	public String toString() {
 		return Integer.toString(port);
+	}
+
+	/**
+	 * Launches a new thread so a new client can connect.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private void launchNewThread() throws IOException, InterruptedException {
+		final Socket client = server.accept();
+		// wait until a client disconnects if the maximum amount of
+		// clients is full
+		// TODO synchronize around object to not chew up CPU
+		while (clients.size() == maxClients) {
+			Thread.sleep(20);
+		}
+		final SocketPackage event = new SocketPackage(new Connection(client));
+
+		refresh();
+		clients.add(event);
+		refresh();
+
+		// sets saved data
+		for (SavedData data : savedData)
+			if (event.getConnection().getRemoteSocketAddress().toString()
+					.equals(data.pkg.getConnection().getRemoteSocketAddress().toString()))
+				event.setExtraData(data.data);
+
+		Thread thr = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				thread.clientConnected(event);
+				try {
+					removeClient(event);
+				} catch (IOException e) {
+					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+				}
+			}
+		});
+		event.setHoldingThread(thr);
+		thr.setName("JNetwork-Server-Thread-" + client.getRemoteSocketAddress());
+		thr.start();
+
+		launchNewThread();
 	}
 
 	/**
