@@ -47,7 +47,7 @@ public class ObjectTransferClient {
 			System.err.println("The host doesn't exist!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.err.println("An I/O error occured while connecting to the server.");
+			System.err.println("An I/O error occurred while connecting to the server.");
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			System.err.println("The server sent an object who's type does not exist on this machine.");
