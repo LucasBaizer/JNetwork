@@ -17,6 +17,7 @@ This jar does not require JNetwork Core, but the two are recommended to be used 
 It adds the ability to easily encrypt and decrypt objects. It uses the Apache Commons Codec library.
 
 #Downloads
-JNetwork Core 1.1: https://www.dropbox.com/s/yt6tavaiytmwudy/jnetwork_core-v1.1.jar?dl=1
+JNetwork Core 1.7: https://www.dropbox.com/s/43j3d9q3mjzihzm/jnetwork_core-v1.7.jar?dl=1
 
-JNetwork Crypto 1.0: https://www.dropbox.com/s/3yuyfbefkvh7zu4/jnetwork_crypto-v1.0.jar?dl=1
+JNetwork Crypto 1.0: 
+https://www.dropbox.com/s/x5fbgecglmd9jo0/jnetwork_crypto-v1.0.jar?dl=1
