@@ -9,13 +9,10 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jnetwork.database.Query.HeaderDependency;
+import org.jnetwork.database.DependencyQuery.HeaderDependency;
 
 public class Table implements Serializable {
 	private static final long serialVersionUID = 7406644564523364391L;
@@ -23,7 +20,8 @@ public class Table implements Serializable {
 	private String name;
 	private ColumnHeader[] columnHeaders;
 	private File tableFile;
-	private PrintStream out;
+	private transient PrintStream out;
+	private boolean dropped = false;
 
 	public static Table load(File file) throws IOException {
 		String raw = new String(Files.readAllBytes(file.toPath()), "UTF-8");
@@ -82,19 +80,122 @@ public class Table implements Serializable {
 		this.name = name;
 	}
 
-	public EntrySet query(String request) throws IOException {
-		return query(Query.parseQuery(request));
+	public EntrySet query(String request) throws IOException, QueryException {
+		EntrySet finalSet = new EntrySet();
+		for (Query q : Query.parseQuery(request)) {
+			finalSet.addAll(query(q));
+		}
+		return finalSet;
 	}
 
-	public EntrySet query(Query request) throws IOException {
-		if (request.getAction() == Query.ACTION_ADD) {
-			if (request.getData().length != columnHeaders.length) {
-				throw new QueryException("Request data array length inequal to column headers array length");
-			}
+	public EntrySet query(Query request) throws IOException, QueryException {
+		checkDropped();
 
-			int i = 0;
-			String objectToWrite = "{" + new BigInteger(64, new SecureRandom()).toString(16) + ";";
-			for (String obj : request.getData()) {
+		if (request.getAction() == Query.ACTION_ADD) {
+			String objectToWrite = constructRaw(request);
+			writeEntry("{" + objectToWrite + "}");
+
+			return new EntrySet(asEntry(objectToWrite, null));
+		} else if (request.getAction() == Query.ACTION_REMOVE) {
+			String table = readTable();
+
+			if (request.getIDTarget() != null) {
+				EntryPoint p = getEntryByID(request.getIDTarget(), table);
+
+				StringBuffer buffer = new StringBuffer(table);
+				buffer.replace(p.getStartIndex(), p.getEndIndex(), "");
+
+				Files.write(tableFile.toPath(), buffer.toString().getBytes());
+
+				return new EntrySet(p.getEntry());
+			} else {
+				StringBuffer buffer = new StringBuffer(table);
+
+				EntrySet set = new EntrySet();
+				checkEntries(request, new CriteriaCallback() {
+					@Override
+					public void criteriaMet(Entry entry) {
+						String buf = buffer.toString();
+						int look = buf.indexOf(entry.getEntryID()) - 1;
+						int stop = look + buf.substring(look, table.indexOf('}', look)).length() + 1;
+						buffer.replace(look, stop, "");
+
+						set.addEntry(entry);
+					}
+				}, table);
+
+				Files.write(tableFile.toPath(), buffer.toString().getBytes());
+				return set;
+			}
+		} else if (request.getAction() == Query.ACTION_GET) {
+			EntrySet data = new EntrySet();
+			if (request.getIDTarget() == null) {
+				checkEntries(request, new CriteriaCallback() {
+					@Override
+					public void criteriaMet(Entry entry) {
+						data.addEntry(entry);
+						entry.setQueryTime(System.currentTimeMillis() - request.getQueryTime());
+					}
+				}, readTable());
+			} else {
+				data.addEntry(getEntryByID(request.getIDTarget(), readTable()).getEntry());
+			}
+			return data;
+		} else if (request.getAction() == Query.ACTION_DROP) {
+			this.tableFile.delete();
+			dropped = true;
+		} else if (request.getAction() == Query.ACTION_SET) {
+			String table = readTable();
+
+			if (request.getIDTarget() != null) {
+				EntryPoint entry = getEntryByID(request.getIDTarget(), table);
+
+				StringBuffer buf = new StringBuffer(table);
+				buf.replace(entry.getStartIndex(), entry.getEndIndex(), "");
+				buf.insert(entry.getStartIndex(),
+						"{" + constructRawSet(request, entry.getEntry(), request.getIDTarget()) + "}");
+
+				Files.write(tableFile.toPath(), buf.toString().getBytes());
+				return new EntrySet(entry.getEntry());
+			} else {
+				StringBuffer buffer = new StringBuffer(table);
+
+				EntrySet set = new EntrySet();
+				checkEntries(request, new CriteriaCallback() {
+					@Override
+					public void criteriaMet(Entry entry) throws QueryException {
+						String buf = buffer.toString();
+						int look = buf.indexOf(entry.getEntryID()) - 1;
+						int stop = look + buf.substring(look, table.indexOf('}', look)).length() + 1;
+						String construct = constructRawSet(request, entry, entry.getEntryID());
+
+						buffer.replace(look, stop, "");
+						buffer.insert(look, "{" + construct + "}");
+
+						set.addEntry(entry);
+					}
+				}, table);
+
+				Files.write(tableFile.toPath(), buffer.toString().getBytes());
+				return set;
+			}
+		}
+		return null;
+	}
+
+	private String constructRaw(Query request) throws QueryException {
+		return constructRaw(request, new BigInteger(64, new SecureRandom()).toString(16));
+	}
+
+	private String constructRawSet(Query request, Entry original, String id) throws QueryException {
+		if (request.getData().length != columnHeaders.length) {
+			throw new QueryException("Request data array length inequal to column headers array length");
+		}
+
+		int i = 0;
+		String objectToWrite = id + ";";
+		for (String obj : request.getData()) {
+			if (!obj.equals("*")) {
 				if (isInteger(obj)) {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_INTEGER) {
 						throw new QueryException("Object '" + obj + "' does not follow column storage type: integer");
@@ -109,104 +210,207 @@ public class Table implements Serializable {
 					objectToWrite += "D:";
 				} else {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
-						throw new QueryException("Object '" + obj + "' does not follow column storage type: string");
+						throw new QueryException("Object '" + obj + "' does not follow column "
+								+ columnHeaders[i].getColumnName() + " storage type: string");
 					}
 
 					objectToWrite += "S:";
 				}
 				objectToWrite += obj + ",";
-				i++;
+			} else {
+				objectToWrite += (isInteger(original.getData()[i].toString()) ? "I:"
+						: (isDecimal(original.getData()[i].toString()) ? "D:" : "S:"))
+						+ original.getData()[i].toString().replaceAll("\"", "").replaceAll("'", "") + ",";
 			}
-			writeEntry(objectToWrite.substring(0, objectToWrite.length() - 1) + "}");
-		} else if (request.getAction() == Query.ACTION_GET) {
-			EntrySet data = new EntrySet();
-			Matcher matcher = Pattern.compile("\\{(.+?)\\}").matcher(readTable());
+			i++;
+		}
 
-			for (HeaderDependency dependency : request.getHeaderDependencies()) {
-				boolean exists = false;
-				for (ColumnHeader header : columnHeaders) {
-					if (dependency.getHeader().equals(header.getColumnName())) {
-						exists = true;
-						break;
+		// substring is to remove comma at the end
+		return objectToWrite.substring(0, objectToWrite.length() - 1);
+	}
+
+	private String constructRaw(Query request, String id) throws QueryException {
+		if (request.getData().length != columnHeaders.length) {
+			throw new QueryException("Request data array length inequal to column headers array length");
+		}
+
+		int i = 0;
+		String objectToWrite = id + ";";
+		for (String obj : request.getData()) {
+			if (isInteger(obj)) {
+				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_INTEGER) {
+					throw new QueryException("Object '" + obj + "' does not follow column storage type: integer");
+				}
+
+				objectToWrite += "I:";
+			} else if (isDecimal(obj)) {
+				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
+					throw new QueryException("Object '" + obj + "' does not follow column storage type: decimal");
+				}
+
+				objectToWrite += "D:";
+			} else {
+				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
+					throw new QueryException("Object '" + obj + "' does not follow column "
+							+ columnHeaders[i].getColumnName() + " storage type: string");
+				}
+
+				objectToWrite += "S:";
+			}
+			objectToWrite += obj.replaceAll("\"", "").replaceAll("'", "") + ",";
+			i++;
+		}
+
+		// substring is to remove comma at the end
+		return objectToWrite.substring(0, objectToWrite.length() - 1);
+	}
+
+	private EntryPoint getEntryByID(String targetID, String table) throws QueryException {
+		Matcher matcher = Pattern.compile("\\{(.+?)\\}").matcher(table);
+
+		int startIndex = -1;
+		int endIndex = -1;
+
+		while (matcher.find()) {
+			String entry = matcher.group(1);
+
+			String id = entry.substring(0, entry.indexOf(';'));
+			if (id.equals(targetID)) {
+				startIndex = table.indexOf(entry) - 1;
+				endIndex = startIndex + entry.length() + 2;
+				break;
+			}
+		}
+
+		if (startIndex == -1 || endIndex == -1) {
+			throw new QueryException("No entry with ID: " + targetID);
+		}
+
+		return new EntryPoint(asEntry(table.substring(startIndex + 1, endIndex - 1), null), startIndex, endIndex);
+	}
+
+	private void checkEntries(Query request, CriteriaCallback callback, String table)
+			throws IOException, QueryException {
+		Matcher matcher = Pattern.compile("\\{(.+?)\\}").matcher(table);
+
+		for (HeaderDependency dependency : ((DependencyQuery) request).getHeaderDependencies()) {
+			boolean exists = false;
+			for (ColumnHeader header : columnHeaders) {
+				if (dependency.getHeader().equals(header.getColumnName())) {
+					exists = true;
+					break;
+				}
+			}
+			if (!exists) {
+				throw new QueryException("Invalid header dependency: " + dependency.getHeader());
+			}
+
+			dependency.setValue(
+					isInteger(dependency.getValue().toString()) ? Integer.parseInt(dependency.getValue().toString())
+							: (isDecimal(dependency.getValue().toString())
+									? Double.parseDouble(dependency.getValue().toString())
+									: dependency.getValue().toString()));
+
+			for (ColumnHeader header : columnHeaders) {
+				if (dependency.getHeader().equals(header.getColumnName())) {
+					if (dependency.getValue() instanceof Integer
+							&& header.getStorageType() != ColumnHeader.STORAGE_TYPE_INTEGER) {
+						throw new QueryException("Header dependency value " + dependency.getValue()
+								+ " does not follow " + header.getColumnName() + " storage type: "
+								+ getHeaderType(header.getStorageType()));
+					} else if (dependency.getValue() instanceof Double
+							&& header.getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
+						throw new QueryException("Header dependency value " + dependency.getValue()
+								+ " does not follow " + header.getColumnName() + " storage type: "
+								+ getHeaderType(header.getStorageType()));
+					} else if (header.getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
+						throw new QueryException("Header dependency value " + dependency.getValue()
+								+ " does not follow " + header.getColumnName() + " storage type: "
+								+ getHeaderType(header.getStorageType()));
 					}
 				}
-				if (!exists) {
-					throw new QueryException("Invalid header dependency: " + dependency.getHeader());
-				}
-
-				dependency.setValue(
-						isInteger(dependency.getValue().toString()) ? Integer.parseInt(dependency.getValue().toString())
-								: (isDecimal(dependency.getValue().toString())
-										? Double.parseDouble(dependency.getValue().toString())
-										: dependency.toString()));
-				System.out.println(dependency.getValue().getClass() + ": " + dependency.getValue());
 			}
-			while (matcher.find()) {
-				String[] split = matcher.group(1).split(";");
-				String id = split[0];
-				String content = split[1];
+		}
+		while (matcher.find()) {
+			String raw = matcher.group(1);
+			Entry e = asEntry(raw, ((DependencyQuery) request).getHeaderDependencies());
+			if (e != null) {
+				callback.criteriaMet(e);
+			}
+		}
+	}
 
-				Entry entry = new Entry(id);
-				int i = 0;
-				boolean successful = true;
-				currentElement: for (String element : content.split(",")) {
-					String[] elementSplit = element.split("\\:");
-					String type = elementSplit[0];
-					String value = elementSplit[1];
+	private String getHeaderType(int type) {
+		return type == ColumnHeader.STORAGE_TYPE_INTEGER ? "integer"
+				: type == ColumnHeader.STORAGE_TYPE_DECIMAL ? "decimal" : "string";
+	}
 
-					ColumnHeader col = columnHeaders[i];
-					Serializable sValue = null;
-					if (type.equals("I")) {
-						entry.setData(col.getColumnName(), sValue = Integer.parseInt(value));
-					} else if (type.equals("D")) {
-						entry.setData(col.getColumnName(), sValue = Double.parseDouble(value));
-					} else if (type.equals("S")) {
-						entry.setData(col.getColumnName(), sValue = value);
-					}
+	private Entry asEntry(String raw, HeaderDependency[] dependencies) {
+		String id = raw.substring(0, raw.indexOf(';'));
+		String content = raw.substring(raw.indexOf(';') + 1, raw.length());
 
-					for (HeaderDependency dependency : request.getHeaderDependencies()) {
+		Entry entry = new Entry(id);
+		int i = 0;
+		for (String element : content.split(",")) {
+			String[] elementSplit = element.split("\\:");
+			String type = elementSplit[0];
+			String value = elementSplit[1];
+
+			ColumnHeader col = columnHeaders[i];
+			Serializable sValue = null;
+			if (type.equals("I")) {
+				entry.setData(col.getColumnName(), sValue = Integer.parseInt(value));
+			} else if (type.equals("D")) {
+				entry.setData(col.getColumnName(), sValue = Double.parseDouble(value));
+			} else if (type.equals("S")) {
+				entry.setData(col.getColumnName(), sValue = value);
+			}
+			if (dependencies != null) {
+				for (HeaderDependency dependency : dependencies) {
+					if ((dependency.getValue().toString().startsWith("\"")
+							&& dependency.getValue().toString().endsWith("\""))
+							|| (dependency.getValue().toString().startsWith("'")
+									&& dependency.getValue().toString().endsWith("'"))) {
+						String dValue = dependency.getValue().toString().replaceAll("\"", "").replaceAll("'", "");
+						if (dependency.getAction() == HeaderDependency.ACTION_EQUALS
+								&& dependency.getHeader().equals(col.getColumnName()) && !dValue.equals(sValue)) {
+							return null;
+						} else if (dependency.getAction() == HeaderDependency.ACTION_NOT_EQUALS
+								&& dependency.getHeader().equals(col.getColumnName()) && dValue.equals(sValue)) {
+							return null;
+						} else if (dependency.getAction() == HeaderDependency.ACTION_CONTAINS
+								&& dependency.getHeader().equals(col.getColumnName())
+								&& !sValue.toString().contains(dValue)) {
+							return null;
+						} else if (dependency.getAction() == HeaderDependency.ACTION_NOT_CONTAINS
+								&& dependency.getHeader().equals(col.getColumnName())
+								&& sValue.toString().contains(dValue)) {
+							return null;
+						}
+					} else {
 						if (dependency.getAction() == HeaderDependency.ACTION_EQUALS
 								&& dependency.getHeader().equals(col.getColumnName())
-								&& (isPrimitive(dependency.getValue().getClass()) ? dependency.getValue() == sValue
-										: !dependency.getValue().equals(sValue))) {
-							successful = false;
-							break currentElement;
+								&& !dependency.getValue().equals(sValue)) {
+							return null;
 						} else if (dependency.getAction() == HeaderDependency.ACTION_NOT_EQUALS
 								&& dependency.getHeader().equals(col.getColumnName())
-								&& (isPrimitive(dependency.getValue().getClass()) ? dependency.getValue() == sValue
-										: dependency.getValue().equals(sValue))) {
-							successful = false;
-							break currentElement;
+								&& dependency.getValue().equals(sValue)) {
+							return null;
 						} else if (dependency.getAction() == HeaderDependency.ACTION_CONTAINS
 								&& dependency.getHeader().equals(col.getColumnName())
 								&& !sValue.toString().contains(dependency.getValue().toString())) {
-							successful = false;
-							break currentElement;
+							return null;
 						} else if (dependency.getAction() == HeaderDependency.ACTION_NOT_CONTAINS
 								&& dependency.getHeader().equals(col.getColumnName())
 								&& sValue.toString().contains(dependency.getValue().toString())) {
-							successful = false;
-							break currentElement;
+							return null;
 						}
 					}
-					i++;
-				}
-				if (successful) {
-					data.addEntry(entry);
-					entry.setQueryTime(System.currentTimeMillis() - request.getQueryTime());
 				}
 			}
-
-			return data;
+			i++;
 		}
-		return null;
-	}
-
-	private static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(Arrays.asList(Boolean.class,
-			Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class));
-
-	public static boolean isPrimitive(Class<?> clazz) {
-		return WRAPPER_TYPES.contains(clazz);
+		return entry;
 	}
 
 	private String readTable() throws IOException {
@@ -219,6 +423,9 @@ public class Table implements Serializable {
 
 	private boolean isInteger(String str) {
 		if (str == null) {
+			return false;
+		}
+		if ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))) {
 			return false;
 		}
 		int length = str.length();
@@ -243,6 +450,9 @@ public class Table implements Serializable {
 
 	private boolean isDecimal(String str) {
 		if (str == null) {
+			return false;
+		}
+		if ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))) {
 			return false;
 		}
 		int length = str.length();
@@ -271,5 +481,10 @@ public class Table implements Serializable {
 			}
 		}
 		return true;
+	}
+
+	private void checkDropped() throws QueryException {
+		if (dropped)
+			throw new QueryException("Cannot modify a dropped table");
 	}
 }
