@@ -23,4 +23,4 @@ JNetwork Crypto:
 https://www.dropbox.com/s/x5fbgecglmd9jo0/jnetwork_crypto-v1.0.jar?dl=1
 
 #License
-Under the jurisdiction of the [GNU Open Source License](LICENSE.md). 
+Under the jurisdiction of the [GNU General Public License](LICENSE.md). 
