@@ -1,5 +1,6 @@
+package example;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.SocketAddress;
 
 import org.jnetwork.AdvancedInputStream;
@@ -8,7 +9,7 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.DataPackage;
 import org.jnetwork.Server;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.event.ClientConnectionListener;
+import org.jnetwork.listener.ClientConnectionListener;
 
 /**
  * This class sends an object to each client that connects and then reads an
@@ -32,7 +33,7 @@ public class ObjectTransferServer implements ClientConnectionListener {
 	@Override
 	public void clientConnected(SocketPackage event) {
 		// gets the IP address of the client
-		SocketAddress address = event.getSocket().getRemoteSocketAddress();
+		SocketAddress address = event.getConnection().getRemoteSocketAddress();
 
 		// gets the output stream of the client, which data will be written out
 		// to

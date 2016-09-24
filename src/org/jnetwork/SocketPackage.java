@@ -1,9 +1,5 @@
 package org.jnetwork;
 
-import java.math.BigInteger;
-import java.net.Socket;
-import java.security.SecureRandom;
-
 /**
  * (Functionally) a struct used to store all the data created when a client
  * connects to a server.
