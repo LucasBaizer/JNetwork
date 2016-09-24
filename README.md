@@ -5,9 +5,9 @@ and passing objects and files between servers and clients. It also has a lightwe
 All jars have a built-in source attachment.
 
 #Downloads
-[JNetwork Core](libs/jnetwork-core.jar)
-[JNetwork Crypto](libs/jnetwork-crypto.jar)
-[JNetwork Database](libs/jnetwork-database.jar)
+[JNetwork Core](libs/jnetwork-core.jar)<br>
+[JNetwork Crypto](libs/jnetwork-crypto.jar)<br>
+[JNetwork Database](libs/jnetwork-database.jar)<br>
 
 #License
 Under the jurisdiction of the [GNU General Public License](LICENSE.md). 
