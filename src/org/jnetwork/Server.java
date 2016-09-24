@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
-
-import javax.net.ssl.SSLServerSocketFactory;
 
 import org.jnetwork.listener.ClientConnectionListener;
 import org.jnetwork.listener.ClientDisconnectionListener;
@@ -81,7 +80,7 @@ public class Server implements Closeable {
 		if (clientSocketThread == null)
 			throw new NullPointerException("ClientConnectionListener is null");
 
-		this.server = SSLServerSocketFactory.getDefault().createServerSocket(port);
+		this.server = new ServerSocket(port);
 		this.thread = clientSocketThread;
 		this.port = port;
 	}
@@ -509,7 +508,16 @@ public class Server implements Closeable {
 	 * @throws InterruptedException
 	 */
 	private void launchNewThread() throws IOException, InterruptedException {
-		final Socket client = server.accept();
+		final Socket client;
+		try {
+			client = server.accept();
+		} catch (SocketException e) {
+			if (e.getMessage().equals("socket closed")) {
+				return;
+			} else {
+				throw e;
+			}
+		}
 		// wait until a client disconnects if the maximum amount of
 		// clients is full
 		// TODO synchronize around object to not chew up CPU

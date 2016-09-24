@@ -8,7 +8,7 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.SocketFactory;
 
 /**
  * A class used for writing objects out to and reading objects from a server.
@@ -76,7 +76,7 @@ public class Connection implements Closeable {
 			throw new NullPointerException();
 
 		if (connectNow) {
-			this.connection = SSLSocketFactory.getDefault().createSocket(host, port);
+			this.connection = SocketFactory.getDefault().createSocket(host, port);
 			this.out = new AdvancedOutputStream(connection.getOutputStream());
 			this.in = new AdvancedInputStream(connection.getInputStream());
 		} else {

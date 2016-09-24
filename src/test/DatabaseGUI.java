@@ -60,7 +60,7 @@ public class DatabaseGUI extends JPanel {
 			}
 		});
 
-		if (DatabaseStatus.getDatabase().getTable() != null) {
+		if (DatabaseStatus.getDatabase() != null) {
 			try {
 				setTable(DatabaseStatus.getDatabase().getTable());
 			} catch (IOException e1) {
