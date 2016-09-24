@@ -198,13 +198,16 @@ public class Table implements Serializable {
 			if (!obj.equals("*")) {
 				if (isInteger(obj)) {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_INTEGER) {
-						throw new QueryException("Object '" + obj + "' does not follow column storage type: integer");
+						System.out.println();
+						throw new QueryException("Object '" + obj + "' does not follow "
+								+ columnHeaders[i].getColumnName() + " storage type: integer");
 					}
 
 					objectToWrite += "I:";
 				} else if (isDecimal(obj)) {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
-						throw new QueryException("Object '" + obj + "' does not follow column storage type: decimal");
+						throw new QueryException("Object '" + obj + "' does not follow "
+								+ columnHeaders[i].getColumnName() + " storage type: decimal");
 					}
 
 					objectToWrite += "D:";
@@ -239,13 +242,15 @@ public class Table implements Serializable {
 		for (String obj : request.getData()) {
 			if (isInteger(obj)) {
 				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_INTEGER) {
-					throw new QueryException("Object '" + obj + "' does not follow column storage type: integer");
+					throw new QueryException("Object '" + obj + "' does not follow " + columnHeaders[i].getColumnName()
+							+ " storage type: integer");
 				}
 
 				objectToWrite += "I:";
 			} else if (isDecimal(obj)) {
 				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
-					throw new QueryException("Object '" + obj + "' does not follow column storage type: decimal");
+					throw new QueryException("Object '" + obj + "' does not follow " + columnHeaders[i].getColumnName()
+							+ " storage type: decimal");
 				}
 
 				objectToWrite += "D:";
@@ -323,7 +328,10 @@ public class Table implements Serializable {
 						throw new QueryException("Header dependency value " + dependency.getValue()
 								+ " does not follow " + header.getColumnName() + " storage type: "
 								+ getHeaderType(header.getStorageType()));
-					} else if (header.getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
+					} else if ((!(dependency.getValue() instanceof Integer)
+							&& !(dependency.getValue() instanceof Double))
+							&& header.getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
+						System.out.println(header.getStorageType());
 						throw new QueryException("Header dependency value " + dependency.getValue()
 								+ " does not follow " + header.getColumnName() + " storage type: "
 								+ getHeaderType(header.getStorageType()));

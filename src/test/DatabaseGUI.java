@@ -169,6 +169,7 @@ public class DatabaseGUI extends JPanel {
 					query(lastQuery.toLowerCase().startsWith("get") ? lastQuery : "GET");
 				} catch (QueryException e1) {
 					JOptionPane.showMessageDialog(null, e1.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
