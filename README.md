@@ -19,5 +19,8 @@ It adds the ability to easily encrypt and decrypt objects. It uses the Apache Co
 #Downloads
 JNetwork Core 1.7: https://www.dropbox.com/s/43j3d9q3mjzihzm/jnetwork_core-v1.7.jar?dl=1
 
-JNetwork Crypto 1.0: 
+JNetwork Crypto: 
 https://www.dropbox.com/s/x5fbgecglmd9jo0/jnetwork_crypto-v1.0.jar?dl=1
+
+#License
+Under the jurisdiction of the [GNU General Public License](LICENSE.md). 
