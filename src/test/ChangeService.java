@@ -65,6 +65,12 @@ public class ChangeService {
 	public void commitChanges() throws IOException, QueryException {
 		int r = 0;
 		int c = 0;
+		int a = 0;
+		DatabaseGUI.getGUI().setIgnoreChanges(true);
+
+		for (Change change : changes) {
+			DatabaseGUI.getGUI().clearChangeColors(DatabaseService.getDatabase().indexOf(change.getEntryID()));
+		}
 		for (Change change : changes) {
 			if (change.getChange() == Change.SET) {
 				table.query("SET ENTRY " + change.getEntryID() + " TO [" + change.getChangeString() + "] IN "
@@ -73,10 +79,14 @@ public class ChangeService {
 			} else if (change.getChange() == Change.REMOVE) {
 				table.query("REMOVE ENTRY " + change.getEntryID() + " IN " + table.getName());
 				r++;
+			} else if (change.getChange() == Change.ADD) {
+				table.query("ADD [" + change.getChangeString() + "] IN " + table.getName());
+				a++;
 			}
 		}
-		DatabaseGUI.getGUI().setStatus("Changed " + (r + c) + " entr" + ((r + c) > 1 ? "ies" : "y") + " (" + c
-				+ " changed and " + r + " removed).");
+		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c) > 1 ? "ies" : "y") + " (" + c
+				+ " changed, " + r + " removed, and " + a + " added).");
+		DatabaseGUI.getGUI().setIgnoreChanges(false);
 		changes.clear();
 	}
 }

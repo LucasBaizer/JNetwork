@@ -41,7 +41,9 @@ public class Table implements Serializable {
 			headers.add(new ColumnHeader(data[1], Integer.parseInt(data[0])));
 		}
 
-		return new Table(tableName, headers.toArray(new ColumnHeader[headers.size()]));
+		Table table = new Table(tableName, headers.toArray(new ColumnHeader[headers.size()]));
+		table.out = new PrintStream(new FileOutputStream(table.tableFile, true));
+		return table;
 	}
 
 	public Table(String name, ColumnHeader[] columnHeaders) throws IOException {
@@ -494,5 +496,9 @@ public class Table implements Serializable {
 	private void checkDropped() throws QueryException {
 		if (dropped)
 			throw new QueryException("Cannot modify a dropped table");
+	}
+
+	public File getTableFile() {
+		return tableFile;
 	}
 }

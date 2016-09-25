@@ -63,8 +63,11 @@ public class CommitChangesWindow extends JDialog {
 					}
 				});
 				box.setSelected(true);
-				JLabel label = new JLabel((change.getChange() == Change.REMOVE ? "Removed" : "Changed") + " entry "
-						+ change.getEntryID() + (change.getChange() == Change.SET ? " from: " : "."));
+				JLabel label = new JLabel((change.getChange() == Change.REMOVE ? "Removed"
+						: change.getChange() == Change.SET ? "Changed" : "Added") + " entry "
+						+ (change.getChange() != Change.ADD ? change.getEntryID() : "")
+						+ (change.getChange() == Change.SET ? " from:"
+								: change.getChange() == Change.REMOVE ? "." : "so:"));
 				label.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseReleased(MouseEvent e) {
@@ -96,6 +99,18 @@ public class CommitChangesWindow extends JDialog {
 										: current.toString())
 								+ "<br>";
 						col++;
+					}
+
+					JLabel t = new JLabel(text + "</html>");
+					c.gridy++;
+					add(t, c);
+					c.gridy++;
+				} else if (change.getChange() == Change.ADD) {
+					int col = 0;
+					text = "<html>Data:<br>";
+					for (Serializable previous : change.getData()) {
+						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col++].getColumnName() + ": "
+								+ previous.toString() + "<br>";
 					}
 
 					JLabel t = new JLabel(text + "</html>");

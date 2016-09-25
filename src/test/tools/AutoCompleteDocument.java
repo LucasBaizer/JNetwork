@@ -24,7 +24,7 @@ import javax.swing.text.BadLocationException;
 
 import org.jnetwork.database.Entry;
 
-import test.DatabaseStatus;
+import test.DatabaseService;
 import test.Main;
 
 public class AutoCompleteDocument implements DocumentListener {
@@ -77,7 +77,7 @@ public class AutoCompleteDocument implements DocumentListener {
 				String idStart = content.substring(content.lastIndexOf(' ') + 1);
 
 				ArrayList<String> possibleIDs = new ArrayList<>();
-				for (Entry entry : DatabaseStatus.getDatabase().getEntrySet()) {
+				for (Entry entry : DatabaseService.getDatabase().getEntrySet()) {
 					if (idStart.isEmpty() || entry.getEntryID().startsWith(idStart)) {
 						possibleIDs.add(entry.getEntryID());
 					}

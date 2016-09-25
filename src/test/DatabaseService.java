@@ -1,12 +1,14 @@
 package test;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.jnetwork.database.Entry;
 import org.jnetwork.database.EntrySet;
 import org.jnetwork.database.Table;
 
-public class DatabaseStatus {
-	private static DatabaseStatus theStatus;
+public class DatabaseService {
+	private static DatabaseService theStatus;
 	private static final File cache = new File("db.cache");
 	private static final CacheService<Table> cacheService = new CacheService<>();
 
@@ -19,16 +21,20 @@ public class DatabaseStatus {
 		}
 	}
 
-	private DatabaseStatus(Table table) {
+	private DatabaseService(Table table) {
 		this.setTable(table);
 	}
 
-	public static DatabaseStatus getDatabase() {
+	public static DatabaseService getDatabase() {
 		return theStatus;
 	}
 
 	public static void setDatabase(Table table) {
-		DatabaseStatus.theStatus = new DatabaseStatus(table);
+		try {
+			DatabaseService.theStatus = new DatabaseService(Table.load(table.getTableFile()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Table getTable() {
@@ -47,5 +53,16 @@ public class DatabaseStatus {
 
 	public void setEntries(EntrySet entries) {
 		this.entries = entries;
+	}
+
+	public int indexOf(String entry) {
+		int i = 0;
+		for (Entry e : entries) {
+			if (e.getEntryID().equals(entry)) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
 	}
 }

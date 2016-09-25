@@ -46,5 +46,10 @@ public class FileMenu extends ApplicationMenu {
 				}
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK), "GreenArrow");
+		add(new AbstractAction("Pull") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK), "GreenArrow_Down");
 	}
 }

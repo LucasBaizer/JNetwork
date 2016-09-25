@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Change {
 	public static final int REMOVE = 0;
 	public static final int SET = 1;
+	public static final int ADD = 2;
 
 	private int change;
 	private String entryID;
@@ -69,6 +70,8 @@ public class Change {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Change) {
+			if (this.entryID == null || ((Change) o).entryID == null)
+				return false;
 			return ((Change) o).entryID.equals(this.entryID);
 		}
 		return false;

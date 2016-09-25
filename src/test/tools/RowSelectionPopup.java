@@ -15,7 +15,7 @@ import org.jnetwork.database.Entry;
 import test.Change;
 import test.ChangeService;
 import test.DatabaseGUI;
-import test.DatabaseStatus;
+import test.DatabaseService;
 import test.RowPropertiesWindow;
 
 public class RowSelectionPopup extends ApplicationPopupMenu {
@@ -41,7 +41,7 @@ public class RowSelectionPopup extends ApplicationPopupMenu {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				RowPropertiesWindow window = new RowPropertiesWindow(DatabaseStatus.getDatabase().getTable(), entry);
+				RowPropertiesWindow window = new RowPropertiesWindow(DatabaseService.getDatabase().getTable(), entry);
 				window.open();
 			}
 		}));

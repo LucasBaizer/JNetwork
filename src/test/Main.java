@@ -29,7 +29,7 @@ public class Main {
 	public static final JFrame MAIN_FRAME = new JFrame("Database Editor");
 
 	public static void main(String[] args) {
-		DatabaseStatus.loadFromCache();
+		DatabaseService.loadFromCache();
 
 		MAIN_FRAME.add(new DatabaseGUI());
 		MAIN_FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
