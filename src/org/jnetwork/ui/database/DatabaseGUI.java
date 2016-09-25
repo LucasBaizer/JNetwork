@@ -65,9 +65,15 @@ public class DatabaseGUI extends JPanel {
 				e1.printStackTrace();
 			}
 		} else {
-			mainPanel.add(new JLabel("<html>No table loaded. To start, either:<br></html>"));
+			mainPanel.add(new JLabel("<html>No table loaded. To start, either:<br>" + htmlSpace(4)
+					+ "\"File -> New\" to create a new table.<br>" + htmlSpace(4)
+					+ "\"File -> Open\" to open an existing table.</html>"));
 			add(mainPanel);
 		}
+	}
+
+	private String htmlSpace(int times) {
+		return new String(new char[times]).replaceAll("\0", "&nbsp;");
 	}
 
 	public void setTable(Table load) throws IOException {
