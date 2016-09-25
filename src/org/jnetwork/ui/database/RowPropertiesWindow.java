@@ -1,49 +1,39 @@
 package org.jnetwork.ui.database;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.jnetwork.database.ColumnHeader;
 import org.jnetwork.database.Entry;
 import org.jnetwork.database.Table;
 
-public class RowPropertiesWindow extends JDialog {
+public class RowPropertiesWindow extends ApplicationWindow {
 	private static final long serialVersionUID = -5096508335843221830L;
 
 	private Table table;
 	private Entry entry;
 
 	public RowPropertiesWindow(Table table, Entry entry) {
-		super(Main.MAIN_FRAME);
+		super("Entry Properties");
 
 		this.table = table;
 		this.entry = entry;
 	}
 
-	public void open() {
-		setTitle("Entry Properties");
-		add(new RowPropertiesWindowContent());
-		setVisible(true);
-		pack();
-	}
-
-	private class RowPropertiesWindowContent extends JPanel {
+	private class RowPropertiesWindowContent extends IPanel {
 		private static final long serialVersionUID = -933193607338792285L;
 
 		private GridBagConstraints c = new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTHWEST,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0);
 
 		public RowPropertiesWindowContent() {
-			super(new GridBagLayout());
+			super();
 
 			add("Entry ID: " + entry.getEntryID(), entry.getEntryID(), 0, 0);
 			c.insets = new Insets(0, 5, 1, 0);
@@ -75,5 +65,10 @@ public class RowPropertiesWindow extends JDialog {
 			c.gridx = 0;
 			c.gridy = 0;
 		}
+	}
+
+	@Override
+	public IPanel getApplicationPanel() {
+		return new RowPropertiesWindowContent();
 	}
 }

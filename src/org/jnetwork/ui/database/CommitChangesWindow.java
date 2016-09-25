@@ -1,7 +1,7 @@
 package org.jnetwork.ui.database;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,25 +23,18 @@ import javax.swing.JScrollPane;
 import org.jnetwork.database.QueryException;
 import org.jnetwork.database.Table;
 
-public class CommitChangesWindow extends JDialog {
+public class CommitChangesWindow extends ApplicationWindow {
 	private static final long serialVersionUID = 2706595842679383918L;
 
 	private Table table;
 
 	public CommitChangesWindow(Table table) {
-		super(Main.MAIN_FRAME);
+		super("Commit Changes");
 
 		this.table = table;
 	}
 
-	public void open() {
-		setTitle("Commit Changes");
-		add(new JScrollPane(new CommitChangesWindowContent()));
-		setVisible(true);
-		pack();
-	}
-
-	private class CommitChangesWindowContent extends JPanel {
+	private class CommitChangesWindowContent extends JScrollPane {
 		private static final long serialVersionUID = -933193607338792285L;
 
 		private GridBagConstraints c = new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTHWEST,
@@ -51,7 +43,7 @@ public class CommitChangesWindow extends JDialog {
 		private ArrayList<Change> changesToNotCommit = new ArrayList<>();
 
 		public CommitChangesWindowContent() {
-			super(new GridBagLayout());
+			JPanel panel = new JPanel();
 
 			for (Change change : ChangeService.getService().getChanges()) {
 				JCheckBox box = new JCheckBox();
@@ -66,10 +58,12 @@ public class CommitChangesWindow extends JDialog {
 					}
 				});
 				box.setSelected(true);
-				JLabel label = new JLabel((change.getChange() == Change.REMOVE ? "Removed"
-						: change.getChange() == Change.SET ? "Changed" : "Added") + " entry "
-						+ (change.getChange() != Change.ADD ? change.getEntryID() : "")
-						+ (change.getChange() == Change.SET ? ":" : change.getChange() == Change.REMOVE ? "." : "so:"));
+				JLabel label = new JLabel("<html>"
+						+ (change.getChange() == Change.REMOVE ? "Removed"
+								: change.getChange() == Change.SET ? "Changed" : "Added")
+						+ " entry " + (change.getChange() != Change.ADD ? change.getEntryID() : "")
+						+ (change.getChange() == Change.SET ? ":"
+								: change.getChange() == Change.REMOVE ? "." : "so:<br>"));
 				label.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseReleased(MouseEvent e) {
@@ -78,21 +72,20 @@ public class CommitChangesWindow extends JDialog {
 					}
 				});
 
-				JPanel panel = new JPanel();
-				panel.add(box);
-				panel.add(label);
-				add(panel, c);
+				JPanel p2 = new JPanel();
+				p2.add(box);
+				panel.add(p2, c);
 
 				c.insets = new Insets(5, 50, 0, 5);
 				String text = "";
 				if (change.getChange() == Change.SET) {
 					int col = 0;
-					text = "<html>From:<br>";
+					text = "&nbsp;&nbsp;From:<br>";
 					for (Serializable previous : change.getOriginalData()) {
 						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col++].getColumnName() + ": "
 								+ previous.toString() + "<br>";
 					}
-					text += "To:<br>";
+					text += "&nbsp;&nbsp;To:<br>";
 					col = 0;
 					for (Serializable current : change.getData()) {
 						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col].getColumnName()
@@ -103,25 +96,19 @@ public class CommitChangesWindow extends JDialog {
 						col++;
 					}
 
-					JLabel t = new JLabel(text + "</html>");
-					c.gridy++;
-					add(t, c);
-					c.gridy++;
+					label.setText(label.getText() + text + "</html>");
 				} else if (change.getChange() == Change.ADD) {
 					int col = 0;
-					text = "<html>Data:<br>";
+					text = "&nbsp;&nbsp;Data:<br>";
 					for (Serializable previous : change.getData()) {
 						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col++].getColumnName() + ": "
 								+ previous.toString() + "<br>";
 					}
 
-					JLabel t = new JLabel(text + "</html>");
-					c.gridy++;
-					add(t, c);
-					c.gridy++;
-				} else {
-					c.gridy++;
+					label.setText(label.getText() + text + "</html>");
 				}
+				c.gridy++;
+				panel.add(label);
 				c.insets = new Insets(5, 5, 0, 5);
 			}
 
@@ -166,7 +153,14 @@ public class CommitChangesWindow extends JDialog {
 				}
 			});
 
-			add(buttonPanel, c);
+			panel.add(buttonPanel, c);
+
+			getViewport().setView(panel);
 		}
+	}
+
+	@Override
+	public Component getApplicationPanel() {
+		return new CommitChangesWindowContent();
 	}
 }

@@ -58,12 +58,15 @@ public class DatabaseGUI extends JPanel {
 			}
 		});
 
-		if (DatabaseService.getDatabase() != null) {
+		if (DatabaseService.getDatabase() != null && DatabaseService.getDatabase().getTable() != null) {
 			try {
 				setTable(DatabaseService.getDatabase().getTable());
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+		} else {
+			mainPanel.add(new JLabel("<html>No table loaded. To start, either:<br></html>"));
+			add(mainPanel);
 		}
 	}
 
@@ -90,7 +93,7 @@ public class DatabaseGUI extends JPanel {
 		} catch (QueryException e) {
 			System.out.println(query + " IN " + table.getName());
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(Main.MAIN_FRAME, e.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -136,8 +139,9 @@ public class DatabaseGUI extends JPanel {
 							setCanCommit(true);
 							ignoreChanges = false;
 						} else {
-							JOptionPane.showMessageDialog(null, "You must commit this entry before editing it.",
-									"Error Editing", JOptionPane.WARNING_MESSAGE);
+							JOptionPane.showMessageDialog(Main.MAIN_FRAME,
+									"You must commit this entry before editing it.", "Error Editing",
+									JOptionPane.WARNING_MESSAGE);
 						}
 					}
 				}
@@ -161,7 +165,7 @@ public class DatabaseGUI extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (canCommit) {
-					if (JOptionPane.showConfirmDialog(null,
+					if (JOptionPane.showConfirmDialog(Main.MAIN_FRAME,
 							"Requerying the table will remove your uncommited changes. Continue?",
 							"Discard Uncommited Changes?",
 							JOptionPane.YES_NO_CANCEL_OPTION) != JOptionPane.YES_OPTION) {
@@ -176,7 +180,8 @@ public class DatabaseGUI extends JPanel {
 					table.query(queryField.getText() + " IN " + table.getName());
 					query(lastQuery.toLowerCase().startsWith("get") ? lastQuery : "GET");
 				} catch (QueryException e1) {
-					JOptionPane.showMessageDialog(null, e1.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(Main.MAIN_FRAME, e1.getMessage(), "Error Querying",
+							JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

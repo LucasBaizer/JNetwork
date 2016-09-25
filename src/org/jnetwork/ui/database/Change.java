@@ -10,6 +10,7 @@ public class Change {
 
 	private int change;
 	private String entryID;
+	private String changeID;
 	private ArrayList<Serializable> originalData;
 	private ArrayList<Serializable> data;
 
@@ -18,6 +19,7 @@ public class Change {
 		this.originalData = originalData;
 		this.data = data;
 		this.change = change;
+		this.setChangeID(entryID);
 
 		if (data == null) {
 			this.data = new ArrayList<>();
@@ -70,10 +72,17 @@ public class Change {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Change) {
-			if (this.entryID == null || ((Change) o).entryID == null)
-				return false;
-			return ((Change) o).entryID.equals(this.entryID);
+			return ((Change) o).changeID.equals(this.changeID);
 		}
 		return false;
+	}
+
+	public String getChangeID() {
+		return changeID;
+	}
+
+	public Change setChangeID(String changeID) {
+		this.changeID = changeID;
+		return this;
 	}
 }

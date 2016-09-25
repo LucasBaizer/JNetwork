@@ -3,28 +3,22 @@ package org.jnetwork.ui.database;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jnetwork.database.ColumnHeader;
 
-public class AddEntryWindow extends JDialog {
+public class AddEntryWindow extends ApplicationWindow {
 	private static final long serialVersionUID = -893901275066409320L;
 
 	public AddEntryWindow() {
-		super(Main.MAIN_FRAME);
-	}
-
-	public void open() {
-		setTitle("Add Entry");
-		add(new AddEntryWindowContent());
-		setVisible(true);
-		pack();
+		super("Add Entry");
 	}
 
 	private class AddEntryWindowContent extends IPanel {
@@ -56,7 +50,8 @@ public class AddEntryWindow extends JDialog {
 			JButton cancel = new JButton("Cancel");
 
 			add.addActionListener(e -> {
-				ChangeService.getService().change(new Change(null, Change.ADD, null, getFieldContents()));
+				ChangeService.getService().change(new Change(null, Change.ADD, null, getFieldContents())
+						.setChangeID(new BigInteger(128, new SecureRandom()).toString(16)));
 				DatabaseGUI.getGUI().addTableRow(getFieldContents());
 				DatabaseGUI.getGUI().setStatus("Added an entry.");
 				DatabaseGUI.getGUI().setCanCommit(true);
@@ -77,5 +72,10 @@ public class AddEntryWindow extends JDialog {
 			}
 			return contents;
 		}
+	}
+
+	@Override
+	public IPanel getApplicationPanel() {
+		return new AddEntryWindowContent();
 	}
 }

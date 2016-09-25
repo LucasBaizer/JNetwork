@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
 import org.jnetwork.ui.database.DatabaseService;
+import org.jnetwork.ui.database.Main;
 
 public class RowSelectionPopupListener extends MouseAdapter {
 	private JTable table;
@@ -31,8 +32,8 @@ public class RowSelectionPopupListener extends MouseAdapter {
 					table.getSelectedRow());
 			menu.show(e.getComponent(), e.getX(), e.getY());
 		} else {
-			JOptionPane.showMessageDialog(null, "You must commit this entry before editing it.", "Error Editing",
-					JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(Main.MAIN_FRAME, "You must commit this entry before editing it.",
+					"Error Editing", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 }

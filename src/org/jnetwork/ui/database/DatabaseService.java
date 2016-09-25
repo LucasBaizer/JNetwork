@@ -17,10 +17,13 @@ public class DatabaseService {
 
 	public static void loadFromCache() {
 		if (cache.exists()) {
-			try {
-				setDatabase(Table.load(cacheService.loadCache(cache, null)));
-			} catch (IOException e) {
-				e.printStackTrace();
+			File cacheFile = cacheService.loadCache(cache, null);
+			if (cacheFile.exists()) {
+				try {
+					setDatabase(Table.load(cacheFile));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

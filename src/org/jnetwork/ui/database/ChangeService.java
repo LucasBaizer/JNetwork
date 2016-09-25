@@ -55,7 +55,7 @@ public class ChangeService {
 
 	public Change getChange(String id) {
 		for (Change change : permanentChanges) {
-			if (change.getEntryID() != null && change.getEntryID().equals(id)) {
+			if (change.getChangeID().equals(id)) {
 				return change;
 			}
 		}
@@ -88,7 +88,7 @@ public class ChangeService {
 				a++;
 			}
 		}
-		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c) > 1 ? "ies" : "y") + " (" + c
+		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c + a) != 1 ? "ies" : "y") + " (" + c
 				+ " changed, " + r + " removed, and " + a + " added).");
 		DatabaseGUI.getGUI().setIgnoreChanges(false);
 		DatabaseService.getDatabase().setEntries(DatabaseService.getDatabase().getTable()
