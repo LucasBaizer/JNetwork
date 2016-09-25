@@ -3,9 +3,9 @@ package test.tools;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-import test.DataTableModel;
 import test.DatabaseService;
 
 public class RowSelectionPopupListener extends MouseAdapter {
@@ -25,12 +25,14 @@ public class RowSelectionPopupListener extends MouseAdapter {
 	private void pop(MouseEvent e) {
 		table.getSelectionModel().removeSelectionInterval(table.getSelectedRow(), table.getSelectedRow());
 		table.getSelectionModel().addSelectionInterval(table.rowAtPoint(e.getPoint()), table.rowAtPoint(e.getPoint()));
-		DataTableModel model = (DataTableModel) table.getModel();
-		if (model.getRowColor(table.getSelectedRow()) == null) {
+		if (table.getSelectedRow() < DatabaseService.getDatabase().getEntrySet().getEntries().length) {
 			RowSelectionPopup menu = new RowSelectionPopup(table,
 					DatabaseService.getDatabase().getEntrySet().getEntries()[table.getSelectedRow()],
 					table.getSelectedRow());
 			menu.show(e.getComponent(), e.getX(), e.getY());
+		} else {
+			JOptionPane.showMessageDialog(null, "You must commit this entry before editing it.", "Error Editing",
+					JOptionPane.WARNING_MESSAGE);
 		}
 	}
 }

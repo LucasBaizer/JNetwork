@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,6 +48,8 @@ public class CommitChangesWindow extends JDialog {
 		private GridBagConstraints c = new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTHWEST,
 				GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0);
 
+		private ArrayList<Change> changesToNotCommit = new ArrayList<>();
+
 		public CommitChangesWindowContent() {
 			super(new GridBagLayout());
 
@@ -56,9 +59,9 @@ public class CommitChangesWindow extends JDialog {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						if (box.isSelected()) {
-							ChangeService.getService().change(change);
+							changesToNotCommit.remove(change);
 						} else {
-							ChangeService.getService().unchange(change);
+							changesToNotCommit.add(change);
 						}
 					}
 				});
@@ -66,8 +69,7 @@ public class CommitChangesWindow extends JDialog {
 				JLabel label = new JLabel((change.getChange() == Change.REMOVE ? "Removed"
 						: change.getChange() == Change.SET ? "Changed" : "Added") + " entry "
 						+ (change.getChange() != Change.ADD ? change.getEntryID() : "")
-						+ (change.getChange() == Change.SET ? " from:"
-								: change.getChange() == Change.REMOVE ? "." : "so:"));
+						+ (change.getChange() == Change.SET ? ":" : change.getChange() == Change.REMOVE ? "." : "so:"));
 				label.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseReleased(MouseEvent e) {
@@ -134,6 +136,10 @@ public class CommitChangesWindow extends JDialog {
 			commit.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					for (Change c : changesToNotCommit) {
+						ChangeService.getService().unchange(c);
+					}
+
 					try {
 						ChangeService.getService().commitChanges();
 					} catch (IOException e1) {
@@ -141,7 +147,14 @@ public class CommitChangesWindow extends JDialog {
 					} catch (QueryException e1) {
 						e1.printStackTrace();
 					}
-					DatabaseGUI.getGUI().setCanCommit(false);
+
+					for (Change c : changesToNotCommit) {
+						ChangeService.getService().change(c);
+					}
+
+					if (changesToNotCommit.size() == 0) {
+						DatabaseGUI.getGUI().setCanCommit(false);
+					}
 					dispose();
 				}
 			});

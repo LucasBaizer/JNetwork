@@ -1,5 +1,6 @@
 package test.tools;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,12 +9,12 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 import org.jnetwork.database.Entry;
 
 import test.Change;
 import test.ChangeService;
+import test.DataTableModel;
 import test.DatabaseGUI;
 import test.DatabaseService;
 import test.RowPropertiesWindow;
@@ -22,17 +23,26 @@ public class RowSelectionPopup extends ApplicationPopupMenu {
 	private static final long serialVersionUID = -5618319824062379597L;
 
 	public RowSelectionPopup(JTable table, Entry entry, int row) {
+		DataTableModel model = (DataTableModel) table.getModel();
+
 		JMenuItem item;
-		add(item = new JMenuItem(new AbstractAction("Delete Row") {
+		add(item = new JMenuItem(new AbstractAction(model.isDeleted(row) ? "Unmark for Removal" : "Mark for Removal") {
 			private static final long serialVersionUID = -6702610578991637167L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((DefaultTableModel) table.getModel()).removeRow(row);
-
-				ChangeService.getService().change(new Change(entry.getEntryID(), Change.REMOVE,
-						new ArrayList<>(Arrays.asList(entry.getData())), null));
-				DatabaseGUI.getGUI().setCanCommit(true);
+				DatabaseGUI.getGUI().setIgnoreChanges(true);
+				if (model.isDeleted(row)) {
+					model.clearRowColor(row);
+					ChangeService.getService().unchange(ChangeService.getService().getChange(entry.getEntryID()));
+					DatabaseGUI.getGUI().setCanCommit(ChangeService.getService().getChanges().size() > 0);
+				} else {
+					model.setRowColor(row, Color.RED);
+					ChangeService.getService().change(new Change(entry.getEntryID(), Change.REMOVE,
+							new ArrayList<>(Arrays.asList(entry.getData())), null));
+					DatabaseGUI.getGUI().setCanCommit(true);
+				}
+				DatabaseGUI.getGUI().setIgnoreChanges(false);
 			}
 		}));
 		item.setIcon(new ImageIcon("assets/RedX.png"));

@@ -55,7 +55,7 @@ public class ChangeService {
 
 	public Change getChange(String id) {
 		for (Change change : permanentChanges) {
-			if (change.getEntryID().equals(id)) {
+			if (change.getEntryID() != null && change.getEntryID().equals(id)) {
 				return change;
 			}
 		}
@@ -69,7 +69,11 @@ public class ChangeService {
 		DatabaseGUI.getGUI().setIgnoreChanges(true);
 
 		for (Change change : changes) {
-			DatabaseGUI.getGUI().clearChangeColors(DatabaseService.getDatabase().indexOf(change.getEntryID()));
+			DatabaseGUI.getGUI().clearChangeColors(DatabaseGUI.getGUI().indexOf(change.getData()));
+
+			if (change.getChange() == Change.REMOVE) {
+				DatabaseGUI.getGUI().removeRow(DatabaseGUI.getGUI().indexOf(change.getEntryID()));
+			}
 		}
 		for (Change change : changes) {
 			if (change.getChange() == Change.SET) {
@@ -87,6 +91,8 @@ public class ChangeService {
 		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c) > 1 ? "ies" : "y") + " (" + c
 				+ " changed, " + r + " removed, and " + a + " added).");
 		DatabaseGUI.getGUI().setIgnoreChanges(false);
+		DatabaseService.getDatabase().setEntries(DatabaseService.getDatabase().getTable()
+				.query("GET IN " + DatabaseService.getDatabase().getTable().getName()));
 		changes.clear();
 	}
 }

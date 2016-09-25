@@ -112,36 +112,31 @@ public class DatabaseGUI extends JPanel {
 			public void tableChanged(TableModelEvent e) {
 				if (!ignoreChanges) {
 					if (e.getType() == TableModelEvent.UPDATE) {
+						ignoreChanges = true;
 						int row = e.getLastRow();
-						int col = e.getColumn();
 
-						if (model.getRowColor(row) == null) {
+						if (row < DatabaseService.getDatabase().getEntrySet().getEntries().length) {
 							Entry entry = DatabaseService.getDatabase().getEntrySet().getEntries()[row];
-							if (!entry.getData()[col].toString()
-									.equals(jtable.getModel().getValueAt(row, col).toString())) {
-								Change change = new Change(entry.getEntryID(), Change.SET, new ArrayList<>(),
-										new ArrayList<>());
-								Change previous = ChangeService.getService().getChange(entry.getEntryID());
-								if (previous != null) {
-									change.setOriginalData(previous.getOriginalData());
-								} else {
-									change.setOriginalData(new ArrayList<>(Arrays.asList(entry.getData())));
-								}
-								for (int i = 0; i < jtable.getColumnCount(); i++) {
-									if (i == col) {
-										change.getData().add((Serializable) jtable.getModel().getValueAt(row, col));
-									} else {
-										if (previous != null) {
-											change.getData().add(previous.getData().get(i));
-										} else {
-											change.getData().add("*");
-										}
-									}
-								}
-								model.setRowColor(row, Color.orange);
-								ChangeService.getService().change(change);
-								setCanCommit(true);
+							Change change = new Change(entry.getEntryID(), Change.SET, new ArrayList<>(),
+									new ArrayList<>());
+							Change previous = ChangeService.getService().getChange(entry.getEntryID());
+							if (previous != null) {
+								change.setOriginalData(previous.getOriginalData());
+							} else {
+								change.setOriginalData(new ArrayList<>(Arrays.asList(entry.getData())));
 							}
+
+							for (int col = 0; col < jtable.getColumnCount(); col++) {
+								change.getData().add((Serializable) jtable.getValueAt(row, col));
+							}
+
+							model.setRowColor(row, Color.orange);
+							ChangeService.getService().change(change);
+							setCanCommit(true);
+							ignoreChanges = false;
+						} else {
+							JOptionPane.showMessageDialog(null, "You must commit this entry before editing it.",
+									"Error Editing", JOptionPane.WARNING_MESSAGE);
 						}
 					}
 				}
@@ -274,6 +269,18 @@ public class DatabaseGUI extends JPanel {
 
 	public void clearChangeColors(int row) {
 		DataTableModel model = (DataTableModel) jtable.getModel();
-		model.clearRowColors(row);
+		model.clearRowColor(row);
+	}
+
+	public int indexOf(ArrayList<Serializable> string) {
+		return ((DataTableModel) jtable.getModel()).indexOf(string);
+	}
+
+	public void removeRow(int row) {
+		((DataTableModel) jtable.getModel()).removeRow(row);
+	}
+
+	public int indexOf(String id) {
+		return ((DataTableModel) jtable.getModel()).indexOf(id);
 	}
 }
