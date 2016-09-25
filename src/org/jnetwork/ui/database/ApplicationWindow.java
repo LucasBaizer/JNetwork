@@ -15,15 +15,25 @@ public abstract class ApplicationWindow extends JDialog {
 		this.setTitle(title);
 	}
 
+	private boolean allowPacking = true;
+
 	public void open() {
-		setTitle("Add Entry");
-		add(getApplicationPanel());
+		getContentPane().add(getApplicationPanel());
 		setVisible(true);
-		pack();
+		if (allowPacking)
+			pack();
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
 	}
 
 	public abstract Component getApplicationPanel();
+
+	public boolean allowsPacking() {
+		return allowPacking;
+	}
+
+	public void setAllowPacking(boolean allowPacking) {
+		this.allowPacking = allowPacking;
+	}
 }

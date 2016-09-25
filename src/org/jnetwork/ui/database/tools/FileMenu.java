@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -12,11 +11,11 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
-import org.jnetwork.database.ColumnHeader;
 import org.jnetwork.database.Table;
 import org.jnetwork.ui.database.DatabaseGUI;
 import org.jnetwork.ui.database.DatabaseService;
 import org.jnetwork.ui.database.Main;
+import org.jnetwork.ui.database.NewTableWindow;
 
 public class FileMenu extends ApplicationMenu {
 	private static final long serialVersionUID = 7827201831801283896L;
@@ -74,29 +73,8 @@ public class FileMenu extends ApplicationMenu {
 						set.delete();
 					}
 
-					try {
-						ArrayList<ColumnHeader> columnHeaders = new ArrayList<>();
-						while (true) {
-							String input = JOptionPane.showInputDialog(Main.MAIN_FRAME,
-									"Enter a header for a column in the new table. Press Cancel to stop creating columns.",
-									"Create New Table Column", JOptionPane.INFORMATION_MESSAGE);
-							if (input == null || input.isEmpty()) {
-								break;
-							}
-							String type = (String) JOptionPane.showInputDialog(Main.MAIN_FRAME,
-									"Enter a storage type for the " + input + " column.", "Create New Table Column",
-									JOptionPane.INFORMATION_MESSAGE, null,
-									new String[] { "string", "integer", "decimal" }, "string");
-							columnHeaders.add(new ColumnHeader(input,
-									type.equals("string") ? ColumnHeader.STORAGE_TYPE_STRING
-											: type.equals("integer") ? ColumnHeader.STORAGE_TYPE_INTEGER
-													: ColumnHeader.STORAGE_TYPE_DECIMAL));
-						}
-						DatabaseGUI.getGUI().setTable(new Table(file.getSelectedFile().getPath(), tableName,
-								columnHeaders.toArray(new ColumnHeader[columnHeaders.size()])));
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					NewTableWindow window = new NewTableWindow(file.getSelectedFile(), tableName);
+					window.open();
 				}
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK), "GreenPlus");

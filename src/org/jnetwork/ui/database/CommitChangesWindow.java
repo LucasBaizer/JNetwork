@@ -2,6 +2,7 @@ package org.jnetwork.ui.database;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -43,7 +44,7 @@ public class CommitChangesWindow extends ApplicationWindow {
 		private ArrayList<Change> changesToNotCommit = new ArrayList<>();
 
 		public CommitChangesWindowContent() {
-			JPanel panel = new JPanel();
+			JPanel panel = new JPanel(new GridBagLayout());
 
 			for (Change change : ChangeService.getService().getChanges()) {
 				JCheckBox box = new JCheckBox();
@@ -108,7 +109,7 @@ public class CommitChangesWindow extends ApplicationWindow {
 					label.setText(label.getText() + text + "</html>");
 				}
 				c.gridy++;
-				panel.add(label);
+				p2.add(label);
 				c.insets = new Insets(5, 5, 0, 5);
 			}
 
