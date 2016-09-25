@@ -88,6 +88,8 @@ public class DatabaseGUI extends JPanel {
 		try {
 			data = table.query(query + " IN " + table.getName());
 		} catch (QueryException e) {
+			System.out.println(query + " IN " + table.getName());
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
 			return;
 		}

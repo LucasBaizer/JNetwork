@@ -10,14 +10,18 @@ import org.jnetwork.database.Table;
 public class DatabaseService {
 	private static DatabaseService theStatus;
 	private static final File cache = new File("db.cache");
-	private static final CacheService<Table> cacheService = new CacheService<>();
+	private static final CacheService<File> cacheService = new CacheService<>();
 
 	private Table table;
 	private EntrySet entries;
 
 	public static void loadFromCache() {
 		if (cache.exists()) {
-			setDatabase(cacheService.loadCache(cache, null));
+			try {
+				setDatabase(Table.load(cacheService.loadCache(cache, null)));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -30,11 +34,7 @@ public class DatabaseService {
 	}
 
 	public static void setDatabase(Table table) {
-		try {
-			DatabaseService.theStatus = new DatabaseService(Table.load(table.getTableFile()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		DatabaseService.theStatus = new DatabaseService(table);
 	}
 
 	public Table getTable() {
@@ -42,7 +42,7 @@ public class DatabaseService {
 	}
 
 	public void setTable(Table table) {
-		cacheService.saveCache(cache, table);
+		cacheService.saveCache(cache, table.getTableFile());
 
 		this.table = table;
 	}

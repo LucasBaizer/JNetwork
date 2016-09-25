@@ -1,6 +1,7 @@
 package org.jnetwork.database;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,6 +25,10 @@ public class Table implements Serializable {
 	private boolean dropped = false;
 
 	public static Table load(File file) throws IOException {
+		if (!file.exists()) {
+			throw new FileNotFoundException(file.getPath());
+		}
+
 		String raw = new String(Files.readAllBytes(file.toPath()), "UTF-8");
 		String tableData = "";
 		Matcher matcher = Pattern.compile("\\[(.+?)\\]").matcher(raw);
@@ -41,18 +46,16 @@ public class Table implements Serializable {
 			headers.add(new ColumnHeader(data[1], Integer.parseInt(data[0])));
 		}
 
-		Table table = new Table(tableName, headers.toArray(new ColumnHeader[headers.size()]));
-		table.out = new PrintStream(new FileOutputStream(table.tableFile, true));
+		Table table = new Table(file.getParent(), tableName, headers.toArray(new ColumnHeader[headers.size()]));
 		return table;
 	}
 
-	public Table(String name, ColumnHeader[] columnHeaders) throws IOException {
-		this.setName(name);
+	public Table(String parentFolder, String name, ColumnHeader[] columnHeaders) throws IOException {
+		this.name = name;
 		this.columnHeaders = columnHeaders;
-		this.tableFile = new File(System.getProperty("user.dir") + "/tables/" + name + ".table");
+		this.tableFile = new File(parentFolder + File.separator + name + ".table");
 
 		if (!tableFile.exists()) {
-			new File(System.getProperty("user.dir") + "/tables").mkdir();
 			tableFile.createNewFile();
 
 			this.out = new PrintStream(new FileOutputStream(tableFile, true));
