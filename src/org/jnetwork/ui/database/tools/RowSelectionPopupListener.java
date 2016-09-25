@@ -1,4 +1,4 @@
-package test.tools;
+package org.jnetwork.ui.database.tools;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-import test.DatabaseService;
+import org.jnetwork.ui.database.DatabaseService;
 
 public class RowSelectionPopupListener extends MouseAdapter {
 	private JTable table;

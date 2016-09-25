@@ -1,11 +1,11 @@
-package test;
+package org.jnetwork.ui.database;
 
 import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import test.tools.DatabaseToolbar;
+import org.jnetwork.ui.database.tools.DatabaseToolbar;
 
 public class Main {
 	private static Font font = new Font("Courier", Font.PLAIN, 12);

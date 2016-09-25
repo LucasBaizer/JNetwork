@@ -1,4 +1,4 @@
-package test;
+package org.jnetwork.ui.database;
 
 import java.awt.Color;
 import java.awt.Component;

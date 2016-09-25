@@ -1,4 +1,4 @@
-package test;
+package org.jnetwork.ui.database;
 
 import java.io.Serializable;
 

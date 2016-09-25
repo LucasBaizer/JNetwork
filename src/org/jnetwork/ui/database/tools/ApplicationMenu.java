@@ -1,4 +1,4 @@
-package test.tools;
+package org.jnetwork.ui.database.tools;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;

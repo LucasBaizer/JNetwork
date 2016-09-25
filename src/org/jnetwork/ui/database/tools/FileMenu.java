@@ -1,4 +1,4 @@
-package test.tools;
+package org.jnetwork.ui.database.tools;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -11,9 +11,8 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.jnetwork.database.Table;
-
-import test.DatabaseGUI;
-import test.Main;
+import org.jnetwork.ui.database.DatabaseGUI;
+import org.jnetwork.ui.database.Main;
 
 public class FileMenu extends ApplicationMenu {
 	private static final long serialVersionUID = 7827201831801283896L;

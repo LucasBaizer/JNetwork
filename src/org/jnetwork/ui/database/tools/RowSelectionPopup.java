@@ -1,4 +1,4 @@
-package test.tools;
+package org.jnetwork.ui.database.tools;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -11,13 +11,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JTable;
 
 import org.jnetwork.database.Entry;
-
-import test.Change;
-import test.ChangeService;
-import test.DataTableModel;
-import test.DatabaseGUI;
-import test.DatabaseService;
-import test.RowPropertiesWindow;
+import org.jnetwork.ui.database.Change;
+import org.jnetwork.ui.database.ChangeService;
+import org.jnetwork.ui.database.DataTableModel;
+import org.jnetwork.ui.database.DatabaseGUI;
+import org.jnetwork.ui.database.DatabaseService;
+import org.jnetwork.ui.database.RowPropertiesWindow;
 
 public class RowSelectionPopup extends ApplicationPopupMenu {
 	private static final long serialVersionUID = -5618319824062379597L;

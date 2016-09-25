@@ -1,4 +1,4 @@
-package test.tools;
+package org.jnetwork.ui.database.tools;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -23,9 +23,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.jnetwork.database.Entry;
-
-import test.DatabaseService;
-import test.Main;
+import org.jnetwork.ui.database.DatabaseService;
+import org.jnetwork.ui.database.Main;
 
 public class AutoCompleteDocument implements DocumentListener {
 	private JWindow popupWindow = new JWindow(Main.MAIN_FRAME);

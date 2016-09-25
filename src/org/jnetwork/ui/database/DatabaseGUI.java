@@ -1,4 +1,4 @@
-package test;
+package org.jnetwork.ui.database;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -29,9 +29,8 @@ import org.jnetwork.database.Entry;
 import org.jnetwork.database.EntrySet;
 import org.jnetwork.database.QueryException;
 import org.jnetwork.database.Table;
-
-import test.tools.AutoCompleteDocument;
-import test.tools.RowSelectionPopupListener;
+import org.jnetwork.ui.database.tools.AutoCompleteDocument;
+import org.jnetwork.ui.database.tools.RowSelectionPopupListener;
 
 public class DatabaseGUI extends JPanel {
 	private static final long serialVersionUID = 2996153710300873161L;
