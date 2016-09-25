@@ -62,7 +62,7 @@ public class CommitChangesWindow extends ApplicationWindow {
 						+ (change.getChange() == Change.REMOVE ? "Removed"
 								: change.getChange() == Change.SET ? "Changed" : "Added")
 						+ " entry " + (change.getChange() != Change.ADD ? change.getEntryID() : "")
-						+ (change.getChange() == Change.SET ? ":"
+						+ (change.getChange() == Change.SET ? ":<br>"
 								: change.getChange() == Change.REMOVE ? "." : "so:<br>"));
 				label.addMouseListener(new MouseAdapter() {
 					@Override

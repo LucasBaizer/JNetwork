@@ -41,8 +41,7 @@ public abstract class Query implements Serializable {
 				String entryData = request.substring(request.indexOf('[') + 1, request.indexOf(']'));
 				ArrayList<String> entries = new ArrayList<>();
 				for (String data : entryData.split(",")) {
-					data = data.replaceAll("\"", "").replaceAll("'", "").trim();
-					entries.add(data);
+					entries.add(data.trim());
 				}
 				query.setData(entries.toArray(new String[entries.size()]));
 			} else if (action.equals("remove")) {

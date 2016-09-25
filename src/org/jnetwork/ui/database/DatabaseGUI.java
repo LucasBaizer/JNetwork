@@ -1,7 +1,9 @@
 package org.jnetwork.ui.database;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -229,6 +231,10 @@ public class DatabaseGUI extends JPanel {
 		add(toolbarPanel);
 		add(mainPanel);
 		Main.MAIN_FRAME.pack();
+
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		Main.MAIN_FRAME.setLocation(dim.width / 2 - Main.MAIN_FRAME.getSize().width / 2,
+				dim.height / 2 - Main.MAIN_FRAME.getSize().height / 2);
 	}
 
 	private void removeSelectedRows() {

@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import org.jnetwork.database.QueryException;
 import org.jnetwork.ui.database.tools.DatabaseToolbar;
 
 public class Main {
@@ -29,6 +30,16 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				if (e instanceof QueryException) {
+					JOptionPane.showMessageDialog(Main.MAIN_FRAME, e.getMessage(), "Error Querying",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
 	}
 
 	public static final JFrame MAIN_FRAME = new JFrame("Database Editor");

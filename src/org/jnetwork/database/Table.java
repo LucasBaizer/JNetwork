@@ -207,28 +207,20 @@ public class Table implements Serializable {
 						throw new QueryException("Object '" + obj + "' does not follow "
 								+ columnHeaders[i].getColumnName() + " storage type: integer");
 					}
-
-					objectToWrite += "I:";
 				} else if (isDecimal(obj)) {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
 						throw new QueryException("Object '" + obj + "' does not follow "
 								+ columnHeaders[i].getColumnName() + " storage type: decimal");
 					}
-
-					objectToWrite += "D:";
 				} else {
 					if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
 						throw new QueryException("Object '" + obj + "' does not follow column "
 								+ columnHeaders[i].getColumnName() + " storage type: string");
 					}
-
-					objectToWrite += "S:";
 				}
 				objectToWrite += obj + ",";
 			} else {
-				objectToWrite += (isInteger(original.getData()[i].toString()) ? "I:"
-						: (isDecimal(original.getData()[i].toString()) ? "D:" : "S:"))
-						+ original.getData()[i].toString().replaceAll("\"", "").replaceAll("'", "") + ",";
+				objectToWrite += original.getData()[i].toString() + ",";
 			}
 			i++;
 		}
@@ -250,22 +242,16 @@ public class Table implements Serializable {
 					throw new QueryException("Object '" + obj + "' does not follow " + columnHeaders[i].getColumnName()
 							+ " storage type: integer");
 				}
-
-				objectToWrite += "I:";
 			} else if (isDecimal(obj)) {
 				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_DECIMAL) {
 					throw new QueryException("Object '" + obj + "' does not follow " + columnHeaders[i].getColumnName()
 							+ " storage type: decimal");
 				}
-
-				objectToWrite += "D:";
 			} else {
 				if (columnHeaders[i].getStorageType() != ColumnHeader.STORAGE_TYPE_STRING) {
 					throw new QueryException("Object '" + obj + "' does not follow column "
 							+ columnHeaders[i].getColumnName() + " storage type: string");
 				}
-
-				objectToWrite += "S:";
 			}
 			objectToWrite += obj.replaceAll("\"", "").replaceAll("'", "") + ",";
 			i++;
@@ -365,17 +351,15 @@ public class Table implements Serializable {
 		Entry entry = new Entry(id);
 		int i = 0;
 		for (String element : content.split(",")) {
-			String[] elementSplit = element.split("\\:");
-			String type = elementSplit[0];
-			String value = elementSplit[1];
+			String value = element;
 
 			ColumnHeader col = columnHeaders[i];
 			Serializable sValue = null;
-			if (type.equals("I")) {
+			if (col.getStorageType() == ColumnHeader.STORAGE_TYPE_INTEGER) {
 				entry.setData(col.getColumnName(), sValue = Integer.parseInt(value));
-			} else if (type.equals("D")) {
+			} else if (col.getStorageType() == ColumnHeader.STORAGE_TYPE_DECIMAL) {
 				entry.setData(col.getColumnName(), sValue = Double.parseDouble(value));
-			} else if (type.equals("S")) {
+			} else if (col.getStorageType() == ColumnHeader.STORAGE_TYPE_STRING) {
 				entry.setData(col.getColumnName(), sValue = value);
 			}
 			if (dependencies != null) {
