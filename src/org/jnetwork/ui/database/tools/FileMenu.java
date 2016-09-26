@@ -57,9 +57,9 @@ public class FileMenu extends ApplicationMenu {
 				if (file.showOpenDialog(Main.MAIN_FRAME) == JFileChooser.APPROVE_OPTION) {
 					String tableName = JOptionPane.showInputDialog(Main.MAIN_FRAME, "Enter a name for the new table.",
 							"Create New Table", JOptionPane.INFORMATION_MESSAGE);
+
 					if (tableName == null || tableName.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(Main.MAIN_FRAME, "Cannot create a table with an empty name!",
-								"Error Creating New Table", JOptionPane.ERROR_MESSAGE);
+						return;
 					}
 
 					File set = new File(file.getSelectedFile().getPath() + "\\" + tableName.trim() + ".table");

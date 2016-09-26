@@ -42,7 +42,7 @@ public class NewTableWindow extends ApplicationWindow {
 
 		public NewTableContent() {
 			super();
-			c.insets = new Insets(5, 5, 5, 5);
+			c.insets = new Insets(1, 5, 5, 5);
 
 			removeAll();
 
