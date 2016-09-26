@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.jnetwork.database.QueryException;
-import org.jnetwork.ui.database.tools.DatabaseToolbar;
+import org.jnetwork.ui.database.tools.toolbar.DatabaseToolbar;
 
 public class Main {
 	private static Font font = new Font("Courier", Font.PLAIN, 12);

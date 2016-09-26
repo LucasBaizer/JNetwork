@@ -33,6 +33,9 @@ public class DatabaseService {
 	}
 
 	public static DatabaseService getDatabase() {
+		if (theStatus == null) {
+			setDatabase(null);
+		}
 		return theStatus;
 	}
 
@@ -45,7 +48,8 @@ public class DatabaseService {
 	}
 
 	public void setTable(Table table) {
-		cacheService.saveCache(cache, table.getTableFile());
+		if (table != null)
+			cacheService.saveCache(cache, table.getTableFile());
 
 		this.table = table;
 	}

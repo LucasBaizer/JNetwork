@@ -1,4 +1,4 @@
-package org.jnetwork.ui.database.tools;
+package org.jnetwork.ui.database.tools.toolbar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -16,6 +16,7 @@ import org.jnetwork.ui.database.DatabaseGUI;
 import org.jnetwork.ui.database.DatabaseService;
 import org.jnetwork.ui.database.Main;
 import org.jnetwork.ui.database.NewTableWindow;
+import org.jnetwork.ui.database.tools.ApplicationMenu;
 
 public class FileMenu extends ApplicationMenu {
 	private static final long serialVersionUID = 7827201831801283896L;

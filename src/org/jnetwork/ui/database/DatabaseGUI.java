@@ -82,11 +82,12 @@ public class DatabaseGUI extends JPanel {
 		this.table = load;
 		ChangeService.setService(table);
 		DatabaseService.setDatabase(table);
+		lastQuery = "GET IN " + table.getName();
 
-		query("GET");
+		query("GET IN " + table.getName());
 	}
 
-	private String lastQuery = "GET WHERE Column IS Value";
+	private String lastQuery;
 	private JTextField queryField = new JTextField(45);
 	private JButton commitButton = new JButton(new ImageIcon("assets/OrangeArrow.png"));
 	private IPanel toolbarPanel = new IPanel();
@@ -97,9 +98,8 @@ public class DatabaseGUI extends JPanel {
 	public void query(String query) throws IOException {
 		EntrySet data;
 		try {
-			data = table.query(query + " IN " + table.getName());
+			data = table.query(query);
 		} catch (QueryException e) {
-			System.out.println(query + " IN " + table.getName());
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.MAIN_FRAME, e.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
 			return;

@@ -1,4 +1,4 @@
-package org.jnetwork.ui.database.tools;
+package org.jnetwork.ui.database.tools.toolbar;
 
 import javax.swing.JMenuBar;
 
@@ -7,5 +7,6 @@ public class DatabaseToolbar extends JMenuBar {
 
 	public DatabaseToolbar() {
 		add(new FileMenu());
+		add(new TableMenu());
 	}
 }
