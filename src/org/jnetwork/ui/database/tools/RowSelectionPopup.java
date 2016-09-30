@@ -2,8 +2,6 @@ package org.jnetwork.ui.database.tools;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -39,10 +37,8 @@ public class RowSelectionPopup extends ApplicationPopupMenu {
 					DatabaseGUI.getGUI().setCanCommit(ChangeService.getService().getChanges().size() > 0);
 				} else {
 					model.setRowColor(row, Color.RED);
-					ChangeService.getService()
-							.change(new Change(entry.getEntryID(), Change.REMOVE,
-									new ArrayList<>(Arrays.asList(entry.getData())), null)
-											.setChangeID(new BigInteger(128, new SecureRandom()).toString(16)));
+					ChangeService.getService().change(new Change(entry.getEntryID(), Change.REMOVE,
+							new ArrayList<>(Arrays.asList(entry.getData())), null));
 					DatabaseGUI.getGUI().setCanCommit(true);
 				}
 				DatabaseGUI.getGUI().setIgnoreChanges(false);

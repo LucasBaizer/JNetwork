@@ -68,13 +68,14 @@ public class ChangeService {
 		int a = 0;
 		DatabaseGUI.getGUI().setIgnoreChanges(true);
 
+		ArrayList<Integer> remove = new ArrayList<>();
 		for (Change change : changes) {
-			DatabaseGUI.getGUI().clearChangeColors(
-					change.getEntryID() == null ? DatabaseGUI.getGUI().indexOfUncommited(change.getData())
-							: DatabaseGUI.getGUI().indexOf(change.getChangeID()));
-
-			if (change.getChange() == Change.REMOVE) {
-				DatabaseGUI.getGUI().removeRow(DatabaseGUI.getGUI().indexOf(change.getEntryID()));
+			if (change.getChange() != Change.REMOVE) {
+				DatabaseGUI.getGUI().clearChangeColors(
+						change.getEntryID() == null ? DatabaseGUI.getGUI().indexOfUncommited(change.getData())
+								: DatabaseGUI.getGUI().indexOf(change.getEntryID()));
+			} else {
+				remove.add(DatabaseGUI.getGUI().indexOf(change.getEntryID()));
 			}
 		}
 		for (Change change : changes) {
@@ -89,6 +90,11 @@ public class ChangeService {
 				table.query("ADD [" + change.getChangeString() + "] IN " + table.getName());
 				a++;
 			}
+		}
+
+		int removed = 0;
+		for (int toRemove : remove) {
+			DatabaseGUI.getGUI().removeRow(toRemove - removed++);
 		}
 		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c + a) != 1 ? "ies" : "y") + " (" + c
 				+ " changed, " + r + " removed, and " + a + " added).");
