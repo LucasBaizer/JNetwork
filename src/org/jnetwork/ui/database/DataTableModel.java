@@ -78,4 +78,27 @@ public class DataTableModel extends DefaultTableModel {
 		}
 		return -1;
 	}
+
+	public int indexOfUncommited(ArrayList<Serializable> data) {
+		ArrayList<Serializable> toRemove = new ArrayList<>();
+		for (Serializable e : data) {
+			if (e.toString().equals("*")) {
+				toRemove.add(e);
+			}
+		}
+		ArrayList<Serializable> optData = new ArrayList<>(data);
+		optData.removeAll(toRemove);
+		for (int r = 0; r < getRowCount(); r++) {
+			if (rowColors.get(r) != null) {
+				ArrayList<Serializable> entryData = new ArrayList<>();
+				for (int c = 0; c < getColumnCount(); c++) {
+					entryData.add((Serializable) getValueAt(r, c));
+				}
+				if (entryData.containsAll(optData)) {
+					return r;
+				}
+			}
+		}
+		return -1;
+	}
 }

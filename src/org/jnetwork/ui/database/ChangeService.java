@@ -69,7 +69,9 @@ public class ChangeService {
 		DatabaseGUI.getGUI().setIgnoreChanges(true);
 
 		for (Change change : changes) {
-			DatabaseGUI.getGUI().clearChangeColors(DatabaseGUI.getGUI().indexOf(change.getData()));
+			DatabaseGUI.getGUI().clearChangeColors(
+					change.getEntryID() == null ? DatabaseGUI.getGUI().indexOfUncommited(change.getData())
+							: DatabaseGUI.getGUI().indexOf(change.getChangeID()));
 
 			if (change.getChange() == Change.REMOVE) {
 				DatabaseGUI.getGUI().removeRow(DatabaseGUI.getGUI().indexOf(change.getEntryID()));
