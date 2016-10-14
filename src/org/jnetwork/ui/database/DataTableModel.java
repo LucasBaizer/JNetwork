@@ -3,7 +3,7 @@ package org.jnetwork.ui.database;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -12,7 +12,7 @@ import org.jnetwork.database.Table;
 public class DataTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 6446945404601179255L;
 
-	private HashMap<Integer, Color> rowColors = new HashMap<>();
+	private TreeMap<Integer, Color> rowColors = new TreeMap<>();
 
 	public DataTableModel(Table table) {
 		super(table.getColumnHeaders(), 0);

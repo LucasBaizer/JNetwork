@@ -19,7 +19,7 @@ public class DatabaseServerConnectionHandler implements ClientConnectionListener
 			while (true) {
 				DataPackage in = (DataPackage) event.getInputStream().readUnshared();
 				if (in.getMessage().equals("SERVER_DATABASE_QUERY")) {
-					QuerySet query = (QuerySet) in.getObjects()[0];
+					Query query = (Query) in.getObjects()[0];
 					try {
 						EntrySet set = db.query(query);
 						event.getOutputStream().writeUnshared(

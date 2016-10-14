@@ -85,15 +85,11 @@ public class Table implements Serializable {
 		this.name = name;
 	}
 
-	public EntrySet query(String request) throws IOException, QueryException {
-		EntrySet finalSet = new EntrySet();
-		for (Query q : Query.parseQuery(request)) {
-			finalSet.addAll(query(q));
-		}
-		return finalSet;
+	EntrySet query(String request) throws IOException, QueryException {
+		return query(Query.parseQuery(request));
 	}
 
-	public EntrySet query(Query request) throws IOException, QueryException {
+	EntrySet query(Query request) throws IOException, QueryException {
 		checkDropped();
 
 		if (request.getAction() == Query.ACTION_ADD) {

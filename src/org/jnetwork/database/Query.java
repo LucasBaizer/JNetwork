@@ -2,7 +2,6 @@ package org.jnetwork.database;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import org.jnetwork.database.DependencyQuery.HeaderDependency;
 
@@ -20,111 +19,105 @@ public abstract class Query implements Serializable {
 	private String idTarget;
 	private long queryTime = System.currentTimeMillis();
 
-	public static QuerySet parseQuery(String rawQuery) throws QueryException {
-		rawQuery = rawQuery.trim();
+	public static Query parseQuery(String rawQuery) throws QueryException {
+		String request = rawQuery = rawQuery.trim();
 		String action = rawQuery.contains(" ") ? rawQuery.substring(0, rawQuery.indexOf(' ')).toLowerCase()
 				: rawQuery.toLowerCase();
 
-		QuerySet queries = new QuerySet();
+		Query query;
+		if (action.equals("add")) {
+			query = new AddQuery();
 
-		for (String request : rawQuery.split(Pattern.quote(";"))) {
-			request = request.trim();
-			Query query;
-			if (action.equals("add")) {
-				query = new AddQuery();
+			setTable(query, request);
+			if (!(request.contains("[") && request.contains("]"))) {
+				throw new QueryException("ADD query must have column data in brackets");
+			}
 
-				setTable(query, request);
-				if (!(request.contains("[") && request.contains("]"))) {
-					throw new QueryException("ADD query must have column data in brackets");
+			String entryData = request.substring(request.indexOf('[') + 1, request.indexOf(']'));
+			ArrayList<String> entries = new ArrayList<>();
+			for (String data : entryData.split(",")) {
+				entries.add(data.trim());
+			}
+			query.setData(entries.toArray(new String[entries.size()]));
+		} else if (action.equals("remove")) {
+			query = new RemoveQuery();
+
+			setTable(query, request);
+
+			if (request.toLowerCase().contains("entry")) {
+				String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
+				String id = idStart.substring(0, idStart.indexOf(' '));
+				if (id.toLowerCase().equals("in")) {
+					throw new QueryException("REMOVE ENTRY query must have target entry ID");
+				}
+
+				query.setIDTarget(id);
+			} else if (request.toLowerCase().contains("where ")) {
+				parseDependencies((RemoveQuery) query, request);
+			} else {
+				throw new QueryException("REMOVE query must have a target entry");
+			}
+		} else if (action.equals("get")) {
+			query = new GetQuery();
+
+			setTable(query, request);
+
+			if (request.toLowerCase().contains(" entry ")) {
+				String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
+				String id = idStart.substring(0, idStart.indexOf(' '));
+				if (id.toLowerCase().equals("in")) {
+					throw new QueryException("GET ENTRY query must have target entry ID");
+				}
+
+				query.setIDTarget(id);
+			} else {
+				parseDependencies((GetQuery) query, request);
+			}
+		} else if (action.equals("drop")) {
+			query = new DropQuery();
+			String[] bits = request.split(" ");
+			if (bits.length != 2) {
+				throw new QueryException("DROP query must only have two elements (e.g. \"DROP MyTable\")");
+			}
+
+			query.setTableTarget(bits[1]);
+		} else if (action.equals("set")) {
+			query = new SetQuery();
+
+			setTable(query, request);
+			if (request.toLowerCase().contains(" entry ")) {
+				String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
+				String id = idStart.substring(0, idStart.indexOf(' '));
+				if (id.toLowerCase().equals("in")) {
+					throw new QueryException("SET ENTRY query must have target entry ID");
+				}
+
+				query.setIDTarget(id);
+			} else if (request.toLowerCase().contains("where ")) {
+				parseDependencies((SetQuery) query, request);
+			} else {
+				throw new QueryException("SET query must have a target entry");
+			}
+
+			if (request.contains("[") && request.contains("]")) {
+				if (!request.toLowerCase().contains(" to [")) {
+					throw new QueryException("SET WHERE query must have TO element");
 				}
 
 				String entryData = request.substring(request.indexOf('[') + 1, request.indexOf(']'));
 				ArrayList<String> entries = new ArrayList<>();
 				for (String data : entryData.split(",")) {
-					entries.add(data.trim());
+					data = data.replaceAll("\"", "").replaceAll("'", "").trim();
+					entries.add(data);
 				}
 				query.setData(entries.toArray(new String[entries.size()]));
-			} else if (action.equals("remove")) {
-				query = new RemoveQuery();
-
-				setTable(query, request);
-
-				if (request.toLowerCase().contains("entry")) {
-					String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
-					String id = idStart.substring(0, idStart.indexOf(' '));
-					if (id.toLowerCase().equals("in")) {
-						throw new QueryException("REMOVE ENTRY query must have target entry ID");
-					}
-
-					query.setIDTarget(id);
-				} else if (request.toLowerCase().contains("where ")) {
-					parseDependencies((RemoveQuery) query, request);
-				} else {
-					throw new QueryException("REMOVE query must have a target entry");
-				}
-			} else if (action.equals("get")) {
-				query = new GetQuery();
-
-				setTable(query, request);
-
-				if (request.toLowerCase().contains(" entry ")) {
-					String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
-					String id = idStart.substring(0, idStart.indexOf(' '));
-					if (id.toLowerCase().equals("in")) {
-						throw new QueryException("GET ENTRY query must have target entry ID");
-					}
-
-					query.setIDTarget(id);
-				} else {
-					parseDependencies((GetQuery) query, request);
-				}
-			} else if (action.equals("drop")) {
-				query = new DropQuery();
-				String[] bits = request.split(" ");
-				if (bits.length != 2) {
-					throw new QueryException("DROP query must only have two elements (e.g. \"DROP MyTable\")");
-				}
-
-				query.setTableTarget(bits[1]);
-			} else if (action.equals("set")) {
-				query = new SetQuery();
-
-				setTable(query, request);
-				if (request.toLowerCase().contains(" entry ")) {
-					String idStart = request.substring(request.toLowerCase().indexOf("entry") + 6);
-					String id = idStart.substring(0, idStart.indexOf(' '));
-					if (id.toLowerCase().equals("in")) {
-						throw new QueryException("SET ENTRY query must have target entry ID");
-					}
-
-					query.setIDTarget(id);
-				} else if (request.toLowerCase().contains("where ")) {
-					parseDependencies((SetQuery) query, request);
-				} else {
-					throw new QueryException("SET query must have a target entry");
-				}
-
-				if (request.contains("[") && request.contains("]")) {
-					if (!request.toLowerCase().contains(" to [")) {
-						throw new QueryException("SET WHERE query must have TO element");
-					}
-
-					String entryData = request.substring(request.indexOf('[') + 1, request.indexOf(']'));
-					ArrayList<String> entries = new ArrayList<>();
-					for (String data : entryData.split(",")) {
-						data = data.replaceAll("\"", "").replaceAll("'", "").trim();
-						entries.add(data);
-					}
-					query.setData(entries.toArray(new String[entries.size()]));
-				} else {
-					throw new QueryException("SET query must have new data to set to");
-				}
 			} else {
-				throw new QueryException("Invalid action: " + action);
+				throw new QueryException("SET query must have new data to set to");
 			}
-			queries.addQuery(query);
+		} else {
+			throw new QueryException("Invalid action: " + action);
 		}
-		return queries;
+		return query;
 	}
 
 	private static void parseDependencies(DependencyQuery query, String request) throws QueryException {

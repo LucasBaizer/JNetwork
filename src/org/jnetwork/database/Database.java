@@ -43,16 +43,12 @@ public class Database implements Serializable {
 		return query(Query.parseQuery(request));
 	}
 
-	public EntrySet query(QuerySet query) throws IOException, QueryException {
-		EntrySet finalSet = new EntrySet();
-		for (Query q : query.getQueries()) {
-			try {
-				finalSet.addAll(getTable(q.getTableTarget()).query(q));
-			} catch (NullPointerException e) {
-				throw new QueryException("No table with name: " + q.getTableTarget());
-			}
+	public EntrySet query(Query query) throws IOException, QueryException {
+		try {
+			return getTable(query.getTableTarget()).query(query);
+		} catch (NullPointerException e) {
+			throw new QueryException("No table with name: " + query.getTableTarget());
 		}
-		return finalSet;
 	}
 
 	private ArrayList<Table> asList() {

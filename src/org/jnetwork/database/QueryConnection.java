@@ -33,7 +33,7 @@ public class QueryConnection {
 	}
 
 	public synchronized void closeConnection() throws IOException {
-		client.getOutputStream().writeObject(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
+		client.getOutputStream().writeUnshared(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

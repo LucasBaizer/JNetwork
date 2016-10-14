@@ -305,4 +305,8 @@ public class DatabaseGUI extends JPanel {
 	public int indexOfUncommited(ArrayList<Serializable> data) {
 		return ((DataTableModel) jtable.getModel()).indexOfUncommited(data);
 	}
+
+	public DataTableModel getModel() {
+		return ((DataTableModel) jtable.getModel());
+	}
 }
