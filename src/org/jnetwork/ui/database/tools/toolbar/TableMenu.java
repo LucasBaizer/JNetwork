@@ -18,38 +18,20 @@ public class TableMenu extends ApplicationMenu {
 	public TableMenu() {
 		super("Table");
 
-		JMenuItem viewRaw = new JMenuItem(new AbstractAction("View Raw") {
-			private static final long serialVersionUID = 7065869274330789784L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-					try {
-						Runtime.getRuntime().exec(
-								"notepad.exe " + DatabaseService.getDatabase().getTable().getTableFile().getPath());
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-		viewRaw.setEnabled(DatabaseService.getDatabase().getTable() != null);
-		add(viewRaw);
 		JMenuItem refresh = new JMenuItem(new AbstractAction("Refresh") {
 			private static final long serialVersionUID = 472820348371362068L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DatabaseService.loadFromCache();
 				try {
-					DatabaseGUI.getGUI().setTable(DatabaseService.getDatabase().getTable());
+					DatabaseGUI.getGUI().query("GET IN " + DatabaseService.getCurrentTableName());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
 		refresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
-		refresh.setEnabled(DatabaseService.getDatabase().getTable() != null);
+		refresh.setEnabled(DatabaseService.isConnected());
 		add(refresh);
 	}
 }

@@ -69,6 +69,16 @@ public class Table implements Serializable {
 		}
 	}
 
+	private Database db;
+
+	public Database getDatabase() {
+		return this.db;
+	}
+
+	void setDatabase(Database db) {
+		this.db = db;
+	}
+
 	public ColumnHeader[] getColumnHeaders() {
 		return columnHeaders;
 	}
@@ -96,7 +106,7 @@ public class Table implements Serializable {
 			String objectToWrite = constructRaw(request);
 			writeEntry("{" + objectToWrite + "}");
 
-			return new EntrySet(asEntry(objectToWrite, null));
+			return new EntrySet(asEntry(objectToWrite, null)).setTableColumnHeaders(columnHeaders);
 		} else if (request.getAction() == Query.ACTION_REMOVE) {
 			String table = readTable();
 
@@ -108,11 +118,12 @@ public class Table implements Serializable {
 
 				Files.write(tableFile.toPath(), buffer.toString().getBytes());
 
-				return new EntrySet(p.getEntry());
+				return new EntrySet(p.getEntry()).setTableColumnHeaders(columnHeaders);
 			} else {
 				StringBuffer buffer = new StringBuffer(table);
 
 				EntrySet set = new EntrySet();
+				set.setTableColumnHeaders(columnHeaders);
 				checkEntries(request, new CriteriaCallback() {
 					@Override
 					public void criteriaMet(Entry entry) {
@@ -121,7 +132,7 @@ public class Table implements Serializable {
 						int stop = look + buf.substring(look, table.indexOf('}', look)).length() + 1;
 						buffer.replace(look, stop, "");
 
-						set.addEntry(entry);
+						set.add(entry);
 					}
 				}, table);
 
@@ -130,16 +141,17 @@ public class Table implements Serializable {
 			}
 		} else if (request.getAction() == Query.ACTION_GET) {
 			EntrySet data = new EntrySet();
+			data.setTableColumnHeaders(columnHeaders);
 			if (request.getIDTarget() == null) {
 				checkEntries(request, new CriteriaCallback() {
 					@Override
 					public void criteriaMet(Entry entry) {
-						data.addEntry(entry);
+						data.add(entry);
 						entry.setQueryTime(System.currentTimeMillis() - request.getQueryTime());
 					}
 				}, readTable());
 			} else {
-				data.addEntry(getEntryByID(request.getIDTarget(), readTable()).getEntry());
+				data.add(getEntryByID(request.getIDTarget(), readTable()).getEntry());
 			}
 			return data;
 		} else if (request.getAction() == Query.ACTION_DROP) {
@@ -157,11 +169,12 @@ public class Table implements Serializable {
 						"{" + constructRawSet(request, entry.getEntry(), request.getIDTarget()) + "}");
 
 				Files.write(tableFile.toPath(), buf.toString().getBytes());
-				return new EntrySet(entry.getEntry());
+				return new EntrySet(entry.getEntry()).setTableColumnHeaders(columnHeaders);
 			} else {
 				StringBuffer buffer = new StringBuffer(table);
 
 				EntrySet set = new EntrySet();
+				set.setTableColumnHeaders(columnHeaders);
 				checkEntries(request, new CriteriaCallback() {
 					@Override
 					public void criteriaMet(Entry entry) throws QueryException {
@@ -173,7 +186,7 @@ public class Table implements Serializable {
 						buffer.replace(look, stop, "");
 						buffer.insert(look, "{" + construct + "}");
 
-						set.addEntry(entry);
+						set.add(entry);
 					}
 				}, table);
 

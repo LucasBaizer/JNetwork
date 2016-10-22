@@ -27,16 +27,7 @@ public class FileMenu extends ApplicationMenu {
 	public FileMenu() {
 		super("File");
 
-		String username = System.getProperty("user.name");
-		String osx = "/Users/" + username + "/Documents";
-		String windows = (System.getProperty("user.dir").substring(0, 1)) + ":\\Users\\" + username + "\\Documents";
-		String linux = "/usr/" + username + "/Desktop";
-		String fileSystem = System.getProperty("os.name").toLowerCase().contains("windows") ? windows
-				: System.getProperty("os.name").toLowerCase().contains("mac") ? osx : linux;
-		f = DatabaseService.getDatabase() != null ? (DatabaseService.getDatabase().getTable() != null
-				? new File(DatabaseService.getDatabase().getTable().getTableFile().getParent()) : new File(fileSystem))
-				: new File(fileSystem);
-		if (!f.exists()) {
+		if (f == null || !f.exists()) {
 			f = new File(System.getProperty("user.dir"));
 		}
 		add(new AbstractAction("New") {
@@ -96,7 +87,15 @@ public class FileMenu extends ApplicationMenu {
 				});
 				if (file.showOpenDialog(Main.MAIN_FRAME) == JFileChooser.APPROVE_OPTION) {
 					try {
-						DatabaseGUI.getGUI().setTable(Table.load(file.getSelectedFile()));
+						DatabaseService.startLocalServer();
+						DatabaseService.getLocalServerHandler().getDatabase()
+								.addTable(Table.load(file.getSelectedFile()));
+						DatabaseService.setCurrentTableName(file.getSelectedFile().getName().substring(0,
+								file.getSelectedFile().getName().lastIndexOf('.')));
+
+						DatabaseService.connect("localhost", 1337);
+
+						DatabaseGUI.getGUI().query("GET IN " + DatabaseService.getCurrentTableName());
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -106,6 +105,26 @@ public class FileMenu extends ApplicationMenu {
 		add(new AbstractAction("Pull") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String ip = JOptionPane.showInputDialog("Please enter the address of the database server.");
+
+				if (ip == null || ip.isEmpty()) {
+					return;
+				}
+
+				try {
+					DatabaseService.connect(ip, 1337);
+					String table = JOptionPane.showInputDialog("Please enter the name of the table.");
+
+					if (table == null || table.isEmpty()) {
+						return;
+					}
+					DatabaseService.setCurrentTableName(table);
+
+					DatabaseGUI.getGUI().query("GET IN " + DatabaseService.getCurrentTableName());
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(null, e1.getMessage(), "Error Retrieving Table",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK), "GreenArrow_Down");
 	}

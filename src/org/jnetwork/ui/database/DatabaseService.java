@@ -1,75 +1,55 @@
 package org.jnetwork.ui.database;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
-import org.jnetwork.database.Entry;
-import org.jnetwork.database.EntrySet;
-import org.jnetwork.database.Table;
+import org.jnetwork.Server;
+import org.jnetwork.database.Database;
+import org.jnetwork.database.DatabaseServerConnectionHandler;
+import org.jnetwork.database.QueryConnection;
 
 public class DatabaseService {
-	private static DatabaseService theStatus;
-	private static final File cache = new File("db.cache");
-	private static final CacheService<File> cacheService = new CacheService<>();
+	private static Server localServer;
+	private static DatabaseServerConnectionHandler serverHandler;
 
-	private Table table;
-	private EntrySet entries;
+	private static QueryConnection connection;
+	private static String currentTableName;
 
-	public static void loadFromCache() {
-		if (cache.exists()) {
-			File cacheFile = cacheService.loadCache(cache, null);
-			if (cacheFile.exists()) {
-				try {
-					setDatabase(Table.load(cacheFile));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+	public static void connect(String host, int port) throws UnknownHostException, IOException {
+		if (connection != null) {
+			connection.closeConnection();
 		}
+		connection = QueryConnection.createConnection(host, port);
 	}
 
-	private DatabaseService(Table table) {
-		this.setTable(table);
+	public static QueryConnection getConnection() {
+		return connection;
 	}
 
-	public static DatabaseService getDatabase() {
-		if (theStatus == null) {
-			setDatabase(null);
+	public static boolean isConnected() {
+		return connection != null;
+	}
+
+	public static String getCurrentTableName() {
+		return currentTableName;
+	}
+
+	public static void setCurrentTableName(String currentTableName) {
+		DatabaseService.currentTableName = currentTableName;
+	}
+
+	public static DatabaseServerConnectionHandler getLocalServerHandler() {
+		return serverHandler;
+	}
+
+	public static boolean isLocalServer() {
+		return localServer != null;
+	}
+
+	public static void startLocalServer() throws IOException {
+		if (localServer == null) {
+			localServer = new Server(1337, serverHandler = new DatabaseServerConnectionHandler(new Database()));
+			localServer.start();
 		}
-		return theStatus;
-	}
-
-	public static void setDatabase(Table table) {
-		DatabaseService.theStatus = new DatabaseService(table);
-	}
-
-	public Table getTable() {
-		return table;
-	}
-
-	public void setTable(Table table) {
-		if (table != null)
-			cacheService.saveCache(cache, table.getTableFile());
-
-		this.table = table;
-	}
-
-	public EntrySet getEntrySet() {
-		return entries;
-	}
-
-	public void setEntries(EntrySet entries) {
-		this.entries = entries;
-	}
-
-	public int indexOf(String entry) {
-		int i = 0;
-		for (Entry e : entries) {
-			if (e.getEntryID().equals(entry)) {
-				return i;
-			}
-			i++;
-		}
-		return -1;
 	}
 }

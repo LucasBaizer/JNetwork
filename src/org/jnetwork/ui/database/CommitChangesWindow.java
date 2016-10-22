@@ -21,15 +21,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.jnetwork.database.EntrySet;
 import org.jnetwork.database.QueryException;
-import org.jnetwork.database.Table;
 
 public class CommitChangesWindow extends ApplicationWindow {
 	private static final long serialVersionUID = 2706595842679383918L;
 
-	private Table table;
+	private EntrySet table;
 
-	public CommitChangesWindow(Table table) {
+	public CommitChangesWindow(EntrySet table) {
 		super("Commit Changes");
 
 		this.table = table;
@@ -83,13 +83,13 @@ public class CommitChangesWindow extends ApplicationWindow {
 					int col = 0;
 					text = "&nbsp;&nbsp;From:<br>";
 					for (Serializable previous : change.getOriginalData()) {
-						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col++].getColumnName() + ": "
+						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getTableColumnHeaders()[col++].getColumnName() + ": "
 								+ previous.toString() + "<br>";
 					}
 					text += "&nbsp;&nbsp;To:<br>";
 					col = 0;
 					for (Serializable current : change.getData()) {
-						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col].getColumnName()
+						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getTableColumnHeaders()[col].getColumnName()
 								+ (current.toString().equals("*") ? " [unchanged]" : "") + ": "
 								+ (current.toString().equals("*") ? change.getOriginalData().get(col).toString()
 										: current.toString())
@@ -102,7 +102,7 @@ public class CommitChangesWindow extends ApplicationWindow {
 					int col = 0;
 					text = "&nbsp;&nbsp;Data:<br>";
 					for (Serializable previous : change.getData()) {
-						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getColumnHeaders()[col++].getColumnName() + ": "
+						text += "&nbsp;&nbsp;&nbsp;&nbsp;" + table.getTableColumnHeaders()[col++].getColumnName() + ": "
 								+ previous.toString() + "<br>";
 					}
 

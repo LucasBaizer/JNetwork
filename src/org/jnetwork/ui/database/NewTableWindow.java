@@ -71,7 +71,14 @@ public class NewTableWindow extends ApplicationWindow {
 					headers[i] = new ColumnHeader(columnName, storageType);
 				}
 				try {
-					DatabaseGUI.getGUI().setTable(new Table(tableFile.getPath(), name, headers));
+					DatabaseService.startLocalServer();
+					DatabaseService.getLocalServerHandler().getDatabase()
+							.addTable(new Table(tableFile.getParent(), name, headers));
+					DatabaseService.setCurrentTableName(name);
+
+					DatabaseService.connect("localhost", 1337);
+
+					DatabaseGUI.getGUI().query("GET IN " + DatabaseService.getCurrentTableName());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

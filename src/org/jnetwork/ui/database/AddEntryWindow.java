@@ -13,12 +13,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jnetwork.database.ColumnHeader;
+import org.jnetwork.database.EntrySet;
 
 public class AddEntryWindow extends ApplicationWindow {
 	private static final long serialVersionUID = -893901275066409320L;
+	private EntrySet entries;
 
-	public AddEntryWindow() {
+	public AddEntryWindow(EntrySet entries) {
 		super("Add Entry");
+		this.entries = entries;
 	}
 
 	private class AddEntryWindowContent extends IPanel {
@@ -33,7 +36,7 @@ public class AddEntryWindow extends ApplicationWindow {
 			inner.c.fill = GridBagConstraints.HORIZONTAL;
 			inner.c.insets = new Insets(0, 5, 1, 0);
 			int i = 0;
-			for (ColumnHeader header : DatabaseService.getDatabase().getTable().getColumnHeaders()) {
+			for (ColumnHeader header : entries.getTableColumnHeaders()) {
 				JLabel label = new JLabel(header.getColumnName() + ": ");
 				JTextField field = new JTextField(15);
 				field.setText(header.getStorageType() == ColumnHeader.STORAGE_TYPE_INTEGER ? "0"

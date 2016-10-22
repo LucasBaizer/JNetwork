@@ -7,15 +7,16 @@ import java.util.TreeMap;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.jnetwork.database.Table;
+import org.jnetwork.database.EntrySet;
 
 public class DataTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 6446945404601179255L;
 
 	private TreeMap<Integer, Color> rowColors = new TreeMap<>();
+	private EntrySet entries;
 
-	public DataTableModel(Table table) {
-		super(table.getColumnHeaders(), 0);
+	public DataTableModel(EntrySet entries) {
+		super(entries.getTableColumnHeaders(), 0);
 	}
 
 	@Override
@@ -70,7 +71,7 @@ public class DataTableModel extends DefaultTableModel {
 		int real = 0;
 		for (int r = 0; r < getRowCount(); r++) {
 			if (!isUncommitedNewChange(r)) {
-				if (DatabaseService.getDatabase().getEntrySet().getEntries()[real].getEntryID().equals(id)) {
+				if (entries.getEntries()[real].getEntryID().equals(id)) {
 					return r;
 				}
 				real++;

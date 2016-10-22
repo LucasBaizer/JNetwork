@@ -11,15 +11,15 @@ import javax.swing.JLabel;
 
 import org.jnetwork.database.ColumnHeader;
 import org.jnetwork.database.Entry;
-import org.jnetwork.database.Table;
+import org.jnetwork.database.EntrySet;
 
 public class RowPropertiesWindow extends ApplicationWindow {
 	private static final long serialVersionUID = -5096508335843221830L;
 
-	private Table table;
+	private EntrySet table;
 	private Entry entry;
 
-	public RowPropertiesWindow(Table table, Entry entry) {
+	public RowPropertiesWindow(EntrySet table, Entry entry) {
 		super("Entry Properties");
 
 		this.table = table;
@@ -38,14 +38,14 @@ public class RowPropertiesWindow extends ApplicationWindow {
 			add("Entry ID: " + entry.getEntryID(), entry.getEntryID(), 0, 0);
 			c.insets = new Insets(0, 5, 1, 0);
 			int space = 0;
-			for (ColumnHeader column : table.getColumnHeaders()) {
+			for (ColumnHeader column : table.getTableColumnHeaders()) {
 				if (column.getColumnName().length() > space) {
 					space = column.getColumnName().length();
 				}
 			}
 			for (int i = 0; i < entry.getData().length; i++) {
-				add(table.getColumnHeaders()[i].getColumnName() + ": "
-						+ (new String(new char[space - table.getColumnHeaders()[i].getColumnName().length()])
+				add(table.getTableColumnHeaders()[i].getColumnName() + ": "
+						+ (new String(new char[space - table.getTableColumnHeaders()[i].getColumnName().length()])
 								.replaceAll("\0", " "))
 						+ entry.getData()[i], entry.getData()[i].toString(), 0, i + 1);
 			}

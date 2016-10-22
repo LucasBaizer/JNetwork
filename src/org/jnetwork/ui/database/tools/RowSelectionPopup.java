@@ -11,17 +11,17 @@ import javax.swing.JMenuItem;
 import javax.swing.JTable;
 
 import org.jnetwork.database.Entry;
+import org.jnetwork.database.EntrySet;
 import org.jnetwork.ui.database.Change;
 import org.jnetwork.ui.database.ChangeService;
 import org.jnetwork.ui.database.DataTableModel;
 import org.jnetwork.ui.database.DatabaseGUI;
-import org.jnetwork.ui.database.DatabaseService;
 import org.jnetwork.ui.database.RowPropertiesWindow;
 
 public class RowSelectionPopup extends ApplicationPopupMenu {
 	private static final long serialVersionUID = -5618319824062379597L;
 
-	public RowSelectionPopup(JTable table, Entry entry, int row) {
+	public RowSelectionPopup(JTable table, EntrySet entries, Entry entry, int row) {
 		DataTableModel model = (DataTableModel) table.getModel();
 
 		JMenuItem item;
@@ -50,7 +50,7 @@ public class RowSelectionPopup extends ApplicationPopupMenu {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				RowPropertiesWindow window = new RowPropertiesWindow(DatabaseService.getDatabase().getTable(), entry);
+				RowPropertiesWindow window = new RowPropertiesWindow(entries, entry);
 				window.open();
 			}
 		}));

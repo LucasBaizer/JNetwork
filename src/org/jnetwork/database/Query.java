@@ -219,4 +219,29 @@ public abstract class Query implements Serializable {
 	public void setIDTarget(String idTarget) {
 		this.idTarget = idTarget;
 	}
+
+	@Override
+	public String toString() {
+		String str = "";
+		switch (action) {
+		case ACTION_ADD:
+			str = "ADD";
+			break;
+		case ACTION_REMOVE:
+			str = "REMOVE";
+			break;
+		case ACTION_GET:
+			str = "GET";
+			break;
+		case ACTION_DROP:
+			str = "DROP";
+			break;
+		case ACTION_SET:
+			str = "SET";
+			break;
+		default:
+			break;
+		}
+		return str;
+	}
 }

@@ -30,14 +30,12 @@ import javax.swing.table.DefaultTableModel;
 import org.jnetwork.database.Entry;
 import org.jnetwork.database.EntrySet;
 import org.jnetwork.database.QueryException;
-import org.jnetwork.database.Table;
 import org.jnetwork.ui.database.tools.AutoCompleteDocument;
 import org.jnetwork.ui.database.tools.RowSelectionPopupListener;
 
 public class DatabaseGUI extends JPanel {
 	private static final long serialVersionUID = 2996153710300873161L;
 	private static DatabaseGUI gui;
-	private Table table;
 	private JTable jtable;
 	private JLabel status = new JLabel("Nothing changed.");
 
@@ -60,9 +58,9 @@ public class DatabaseGUI extends JPanel {
 			}
 		});
 
-		if (DatabaseService.getDatabase() != null && DatabaseService.getDatabase().getTable() != null) {
+		if (DatabaseService.isConnected()) {
 			try {
-				setTable(DatabaseService.getDatabase().getTable());
+				query("GET IN " + DatabaseService.getCurrentTableName());
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -78,15 +76,6 @@ public class DatabaseGUI extends JPanel {
 		return new String(new char[times]).replaceAll("\0", "&nbsp;");
 	}
 
-	public void setTable(Table load) throws IOException {
-		this.table = load;
-		ChangeService.setService(table);
-		DatabaseService.setDatabase(table);
-		lastQuery = "GET IN " + table.getName();
-
-		query("GET IN " + table.getName());
-	}
-
 	private String lastQuery;
 	private JTextField queryField = new JTextField(45);
 	private JButton commitButton = new JButton(new ImageIcon("assets/OrangeArrow.png"));
@@ -98,7 +87,7 @@ public class DatabaseGUI extends JPanel {
 	public void query(String query) throws IOException {
 		EntrySet data;
 		try {
-			data = table.query(query);
+			data = DatabaseService.getConnection().query(query);
 		} catch (QueryException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.MAIN_FRAME, e.getMessage(), "Error Querying", JOptionPane.ERROR_MESSAGE);
@@ -108,17 +97,15 @@ public class DatabaseGUI extends JPanel {
 		removeAll();
 		mainPanel.removeAll();
 		toolbarPanel.removeAll();
-		jtable = new JTable(new DataTableModel(table));
-		jtable.setModel(new DataTableModel(table));
+		jtable = new JTable(new DataTableModel(data));
 		jtable.setDefaultRenderer(Object.class, new DataTableRenderer());
 		DataTableModel model = (DataTableModel) jtable.getModel();
 
-		EntrySet entries;
-		for (Entry entry : (entries = data).getEntries()) {
+		for (Entry entry : data.getEntries()) {
 			model.addRow(entry.getData());
 		}
 
-		jtable.addMouseListener(new RowSelectionPopupListener(jtable));
+		jtable.addMouseListener(new RowSelectionPopupListener(jtable, data));
 		jtable.getModel().addTableModelListener(new TableModelListener() {
 			@Override
 			public void tableChanged(TableModelEvent e) {
@@ -127,8 +114,8 @@ public class DatabaseGUI extends JPanel {
 						ignoreChanges = true;
 						int row = e.getLastRow();
 
-						if (row < DatabaseService.getDatabase().getEntrySet().getEntries().length) {
-							Entry entry = DatabaseService.getDatabase().getEntrySet().getEntries()[row];
+						if (row < data.size()) {
+							Entry entry = data.getEntries()[row];
 							Change change = new Change(entry.getEntryID(), Change.SET, new ArrayList<>(),
 									new ArrayList<>());
 							Change previous = ChangeService.getService().getChange(entry.getEntryID());
@@ -156,11 +143,9 @@ public class DatabaseGUI extends JPanel {
 			}
 		});
 
-		DatabaseService.getDatabase().setEntries(entries);
-
 		JButton queryButton = new JButton("Query");
 		queryField.setText(lastQuery);
-		AutoCompleteDocument auto = new AutoCompleteDocument(queryField);
+		AutoCompleteDocument auto = new AutoCompleteDocument(queryField, data);
 
 		queryField.getDocument().addDocumentListener(auto);
 		queryField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL, 0), "autocomplete");
@@ -185,7 +170,8 @@ public class DatabaseGUI extends JPanel {
 
 				try {
 					lastQuery = queryField.getText();
-					table.query(queryField.getText() + " IN " + table.getName());
+					DatabaseService.getConnection()
+							.query(queryField.getText() + " IN " + DatabaseService.getCurrentTableName());
 					query(lastQuery.toLowerCase().startsWith("get") ? lastQuery : "GET");
 				} catch (QueryException e1) {
 					JOptionPane.showMessageDialog(Main.MAIN_FRAME, e1.getMessage(), "Error Querying",
@@ -203,7 +189,7 @@ public class DatabaseGUI extends JPanel {
 		commitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CommitChangesWindow window = new CommitChangesWindow(table);
+				CommitChangesWindow window = new CommitChangesWindow(data);
 				window.open();
 			}
 		});
@@ -211,7 +197,7 @@ public class DatabaseGUI extends JPanel {
 		addButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				AddEntryWindow window = new AddEntryWindow();
+				AddEntryWindow window = new AddEntryWindow(data);
 				window.open();
 			}
 		});

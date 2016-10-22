@@ -3,12 +3,14 @@ package org.jnetwork.database;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 
-public class EntrySet implements Serializable, Iterable<Entry> {
+public class EntrySet implements Serializable, Collection<Entry> {
 	private static final long serialVersionUID = 6891274761747429375L;
 
 	private ArrayList<Entry> entries = new ArrayList<>();
+	private ColumnHeader[] columnHeaders;
 
 	public EntrySet() {
 	}
@@ -22,27 +24,80 @@ public class EntrySet implements Serializable, Iterable<Entry> {
 	}
 
 	public Entry[] getEntries() {
-		return this.entries.toArray(new Entry[this.entries.size()]);
+		return this.toArray(new Entry[this.entries.size()]);
 	}
 
-	public void addEntry(Entry e) {
-		this.entries.add(e);
+	public ColumnHeader[] getTableColumnHeaders() {
+		return columnHeaders;
 	}
 
-	public void removeEntry(Entry e) {
-		this.entries.remove(e);
-	}
-
-	public boolean hasEntries() {
-		return entries.size() > 0;
-	}
-
-	public void addAll(EntrySet other) {
-		entries.addAll(other.entries);
+	EntrySet setTableColumnHeaders(ColumnHeader[] headers) {
+		this.columnHeaders = headers;
+		return this;
 	}
 
 	@Override
 	public Iterator<Entry> iterator() {
 		return entries.iterator();
+	}
+
+	@Override
+	public int size() {
+		return entries.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return entries.isEmpty();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return entries.contains(o);
+	}
+
+	@Override
+	public Object[] toArray() {
+		return entries.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return entries.toArray(a);
+	}
+
+	@Override
+	public boolean add(Entry e) {
+		return entries.add(e);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return entries.remove(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return entries.containsAll(c);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Entry> c) {
+		return entries.addAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return entries.retainAll(c);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return entries.removeAll(c);
+	}
+
+	@Override
+	public void clear() {
+		entries.clear();
 	}
 }

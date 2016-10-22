@@ -4,24 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jnetwork.database.QueryException;
-import org.jnetwork.database.Table;
 
 public class ChangeService {
-	private static ChangeService theService;
-	private Table table;
+	private static ChangeService service = new ChangeService();
 	private ArrayList<Change> changes = new ArrayList<>();
 	private ArrayList<Change> permanentChanges = new ArrayList<>();
 
-	private ChangeService(Table table) {
-		this.table = table;
-	}
-
 	public static ChangeService getService() {
-		return theService;
-	}
-
-	public static void setService(Table table) {
-		ChangeService.theService = new ChangeService(table);
+		return service;
 	}
 
 	public ArrayList<Change> getChanges() {
@@ -80,14 +70,16 @@ public class ChangeService {
 		}
 		for (Change change : changes) {
 			if (change.getChange() == Change.SET) {
-				table.query("SET ENTRY " + change.getEntryID() + " TO [" + change.getChangeString() + "] IN "
-						+ table.getName());
+				DatabaseService.getConnection().query("SET ENTRY " + change.getEntryID() + " TO ["
+						+ change.getChangeString() + "] IN " + DatabaseService.getCurrentTableName());
 				c++;
 			} else if (change.getChange() == Change.REMOVE) {
-				table.query("REMOVE ENTRY " + change.getEntryID() + " IN " + table.getName());
+				DatabaseService.getConnection()
+						.query("REMOVE ENTRY " + change.getEntryID() + " IN " + DatabaseService.getCurrentTableName());
 				r++;
 			} else if (change.getChange() == Change.ADD) {
-				table.query("ADD [" + change.getChangeString() + "] IN " + table.getName());
+				DatabaseService.getConnection()
+						.query("ADD [" + change.getChangeString() + "] IN " + DatabaseService.getCurrentTableName());
 				a++;
 			}
 		}
@@ -99,8 +91,6 @@ public class ChangeService {
 		DatabaseGUI.getGUI().setStatus("Changed " + (r + c + a) + " entr" + ((r + c + a) != 1 ? "ies" : "y") + " (" + c
 				+ " changed, " + r + " removed, and " + a + " added).");
 		DatabaseGUI.getGUI().setIgnoreChanges(false);
-		DatabaseService.getDatabase().setEntries(DatabaseService.getDatabase().getTable()
-				.query("GET IN " + DatabaseService.getDatabase().getTable().getName()));
 		changes.clear();
 	}
 }

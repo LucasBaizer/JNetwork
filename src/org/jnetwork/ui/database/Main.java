@@ -37,6 +37,8 @@ public class Main {
 				if (e instanceof QueryException) {
 					JOptionPane.showMessageDialog(Main.MAIN_FRAME, e.getMessage(), "Error Querying",
 							JOptionPane.ERROR_MESSAGE);
+				} else {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -45,8 +47,6 @@ public class Main {
 	public static final JFrame MAIN_FRAME = new JFrame("Database Editor");
 
 	public static void main(String[] args) {
-		DatabaseService.loadFromCache();
-
 		MAIN_FRAME.add(new DatabaseGUI());
 		MAIN_FRAME.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		MAIN_FRAME.setJMenuBar(new DatabaseToolbar());

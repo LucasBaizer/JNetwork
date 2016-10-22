@@ -23,15 +23,18 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.jnetwork.database.Entry;
-import org.jnetwork.ui.database.DatabaseService;
+import org.jnetwork.database.EntrySet;
 import org.jnetwork.ui.database.Main;
 
 public class AutoCompleteDocument implements DocumentListener {
 	private JWindow popupWindow = new JWindow(Main.MAIN_FRAME);
 	private JTextField textField;
+	private EntrySet table;
 
-	public AutoCompleteDocument(JTextField field) {
+	public AutoCompleteDocument(JTextField field, EntrySet table) {
 		this.textField = field;
+		this.table = table;
+
 		textField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
 		textField.getActionMap().put("close", new AbstractAction() {
 			private static final long serialVersionUID = 193446136444109585L;
@@ -76,7 +79,7 @@ public class AutoCompleteDocument implements DocumentListener {
 				String idStart = content.substring(content.lastIndexOf(' ') + 1);
 
 				ArrayList<String> possibleIDs = new ArrayList<>();
-				for (Entry entry : DatabaseService.getDatabase().getEntrySet()) {
+				for (Entry entry : table) {
 					if (idStart.isEmpty() || entry.getEntryID().startsWith(idStart)) {
 						possibleIDs.add(entry.getEntryID());
 					}
