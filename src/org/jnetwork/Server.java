@@ -79,26 +79,6 @@ public abstract class Server implements Closeable {
 		this.port = port;
 	}
 
-	public void start() throws ServerException, IOException {
-		if (started)
-			throw new ServerException("Server already started");
-
-		started = true;
-
-		Thread dispatcher = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					launchNewThread();
-				} catch (Exception e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-				}
-			}
-		});
-		dispatcher.setName("JNetwork-Server-Accept-Dispatcher");
-		dispatcher.start();
-	}
-
 	/**
 	 * Calls {@link #Server(int, ClientConnectionListener)} and sets the maximum
 	 * clients to the <code>maxClients</code> parameter.
@@ -117,6 +97,39 @@ public abstract class Server implements Closeable {
 			throw new IndexOutOfBoundsException(Integer.toString(maxClients));
 		this.maxClients = maxClients;
 	}
+
+	/**
+	 * Starts the dispatch thread.
+	 * 
+	 * @throws ServerException
+	 *             If the server has already been started.
+	 */
+	protected void startDispatch() throws ServerException {
+		if (started)
+			throw new ServerException("Server already started");
+
+		started = true;
+
+		Thread dispatcher = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					launchNewThread();
+				} catch (Exception e) {
+					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+				}
+			}
+		}, "JNetwork-Server-Accept-Dispatcher");
+		dispatcher.start();
+	}
+
+	/**
+	 * Starts the server, so that clients can connect to it.
+	 * 
+	 * @throws IOException
+	 *             If an error occurs while starting the server.
+	 */
+	public abstract void start() throws IOException;
 
 	/**
 	 * Adds a <code>ClientRemoveListener</code> to be called on when a client is
@@ -393,17 +406,17 @@ public abstract class Server implements Closeable {
 	 * {@code List<SocketPackage>}.
 	 **/
 	public void refresh() {
-		ArrayList<Connection> closedClients = new ArrayList<>();
+		ArrayList<SocketPackage> closedClients = new ArrayList<>();
 
 		for (SocketPackage ce : clients) {
 			Connection client = ce.getConnection();
 			if (client.isClosed()) {
-				closedClients.add(client);
+				closedClients.add(ce);
 			}
 		}
 
 		// prevent CME
-		for (Connection closedClient : closedClients) {
+		for (SocketPackage closedClient : closedClients) {
 			clients.remove(closedClient);
 		}
 	}

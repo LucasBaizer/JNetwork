@@ -29,7 +29,7 @@ public class UDPServer extends Server {
 	public void start() throws IOException {
 		this.server = new DatagramSocket(getBoundPort());
 
-		super.start();
+		super.startDispatch();
 	}
 
 	@Override

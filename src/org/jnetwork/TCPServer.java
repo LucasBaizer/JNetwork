@@ -28,7 +28,7 @@ public class TCPServer extends Server {
 	public void start() throws IOException {
 		this.server = new ServerSocket(getBoundPort());
 
-		super.start();
+		super.startDispatch();
 	}
 
 	@Override
