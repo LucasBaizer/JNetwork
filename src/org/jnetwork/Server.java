@@ -70,10 +70,8 @@ public abstract class Server implements Closeable {
 	 * 
 	 * @throws NullPointerException
 	 *             If <code>clientSocketThread</code> is null.
-	 * @throws IOException
-	 *             If there is an error starting the <code>ServerSocket</code>.
 	 */
-	public Server(int port, ClientConnectionListener clientSocketThread) throws IOException {
+	public Server(int port, ClientConnectionListener clientSocketThread) {
 		if (clientSocketThread == null)
 			throw new NullPointerException("ClientConnectionListener is null");
 
@@ -81,11 +79,11 @@ public abstract class Server implements Closeable {
 		this.port = port;
 	}
 
-	public void start() throws ServerException {
+	public void start() throws ServerException, IOException {
 		if (started)
 			throw new ServerException("Server already started");
 
-		started ^= true;
+		started = true;
 
 		Thread dispatcher = new Thread(new Runnable() {
 			@Override
@@ -112,7 +110,7 @@ public abstract class Server implements Closeable {
 	 * @throws IndexOutOfBoundsException
 	 *             if <code>maxClients</code> is less than one.
 	 */
-	public Server(int port, int maxClients, ClientConnectionListener clientSocketThread) throws IOException {
+	public Server(int port, int maxClients, ClientConnectionListener clientSocketThread) {
 		this(port, clientSocketThread);
 
 		if (maxClients < 1)

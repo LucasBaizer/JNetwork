@@ -23,8 +23,13 @@ public class UDPServer extends Server {
 
 	public UDPServer(int port, int maxClients, UDPConnectionListener clientSocketThread) throws IOException {
 		super(port, maxClients, clientSocketThread);
+	}
 
-		server = new DatagramSocket(port);
+	@Override
+	public void start() throws IOException {
+		this.server = new DatagramSocket(getBoundPort());
+
+		super.start();
 	}
 
 	@Override
@@ -60,9 +65,8 @@ public class UDPServer extends Server {
 					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
 				}
 			}
-		});
+		}, "JNetwork-TCPServer-Thread-" + receivePacket.getSocketAddress());
 		event.setHoldingThread(thr);
-		thr.setName("JNetwork-TCPServer-Thread-" + receivePacket.getSocketAddress());
 		thr.start();
 
 		launchNewThread();

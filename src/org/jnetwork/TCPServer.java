@@ -22,8 +22,13 @@ public class TCPServer extends Server {
 
 	public TCPServer(int port, int maxClients, TCPConnectionListener clientSocketThread) throws IOException {
 		super(port, maxClients, clientSocketThread);
+	}
 
-		this.server = new ServerSocket(port);
+	@Override
+	public void start() throws IOException {
+		this.server = new ServerSocket(getBoundPort());
+
+		super.start();
 	}
 
 	@Override
