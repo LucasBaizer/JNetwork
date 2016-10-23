@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.jnetwork.CloseRequest;
 import org.jnetwork.SSLConnection;
-import org.jnetwork.SSLKeystore;
+import org.jnetwork.Keystore;
 import org.jnetwork.SSLServer;
 import org.jnetwork.SocketPackage;
 import org.jnetwork.listener.TCPConnectionListener;
@@ -18,7 +18,7 @@ public class SSLObjectTransfer {
 	 **/
 	public static void main(String[] args) {
 		try {
-			SSLServer server = new SSLServer(new SSLKeystore(new File("keystore.jks"), "password"), 1337,
+			SSLServer server = new SSLServer(new Keystore(new File("keystore.jks"), "password"), 1337,
 					new TCPConnectionListener() {
 						@Override
 						public void clientConnected(SocketPackage event) {

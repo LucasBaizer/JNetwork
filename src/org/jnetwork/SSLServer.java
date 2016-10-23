@@ -19,11 +19,11 @@ import com.sun.net.ssl.internal.ssl.Provider;
  * @author Lucas Baizer
  */
 public class SSLServer extends TCPServer {
-	public SSLServer(SSLKeystore keystore, int port, TCPConnectionListener clientSocketThread) {
+	public SSLServer(Keystore keystore, int port, TCPConnectionListener clientSocketThread) {
 		this(keystore, port, Integer.MAX_VALUE, clientSocketThread);
 	}
 
-	public SSLServer(SSLKeystore keystore, int port, int maxClients, TCPConnectionListener clientSocketThread) {
+	public SSLServer(Keystore keystore, int port, int maxClients, TCPConnectionListener clientSocketThread) {
 		super(port, maxClients, clientSocketThread);
 
 		Security.addProvider(new Provider());

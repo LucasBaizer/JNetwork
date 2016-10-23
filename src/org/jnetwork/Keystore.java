@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 
  * @author Lucas Baizer
  */
-public class SSLKeystore implements Serializable {
+public class Keystore implements Serializable {
 	private static final long serialVersionUID = 1765662863452096789L;
 
 	private File keystoreLocation;
@@ -32,7 +32,7 @@ public class SSLKeystore implements Serializable {
 	 *            - The keystore password, which was specified when the keystore
 	 *            was created with an external tool.
 	 */
-	public SSLKeystore(File location, String password) {
+	public Keystore(File location, String password) {
 		this.keystoreLocation = location;
 		this.password = password;
 	}
