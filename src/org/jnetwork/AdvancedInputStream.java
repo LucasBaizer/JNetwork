@@ -76,7 +76,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 * @throws NullPointerException
 	 *             If <code>obj</code> is <code>null</code>.
 	 **/
-	public Object readSpecificType(Class<? extends Serializable> obj) throws ClassNotFoundException, IOException {
+	public <T> T readSpecificType(Class<? extends Serializable> obj) throws ClassNotFoundException, IOException {
 		Object objIn;
 
 		while (true) {
@@ -84,7 +84,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 
 			if (objIn != null) {
 				if (objIn.getClass() == obj) {
-					return objIn;
+					return (T) objIn;
 				}
 			} else {
 				if (obj == null)
@@ -120,7 +120,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 *             NullPointerException If <code>obj</code> is <code>null</code>
 	 *             .
 	 **/
-	public Object readSpecificType(Class<? extends Serializable> obj, int repeats)
+	public <T> T readSpecificType(Class<? extends Serializable> obj, int repeats)
 			throws ClassNotFoundException, IOException {
 		Object objIn;
 
@@ -132,7 +132,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 
 			if (objIn != null) {
 				if (objIn.getClass() == obj) {
-					return objIn;
+					return (T) objIn;
 				}
 			} else {
 				if (obj == null)
@@ -155,7 +155,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 * @throws IOException
 	 *             If there is an error reading the Object.
 	 */
-	public Object[] readObjectArray() throws IOException, ClassNotFoundException {
+	public <T> T[] readObjectArray() throws IOException, ClassNotFoundException {
 		Object objIn;
 
 		while (true) {
@@ -166,7 +166,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 					break;
 			}
 		}
-		return (Object[]) objIn;
+		return (T[]) objIn;
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 * @throws IOException
 	 *             If there is a failure sending/receiving an Object.
 	 **/
-	public Object[] readObjectArray(int retries) throws IOException, ClassNotFoundException {
+	public <T> T[] readObjectArray(int retries) throws IOException, ClassNotFoundException {
 		Object objIn;
 
 		for (int i = 0; i < retries; i++) {
@@ -197,7 +197,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 
 			if (objIn != null) {
 				if (objIn.getClass().isArray())
-					return (Object[]) objIn;
+					return (T[]) objIn;
 			}
 		}
 		return null;
@@ -222,7 +222,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 * @throws NullPointerException
 	 *             If <code>type</code> is <code>null</code>.
 	 **/
-	public Object[] readSpecificTypeArray(Class<? extends Serializable> type)
+	public <T> T[] readSpecificTypeArray(Class<? extends Serializable> type)
 			throws ClassNotFoundException, IOException {
 		if (Objects.equals(type, null))
 			throw new NullPointerException();
@@ -244,7 +244,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 					return null;
 			}
 		}
-		return (Object[]) objIn;
+		return (T[]) objIn;
 	}
 
 	/**
@@ -276,7 +276,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 	 * @throws NullPointerException
 	 *             If <code>type</code> is <code>null</code>.
 	 **/
-	public Object[] readSpecificTypeArray(Class<? extends Serializable> type, int retries)
+	public <T> T[] readSpecificTypeArray(Class<? extends Serializable> type, int retries)
 			throws ClassNotFoundException, IOException {
 		if (!type.isArray())
 			throw new ArrayStoreException("Class is not an array");
@@ -288,7 +288,7 @@ public class AdvancedInputStream extends ObjectInputStream {
 			if (objIn != null) {
 				if (objIn.getClass().isArray()) {
 					if (objIn.getClass() == type)
-						return (Object[]) objIn;
+						return (T[]) objIn;
 				}
 			} else {
 				if (type == null)
