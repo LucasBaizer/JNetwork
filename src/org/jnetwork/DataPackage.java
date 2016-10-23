@@ -77,7 +77,7 @@ public class DataPackage implements Serializable {
 	 * @return A random alphanumeric ID created at the time of this
 	 *         DataPackage's instantiation.
 	 */
-	public String getId() {
+	public String getID() {
 		return id;
 	}
 
@@ -86,7 +86,7 @@ public class DataPackage implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return message;
+		return "DataPackage:[message=" + message + ",id=" + id + ",objects=" + Arrays.asList(objects) + "]";
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class DataPackage implements Serializable {
 		if (o instanceof DataPackage) {
 			DataPackage op = (DataPackage) o;
 			return op.getMessage().equals(this.getMessage()) && Arrays.equals(op.getObjects(), this.getObjects())
-					&& op.getId().equals(this.getId());
+					&& op.getID().equals(this.getID());
 		}
 		return false;
 	}
