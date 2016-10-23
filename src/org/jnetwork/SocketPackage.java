@@ -8,8 +8,6 @@ package org.jnetwork;
  */
 public class SocketPackage {
 	private Connection socket;
-	private AdvancedInputStream in;
-	private AdvancedOutputStream out;
 	private Object[] data;
 	private Thread holder;
 
@@ -27,8 +25,6 @@ public class SocketPackage {
 	 */
 	public SocketPackage(Connection socket, Object... extraData) {
 		this.socket = socket;
-		this.in = socket.getInputStream();
-		this.out = socket.getOutputStream();
 		this.data = extraData;
 	}
 
@@ -38,18 +34,13 @@ public class SocketPackage {
 	 * 
 	 * @param socket
 	 *            - The socket.
-	 * @param in
-	 *            - The input stream.
-	 * @param out
-	 *            - The output stream.
 	 * @param holder
 	 *            - The thread which this SocketPackage is connected to.
 	 * @param extraData
 	 *            - Any extra data to add to the package.
 	 */
-	SocketPackage(Connection socket, AdvancedInputStream in, AdvancedOutputStream out, Thread holder,
-			Object... extraData) {
-		this(socket, in, out, extraData);
+	SocketPackage(Connection socket, Thread holder, Object... extraData) {
+		this(socket, extraData);
 
 		this.holder = holder;
 	}
@@ -61,20 +52,6 @@ public class SocketPackage {
 	 */
 	public Connection getConnection() {
 		return this.socket;
-	}
-
-	/**
-	 * @return the <code>ObjectInputStream</code>.
-	 */
-	public AdvancedInputStream getInputStream() {
-		return this.in;
-	}
-
-	/**
-	 * @return the <code>AdvancedOutputStream</code>.
-	 */
-	public AdvancedOutputStream getOutputStream() {
-		return this.out;
 	}
 
 	/**

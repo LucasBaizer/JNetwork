@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.jnetwork.Server;
+import org.jnetwork.TCPServer;
 
 public class Test {
 	public static void main(String[] args) {
@@ -19,7 +20,7 @@ public class Test {
 								new ColumnHeader("Age", ColumnHeader.STORAGE_TYPE_INTEGER) }));
 			}
 
-			Server server = new Server(1337, new DatabaseServerConnectionHandler(database));
+			Server server = new TCPServer(1337, new DatabaseServerConnectionHandler(database));
 			server.start();
 
 			QueryConnection conn = QueryConnection.createConnection("localhost", 1337);

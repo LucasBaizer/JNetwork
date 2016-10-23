@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.jnetwork.Server;
+import org.jnetwork.TCPServer;
 import org.jnetwork.database.Database;
 import org.jnetwork.database.DatabaseServerConnectionHandler;
 import org.jnetwork.database.QueryConnection;
@@ -48,7 +49,7 @@ public class DatabaseService {
 
 	public static void startLocalServer() throws IOException {
 		if (localServer == null) {
-			localServer = new Server(1337, serverHandler = new DatabaseServerConnectionHandler(new Database()));
+			localServer = new TCPServer(1337, serverHandler = new DatabaseServerConnectionHandler(new Database()));
 			localServer.start();
 		}
 	}

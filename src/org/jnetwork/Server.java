@@ -2,10 +2,8 @@ package org.jnetwork;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -49,12 +47,11 @@ import org.jnetwork.listener.ClientDisconnectionListener;
  * 
  * @author Lucas Baizer
  */
-public class Server implements Closeable {
-	private ServerSocket server;
+public abstract class Server implements Closeable {
 	private ClientConnectionListener thread;
 	private int port;
-	private ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
-	private ArrayList<SavedData> savedData = new ArrayList<SavedData>();
+	protected ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
+	protected ArrayList<SavedData> savedData = new ArrayList<SavedData>();
 	private ArrayList<ClientDisconnectionListener> removers = new ArrayList<ClientDisconnectionListener>();
 	private int maxClients = Integer.MAX_VALUE;
 	private boolean started;
@@ -80,7 +77,6 @@ public class Server implements Closeable {
 		if (clientSocketThread == null)
 			throw new NullPointerException("ClientConnectionListener is null");
 
-		this.server = new ServerSocket(port);
 		this.thread = clientSocketThread;
 		this.port = port;
 	}
@@ -427,19 +423,6 @@ public class Server implements Closeable {
 	}
 
 	/**
-	 * Gets the internal <code>ServerSocket</code> the <code>Server</code> is
-	 * built off of.
-	 * 
-	 * @return <b>ServerSocket</b> - The internal <code>ServerSocket</code> the
-	 *         <code>Server</code> is built off of.
-	 * 
-	 * @see java.net.ServerSocket
-	 */
-	public ServerSocket getServerSocket() {
-		return server;
-	}
-
-	/**
 	 * Sets the maximum amount of clients allowed to be connected to the server
 	 * at a point in time. Defaults to <code>Integer.MAX_VALUE</code>.
 	 * 
@@ -485,8 +468,6 @@ public class Server implements Closeable {
 	 */
 	@Override
 	public void close() throws IOException {
-		server.close();
-
 		synchronized (closeWaiter) {
 			closeWaiter.notifyAll();
 		}
@@ -507,51 +488,13 @@ public class Server implements Closeable {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void launchNewThread() throws IOException, InterruptedException {
-		final Socket client;
-		try {
-			client = server.accept();
-		} catch (SocketException e) {
-			if (e.getMessage().equals("socket closed")) {
-				return;
-			} else {
-				throw e;
-			}
-		}
-		// wait until a client disconnects if the maximum amount of
-		// clients is full
-		// TODO synchronize around object to not chew up CPU
-		while (clients.size() == maxClients) {
-			Thread.sleep(20);
-		}
-		final SocketPackage event = new SocketPackage(new Connection(client));
+	protected abstract void launchNewThread() throws IOException, InterruptedException;
 
-		refresh();
-		clients.add(event);
-		refresh();
-
-		// sets saved data
-		for (SavedData data : savedData)
-			if (event.getConnection().getRemoteSocketAddress().toString()
-					.equals(data.pkg.getConnection().getRemoteSocketAddress().toString()))
-				event.setExtraData(data.data);
-
-		Thread thr = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				thread.clientConnected(event);
-				try {
-					removeClient(event);
-				} catch (IOException e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-				}
-			}
-		});
-		event.setHoldingThread(thr);
-		thr.setName("JNetwork-Server-Thread-" + client.getRemoteSocketAddress());
-		thr.start();
-
-		launchNewThread();
+	/**
+	 * @return the ClientConnectionListener specified at instantiation.
+	 */
+	public ClientConnectionListener getClientConnectionListener() {
+		return thread;
 	}
 
 	/**
@@ -560,9 +503,9 @@ public class Server implements Closeable {
 	 * 
 	 * @author Lucas Baizer
 	 */
-	private static class SavedData {
-		private SocketPackage pkg;
-		private Object[] data;
+	static class SavedData {
+		SocketPackage pkg;
+		Object[] data;
 
 		public SavedData(SocketPackage pkg, Object[] data) {
 			this.pkg = pkg;

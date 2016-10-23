@@ -9,21 +9,21 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.DataPackage;
 import org.jnetwork.Server;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.listener.ClientConnectionListener;
+import org.jnetwork.TCPConnection;
+import org.jnetwork.TCPServer;
+import org.jnetwork.listener.TCPConnectionListener;
 
 /**
  * This class sends an object to each client that connects and then reads an
  * object in from the client.
  */
-public class ObjectTransferServer implements ClientConnectionListener {
-	private static final long serialVersionUID = 1464765717434969912L;
-
+public class ObjectTransferServer implements TCPConnectionListener {
 	private static Server server;
 
 	public static void main(String[] args) throws IOException {
 		// creates a new server on port 1337 with the ClientConnectionListener
 		// as an instance of this class
-		server = new Server(1337, new ObjectTransferServer());
+		server = new TCPServer(1337, new ObjectTransferServer());
 
 		// the server socket will be closed on program exit
 		CloseRequest.addObjectToClose(server);
@@ -36,11 +36,10 @@ public class ObjectTransferServer implements ClientConnectionListener {
 		SocketAddress address = event.getConnection().getRemoteSocketAddress();
 
 		// gets the output stream of the client, which data will be written out
-		// to
-		AdvancedOutputStream out = event.getOutputStream();
+		AdvancedOutputStream out = ((TCPConnection) event.getConnection()).getOutputStream();
 
 		// gets the input stream of the client, which data will be read from
-		AdvancedInputStream in = event.getInputStream();
+		AdvancedInputStream in = ((TCPConnection) event.getConnection()).getInputStream();
 
 		// creates a new DataPackage containing a string saying "Hello, client."
 		// and the client's IP address. it also gives the package a message

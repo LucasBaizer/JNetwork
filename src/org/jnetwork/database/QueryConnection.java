@@ -5,12 +5,13 @@ import java.net.UnknownHostException;
 
 import org.jnetwork.Connection;
 import org.jnetwork.DataPackage;
+import org.jnetwork.TCPConnection;
 
 public class QueryConnection {
 	private Connection client;
 
 	private QueryConnection(String host, int port) throws UnknownHostException, IOException {
-		client = new Connection(host, port);
+		client = new TCPConnection(host, port);
 	}
 
 	public static QueryConnection createConnection(String host, int port) throws UnknownHostException, IOException {
@@ -19,9 +20,8 @@ public class QueryConnection {
 
 	public synchronized EntrySet query(String query) throws IOException, QueryException {
 		try {
-			client.getOutputStream()
-					.writeUnshared(new DataPackage(Query.parseQuery(query)).setMessage("SERVER_DATABASE_QUERY"));
-			DataPackage response = (DataPackage) client.getInputStream().readUnshared();
+			client.writeUnshared(new DataPackage(Query.parseQuery(query)).setMessage("SERVER_DATABASE_QUERY"));
+			DataPackage response = (DataPackage) client.readUnshared();
 			if (response.getMessage().equals("SERVER_DATABASE_QUERY_RESPONSE_ERROR")) {
 				throw (QueryException) response.getObjects()[0];
 			} else {
@@ -33,7 +33,7 @@ public class QueryConnection {
 	}
 
 	public synchronized void closeConnection() throws IOException {
-		client.getOutputStream().writeUnshared(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
+		client.writeUnshared(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

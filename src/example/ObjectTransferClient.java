@@ -6,8 +6,8 @@ import java.net.UnknownHostException;
 import org.jnetwork.AdvancedInputStream;
 import org.jnetwork.AdvancedOutputStream;
 import org.jnetwork.CloseRequest;
-import org.jnetwork.Connection;
 import org.jnetwork.DataPackage;
+import org.jnetwork.TCPConnection;
 
 /**
  * This class reads an object in from a server and then sends an object back.
@@ -16,7 +16,7 @@ public class ObjectTransferClient {
 	public static void main(String[] args) {
 		try {
 			// connects to the server
-			Connection client = new Connection("thehostaddress", 1337);
+			TCPConnection client = new TCPConnection("thehostaddress", 1337);
 
 			// the client socket will be closed on program exit
 			CloseRequest.addObjectToClose(client);
