@@ -8,8 +8,6 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
-import javax.net.SocketFactory;
-
 /**
  * A TCP representation of the Connection object. Used for writing and reading
  * data with a TCPServer.
@@ -17,10 +15,12 @@ import javax.net.SocketFactory;
  * @author Lucas Baizer
  */
 public class TCPConnection extends Connection {
-	private Socket connection;
-	private AdvancedOutputStream out;
-	private AdvancedInputStream in;
-	private InetSocketAddress address;
+	protected Socket connection;
+	protected AdvancedOutputStream out;
+	protected AdvancedInputStream in;
+	protected InetSocketAddress address;
+	
+	protected TCPConnection() {super();}
 
 	/**
 	 * @return The socket that the <code>Connection</code> is built off of.
@@ -105,7 +105,7 @@ public class TCPConnection extends Connection {
 			throw new NullPointerException();
 
 		if (connectNow) {
-			this.connection = SocketFactory.getDefault().createSocket(host, port);
+			this.connection = new Socket(host, port);
 			this.out = new AdvancedOutputStream(connection.getOutputStream());
 			this.in = new AdvancedInputStream(connection.getInputStream());
 		} else {
@@ -125,12 +125,10 @@ public class TCPConnection extends Connection {
 	 *             If a general error occurs during initialization of the
 	 *             <code>Socket</code> and the streams.
 	 */
-	public Connection connect() throws UnknownHostException, IOException {
+	public void connect() throws UnknownHostException, IOException {
 		this.connection = new Socket(address.getHostString(), address.getPort());
 		this.out = new AdvancedOutputStream(connection.getOutputStream());
 		this.in = new AdvancedInputStream(connection.getInputStream());
-
-		return this;
 	}
 
 	/**

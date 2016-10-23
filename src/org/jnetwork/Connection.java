@@ -17,6 +17,8 @@ public abstract class Connection implements Closeable {
 	private Object closeWaiter = new Object();
 	private String hostAddress;
 	private int hostPort;
+	
+	Connection() {}
 
 	public Connection(String host, int port) {
 		this.hostAddress = host;

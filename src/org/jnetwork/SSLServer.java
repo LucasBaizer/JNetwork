@@ -1,41 +1,50 @@
 package org.jnetwork;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
+import java.security.Security;
+
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
 import org.jnetwork.listener.TCPConnectionListener;
 
+import com.sun.net.ssl.internal.ssl.Provider;
+
 /**
- * A TCP representation of the Server object. Used for sending and receiving
- * data with TCPConnection objects.
+ * An SSL representation of the Server object. Used for sending and receiving
+ * data with SSLConnection objects.
  * 
  * @author Lucas Baizer
  */
-public class TCPServer extends Server {
-	protected ServerSocket server;
-
-	public TCPServer(int port, TCPConnectionListener clientSocketThread) {
-		this(port, Integer.MAX_VALUE, clientSocketThread);
+public class SSLServer extends TCPServer {
+	public SSLServer(SSLKeystore keystore, int port, TCPConnectionListener clientSocketThread) {
+		this(keystore, port, Integer.MAX_VALUE, clientSocketThread);
 	}
 
-	public TCPServer(int port, int maxClients, TCPConnectionListener clientSocketThread) {
+	public SSLServer(SSLKeystore keystore, int port, int maxClients, TCPConnectionListener clientSocketThread) {
 		super(port, maxClients, clientSocketThread);
+
+		Security.addProvider(new Provider());
+
+		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreLocation().getPath());
+		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreLocation().getPath());
+		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
 	}
 
 	@Override
 	public void start() throws IOException {
-		this.server = new ServerSocket(getBoundPort());
+		server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort());
 
 		super.startDispatch();
 	}
 
 	@Override
 	protected void launchNewThread() throws IOException, InterruptedException {
-		final Socket client;
+		final SSLSocket client;
 		try {
-			client = server.accept();
+			client = (SSLSocket) ((SSLServerSocket) server).accept();
 		} catch (SocketException e) {
 			if (e.getMessage().equals("socket closed")) {
 				return;
@@ -49,7 +58,7 @@ public class TCPServer extends Server {
 		while (clients.size() == getMaxClients()) {
 			Thread.sleep(20);
 		}
-		final SocketPackage event = new SocketPackage(new TCPConnection(client));
+		final SocketPackage event = new SocketPackage(new SSLConnection(client));
 
 		refresh();
 		clients.add(event);
@@ -73,28 +82,9 @@ public class TCPServer extends Server {
 			}
 		});
 		event.setHoldingThread(thr);
-		thr.setName("JNetwork-TCPServer-Thread-" + client.getRemoteSocketAddress());
+		thr.setName("JNetwork-SSLServer-Thread-" + client.getRemoteSocketAddress());
 		thr.start();
 
 		launchNewThread();
-	}
-
-	@Override
-	public void close() throws IOException {
-		server.close();
-		super.close();
-	}
-
-	/**
-	 * Gets the internal <code>ServerSocket</code> the <code>Server</code> is
-	 * built off of.
-	 * 
-	 * @return <b>ServerSocket</b> - The internal <code>ServerSocket</code> the
-	 *         <code>Server</code> is built off of.
-	 * 
-	 * @see java.net.ServerSocket
-	 */
-	public ServerSocket getServerSocket() {
-		return server;
 	}
 }

@@ -17,11 +17,11 @@ public class UDPServer extends Server {
 	private DatagramSocket server;
 	private int bufferSize = 1024;
 
-	public UDPServer(int port, UDPConnectionListener clientSocketThread) throws IOException {
+	public UDPServer(int port, UDPConnectionListener clientSocketThread) {
 		this(port, Integer.MAX_VALUE, clientSocketThread);
 	}
 
-	public UDPServer(int port, int maxClients, UDPConnectionListener clientSocketThread) throws IOException {
+	public UDPServer(int port, int maxClients, UDPConnectionListener clientSocketThread) {
 		super(port, maxClients, clientSocketThread);
 	}
 
@@ -65,7 +65,7 @@ public class UDPServer extends Server {
 					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
 				}
 			}
-		}, "JNetwork-TCPServer-Thread-" + receivePacket.getSocketAddress());
+		}, "JNetwork-UDPServer-Thread-" + receivePacket.getSocketAddress());
 		event.setHoldingThread(thr);
 		thr.start();
 

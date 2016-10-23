@@ -37,6 +37,9 @@ public class UDPObjectTransfer {
 			client.writeObject("Hello, from the client!");
 
 			System.out.println(client.readObject());
+
+			client.close();
+			server.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
