@@ -11,8 +11,9 @@ import org.jnetwork.listener.UDPConnectionListener;
 
 public class UDPObjectTransfer {
 	/**
-	 * This code prints "Hello, world!" on server-side.
-	**/
+	 * This code prints "Hello, from the client!" on server-side, and then
+	 * "Hello, from the server!" on client-side.
+	 **/
 	public static void main(String[] args) {
 		try {
 			UDPServer server = new UDPServer(1337, new UDPConnectionListener() {
@@ -20,6 +21,8 @@ public class UDPObjectTransfer {
 				public void dataReceived(SocketPackage event, byte[] data) {
 					try {
 						System.out.println((String) UDPUtils.deserializeObject(data));
+
+						event.getConnection().writeObject("Hello, from the server!");
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -31,12 +34,10 @@ public class UDPObjectTransfer {
 			CloseRequest.addObjectToClose(server);
 
 			UDPConnection client = new UDPConnection("localhost", 1337);
-			client.writeObject("Hello, world!");
+			client.writeObject("Hello, from the client!");
 
-			server.waitUntilClose();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+			System.out.println(client.readObject());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
