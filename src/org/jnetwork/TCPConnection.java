@@ -44,7 +44,7 @@ public class TCPConnection extends Connection {
 	 *             If the <code>socket</code> parameter is null.
 	 */
 	public TCPConnection(Socket socket) throws IOException {
-		this(socket.getInetAddress().getHostAddress(), socket.getPort());
+		super(socket.getInetAddress().getHostAddress(), socket.getPort());
 
 		this.connection = socket;
 		this.out = new AdvancedOutputStream(socket.getOutputStream());
