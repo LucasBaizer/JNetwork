@@ -7,6 +7,12 @@ import java.net.InetSocketAddress;
 
 import org.jnetwork.listener.UDPConnectionListener;
 
+/**
+ * A UDP representation of the Server object. Used for sending and receiving
+ * data with UDPConnection objects.
+ * 
+ * @author Lucas Baizer
+ */
 public class UDPServer extends Server {
 	private DatagramSocket server;
 	private int bufferSize = 1024;
@@ -60,6 +66,14 @@ public class UDPServer extends Server {
 		thr.start();
 
 		launchNewThread();
+	}
+
+	/**
+	 * @return the internal <code>DatagramSocket</code> the <code>Server</code>
+	 *         is built off of.
+	 */
+	public DatagramSocket getServerSocket() {
+		return server;
 	}
 
 	/**

@@ -8,6 +8,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
+/**
+ * A UDP representation of the Connection object. Used for writing and reading
+ * data with a UDPServer.
+ * 
+ * @author Lucas Baizer
+ */
 public class UDPConnection extends Connection {
 	private InetSocketAddress targetAddress;
 	private DatagramSocket socket;
@@ -128,10 +134,18 @@ public class UDPConnection extends Connection {
 		this.bufferSize = bufferSize;
 	}
 
+	/**
+	 * @return the InetSocketAddress of the device that data will be sent to
+	 *         when and of the <code>writeXXX</code> methods are called.
+	 */
 	public InetSocketAddress getTargetAddress() {
 		return targetAddress;
 	}
 
+	/**
+	 * Sets the InetSocketAddress of the device that data will be sent to when
+	 * and of the <code>writeXXX</code> methods are called.
+	 */
 	public void setTargetAddress(InetSocketAddress targetAddress) {
 		this.targetAddress = targetAddress;
 	}

@@ -9,7 +9,7 @@ import org.jnetwork.listener.TCPConnectionListener;
 
 /**
  * A TCP representation of the Server object. Used for sending and receiving
- * data with TCPClient objects.
+ * data with TCPConnection objects.
  * 
  * @author Lucas Baizer
  */
