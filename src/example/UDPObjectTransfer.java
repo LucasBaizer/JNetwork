@@ -10,6 +10,9 @@ import org.jnetwork.UDPUtils;
 import org.jnetwork.listener.UDPConnectionListener;
 
 public class UDPObjectTransfer {
+	/**
+	 * This code prints "Hello, world!" on server-side.
+	**/
 	public static void main(String[] args) {
 		try {
 			UDPServer server = new UDPServer(1337, new UDPConnectionListener() {
