@@ -5,17 +5,19 @@ import java.net.UnknownHostException;
 
 import org.jnetwork.Connection;
 import org.jnetwork.DataPackage;
+import org.jnetwork.SSLConnection;
 import org.jnetwork.TCPConnection;
 
 public class QueryConnection {
 	private Connection client;
 
-	private QueryConnection(String host, int port) throws UnknownHostException, IOException {
-		client = new TCPConnection(host, port);
+	private QueryConnection(String host, int port, boolean isSSL) throws UnknownHostException, IOException {
+		client = isSSL ? new SSLConnection(host, port) : new TCPConnection(host, port);
 	}
 
-	public static QueryConnection createConnection(String host, int port) throws UnknownHostException, IOException {
-		return new QueryConnection(host, port);
+	public static QueryConnection createConnection(String host, int port, boolean isSSL)
+			throws UnknownHostException, IOException {
+		return new QueryConnection(host, port, isSSL);
 	}
 
 	public synchronized EntrySet query(String query) throws IOException, QueryException {

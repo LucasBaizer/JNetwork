@@ -20,7 +20,7 @@ public class DatabaseService {
 		if (connection != null) {
 			connection.closeConnection();
 		}
-		connection = QueryConnection.createConnection(host, port);
+		connection = QueryConnection.createConnection(host, port, false);
 	}
 
 	public static QueryConnection getConnection() {
