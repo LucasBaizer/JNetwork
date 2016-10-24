@@ -44,38 +44,11 @@ public class SSLServer extends TCPServer {
 		} catch (SocketException e) {
 			if (e.getMessage().equals("socket closed")) {
 				return;
-			} else {
-				throw e;
 			}
+			throw e;
 		}
 
 		final SocketPackage event = new SocketPackage(new SSLConnection(client));
-
-		refresh();
-		clients.add(event);
-		refresh();
-
-		// sets saved data
-		for (SavedData data : savedData)
-			if (event.getConnection().getRemoteSocketAddress().toString()
-					.equals(data.pkg.getConnection().getRemoteSocketAddress().toString()))
-				event.setExtraData(data.data);
-
-		Thread thr = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				((TCPConnectionListener) getClientConnectionListener()).clientConnected(event);
-				try {
-					removeClient(event);
-				} catch (IOException e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-				}
-			}
-		});
-		event.setHoldingThread(thr);
-		thr.setName("JNetwork-SSLServer-Thread-" + client.getRemoteSocketAddress());
-		thr.start();
-
-		launchNewThread();
+		super.launchThreadForConnectedClient(event);
 	}
 }

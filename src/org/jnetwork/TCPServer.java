@@ -35,12 +35,15 @@ public class TCPServer extends Server {
 		} catch (SocketException e) {
 			if (e.getMessage().equals("socket closed")) {
 				return;
-			} else {
-				throw e;
 			}
+			throw e;
 		}
 		final SocketPackage event = new SocketPackage(new TCPConnection(client));
 
+		launchThreadForConnectedClient(event);
+	}
+
+	protected void launchThreadForConnectedClient(SocketPackage event) throws IOException, InterruptedException {
 		refresh();
 		clients.add(event);
 		refresh();
@@ -63,7 +66,7 @@ public class TCPServer extends Server {
 			}
 		});
 		event.setHoldingThread(thr);
-		thr.setName("JNetwork-TCPServer-Thread-" + client.getRemoteSocketAddress());
+		thr.setName("JNetwork-TCPServer-Thread-" + event.getConnection().getRemoteSocketAddress());
 		thr.start();
 
 		launchNewThread();
