@@ -3,7 +3,7 @@ JNetwork is a simple, lightweight, and documented Java networking library. It pr
 over TCP. JNetwork also has a simple SQL-like database protocol. All of the jars have built-in source attachments.
 
 #Examples
-All examples can be found [here](examples).
+All examples can be found [here](src/example).
 
 #Downloads
 [JNetwork Core](libs/jnetwork-core.jar)<br>
