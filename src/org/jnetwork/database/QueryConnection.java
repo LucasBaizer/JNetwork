@@ -3,13 +3,12 @@ package org.jnetwork.database;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.jnetwork.Connection;
 import org.jnetwork.DataPackage;
 import org.jnetwork.SSLConnection;
 import org.jnetwork.TCPConnection;
 
 public class QueryConnection {
-	private Connection client;
+	private TCPConnection client;
 
 	private QueryConnection(String host, int port, boolean isSSL) throws UnknownHostException, IOException {
 		client = isSSL ? new SSLConnection(host, port) : new TCPConnection(host, port);
@@ -36,18 +35,7 @@ public class QueryConnection {
 
 	public synchronized void closeConnection() throws IOException {
 		client.writeUnshared(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(1000);
-					client.close();
-				} catch (InterruptedException e) {
-					return;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}, "Close-Database-Socket").start();
+		client.getOutputStream().flush();
+		client.close();
 	}
 }

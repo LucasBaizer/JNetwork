@@ -12,7 +12,7 @@ import org.jnetwork.TCPConnection;
 /**
  * This class reads an object in from a server and then sends an object back.
  */
-public class ObjectTransferClient {
+public class TCPObjectTransferClient {
 	public static void main(String[] args) {
 		try {
 			// connects to the server

@@ -17,13 +17,13 @@ import org.jnetwork.listener.TCPConnectionListener;
  * This class sends an object to each client that connects and then reads an
  * object in from the client.
  */
-public class ObjectTransferServer implements TCPConnectionListener {
+public class TCPObjectTransferServer implements TCPConnectionListener {
 	private static Server server;
 
 	public static void main(String[] args) throws IOException {
 		// creates a new server on port 1337 with the ClientConnectionListener
 		// as an instance of this class
-		server = new TCPServer(1337, new ObjectTransferServer());
+		server = new TCPServer(1337, new TCPObjectTransferServer());
 
 		// the server socket will be closed on program exit
 		CloseRequest.addObjectToClose(server);
