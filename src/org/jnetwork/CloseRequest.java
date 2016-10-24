@@ -27,14 +27,14 @@ public final class CloseRequest {
 					}
 				}
 			}
-		}));
+		}, "JNetwork-CloseRequest-Dispatch"));
 	}
 
 	/**
-	 * Adds a <code>Closeable</code> object to close at runtime.
+	 * Adds a <code>Closeable</code> object to close on shutdown.
 	 * 
 	 * @param obj
-	 *            - The <code>Closeable</code> object to close at runtime.
+	 *            - The <code>Closeable</code> object to close on shutdown.
 	 * 
 	 * @return boolean - If the adding was successful. Defined by
 	 *         {@link java.util.Collection#add(Object)}.

@@ -17,11 +17,7 @@ public class TCPServer extends Server {
 	protected ServerSocket server;
 
 	public TCPServer(int port, TCPConnectionListener clientSocketThread) {
-		this(port, Integer.MAX_VALUE, clientSocketThread);
-	}
-
-	public TCPServer(int port, int maxClients, TCPConnectionListener clientSocketThread) {
-		super(port, maxClients, clientSocketThread);
+		super(port, clientSocketThread);
 	}
 
 	@Override
@@ -42,12 +38,6 @@ public class TCPServer extends Server {
 			} else {
 				throw e;
 			}
-		}
-		// wait until a client disconnects if the maximum amount of
-		// clients is full
-		// TODO synchronize around object to not chew up CPU
-		while (clients.size() == getMaxClients()) {
-			Thread.sleep(20);
 		}
 		final SocketPackage event = new SocketPackage(new TCPConnection(client));
 

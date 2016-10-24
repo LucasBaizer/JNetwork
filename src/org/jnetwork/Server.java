@@ -53,7 +53,6 @@ public abstract class Server implements Closeable {
 	protected ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
 	protected ArrayList<SavedData> savedData = new ArrayList<SavedData>();
 	private ArrayList<ClientDisconnectionListener> removers = new ArrayList<ClientDisconnectionListener>();
-	private int maxClients = Integer.MAX_VALUE;
 	private boolean started;
 	private Object closeWaiter = new Object();
 
@@ -77,25 +76,6 @@ public abstract class Server implements Closeable {
 
 		this.thread = clientSocketThread;
 		this.port = port;
-	}
-
-	/**
-	 * Calls {@link #Server(int, ClientConnectionListener)} and sets the maximum
-	 * clients to the <code>maxClients</code> parameter.
-	 * 
-	 * @param maxClients
-	 *            - The amount of clients that can be connected to the server at
-	 *            any given point in time.
-	 * 
-	 * @throws IndexOutOfBoundsException
-	 *             if <code>maxClients</code> is less than one.
-	 */
-	public Server(int port, int maxClients, ClientConnectionListener clientSocketThread) {
-		this(port, clientSocketThread);
-
-		if (maxClients < 1)
-			throw new IndexOutOfBoundsException(Integer.toString(maxClients));
-		this.maxClients = maxClients;
 	}
 
 	/**
@@ -431,31 +411,6 @@ public abstract class Server implements Closeable {
 	 */
 	public SocketPackage[] getClients() {
 		return clients.toArray(new SocketPackage[clients.size()]);
-	}
-
-	/**
-	 * Sets the maximum amount of clients allowed to be connected to the server
-	 * at a point in time. Defaults to <code>Integer.MAX_VALUE</code>.
-	 * 
-	 * @param clients
-	 *            - The new cap.
-	 * 
-	 * @see java.lang.Integer#MAX_VALUE
-	 */
-	public void setMaxClients(int clients) {
-		maxClients = clients;
-	}
-
-	/**
-	 * Gets the maximum amount of clients allowed to be connected to the server
-	 * at a point in time. Defaults to <code>Integer.MAX_VALUE</code>.
-	 * 
-	 * @return int - The cap.
-	 * 
-	 * @see java.lang.Integer#MAX_VALUE
-	 */
-	public int getMaxClients() {
-		return maxClients;
 	}
 
 	/**

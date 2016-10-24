@@ -20,11 +20,7 @@ import com.sun.net.ssl.internal.ssl.Provider;
  */
 public class SSLServer extends TCPServer {
 	public SSLServer(Keystore keystore, int port, TCPConnectionListener clientSocketThread) {
-		this(keystore, port, Integer.MAX_VALUE, clientSocketThread);
-	}
-
-	public SSLServer(Keystore keystore, int port, int maxClients, TCPConnectionListener clientSocketThread) {
-		super(port, maxClients, clientSocketThread);
+		super(port, clientSocketThread);
 
 		Security.addProvider(new Provider());
 
@@ -52,12 +48,7 @@ public class SSLServer extends TCPServer {
 				throw e;
 			}
 		}
-		// wait until a client disconnects if the maximum amount of
-		// clients is full
-		// TODO synchronize around object to not chew up CPU
-		while (clients.size() == getMaxClients()) {
-			Thread.sleep(20);
-		}
+
 		final SocketPackage event = new SocketPackage(new SSLConnection(client));
 
 		refresh();

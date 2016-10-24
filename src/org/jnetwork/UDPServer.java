@@ -18,11 +18,7 @@ public class UDPServer extends Server {
 	private int bufferSize = 1024;
 
 	public UDPServer(int port, UDPConnectionListener clientSocketThread) {
-		this(port, Integer.MAX_VALUE, clientSocketThread);
-	}
-
-	public UDPServer(int port, int maxClients, UDPConnectionListener clientSocketThread) {
-		super(port, maxClients, clientSocketThread);
+		super(port, clientSocketThread);
 	}
 
 	@Override
@@ -37,10 +33,6 @@ public class UDPServer extends Server {
 		byte[] receiveData = new byte[bufferSize];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		server.receive(receivePacket);
-
-		while (clients.size() == getMaxClients()) {
-			Thread.sleep(20);
-		}
 
 		UDPConnection conn = new UDPConnection(server);
 		conn.setTargetAddress((InetSocketAddress) receivePacket.getSocketAddress());
