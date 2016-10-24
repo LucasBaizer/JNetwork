@@ -1,13 +1,13 @@
 #What is JNetwork?
-JNetwork is a simple, lightweight, easy-to-use solution for making Java's Sockets easier. 
-It includes several utilities for creating servers, creating clients, encrypting and decryping objects,
-and passing objects and files between servers and clients. JNetwork supports both TCP and UDP protocols, along with SSL over TCP. It also has a lightweight SQL-like database protocol.
-All jars have a built-in source attachment with documentation.
+JNetwork is a simple, lightweight, and documented Java networking library. It provides support for TCP and UDP connections, and also SSL 
+over TCP. JNetwork also has a simple SQL-like database protocol. All of the jars have built-in source attachments.
+
+#Examples
+All examples can be found [here](examples).
 
 #Downloads
 [JNetwork Core](libs/jnetwork-core.jar)<br>
-[JNetwork Crypto](libs/jnetwork-crypto.jar)<br>
 [JNetwork Database](libs/jnetwork-database.jar)<br>
 
 #License
-Under the jurisdiction of the [GNU General Public License](LICENSE.md). 
+Under the [GNU General Public License](LICENSE.md). 
