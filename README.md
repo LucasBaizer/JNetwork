@@ -7,7 +7,7 @@ All examples can be found [here](src/example).
 
 #Downloads
 [JNetwork Core](libs/jnetwork-core.jar)<br>
-[JNetwork Database](libs/jnetwork-database.jar)<br> (Note: there is no documentation for this currently, we are working on it!)
+[JNetwork Database](libs/jnetwork-database.jar) (Note: there is no documentation for this currently, we are working on it!)<br>
 
 #License
 Under the [GNU General Public License](LICENSE.md). 
