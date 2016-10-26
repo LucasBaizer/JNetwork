@@ -19,8 +19,10 @@ public class TCPConnection extends Connection {
 	protected AdvancedOutputStream out;
 	protected AdvancedInputStream in;
 	protected InetSocketAddress address;
-	
-	protected TCPConnection() {super();}
+
+	protected TCPConnection() {
+		super();
+	}
 
 	/**
 	 * @return The socket that the <code>Connection</code> is built off of.
@@ -173,11 +175,6 @@ public class TCPConnection extends Connection {
 	}
 
 	@Override
-	public void write(byte[] bytes) throws IOException {
-		out.write(bytes);
-	}
-
-	@Override
 	public void write(byte[] bytes, int off, int len) throws IOException {
 		out.write(bytes, off, len);
 	}
@@ -190,11 +187,6 @@ public class TCPConnection extends Connection {
 	@Override
 	public int read() throws IOException {
 		return in.read();
-	}
-
-	@Override
-	public void read(byte[] arr) throws IOException {
-		in.read(arr);
 	}
 
 	@Override

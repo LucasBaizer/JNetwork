@@ -17,8 +17,9 @@ public abstract class Connection implements Closeable {
 	private Object closeWaiter = new Object();
 	private String hostAddress;
 	private int hostPort;
-	
-	Connection() {}
+
+	Connection() {
+	}
 
 	public Connection(String host, int port) {
 		this.hostAddress = host;
@@ -54,7 +55,9 @@ public abstract class Connection implements Closeable {
 	/**
 	 * See {@link java.io.OutputStream#write(byte[])}.
 	 */
-	public abstract void write(byte[] bytes) throws IOException;
+	public void write(byte[] bytes) throws IOException {
+		write(bytes, 0, bytes.length);
+	}
 
 	/**
 	 * See {@link java.io.OutputStream#write(byte[], int, int)}.
@@ -79,7 +82,9 @@ public abstract class Connection implements Closeable {
 	/**
 	 * See {@link java.io.InputStream#read(byte[])}.
 	 */
-	public abstract void read(byte[] arr) throws IOException;
+	public void read(byte[] arr) throws IOException {
+		read(arr, 0, arr.length);
+	}
 
 	/**
 	 * See {@link java.io.InputStream#read(byte[], int, int)}.
