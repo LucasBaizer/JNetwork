@@ -3,10 +3,13 @@ package org.jnetwork;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.security.Security;
 import java.util.Objects;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+
+import com.sun.net.ssl.internal.ssl.Provider;
 
 /**
  * An SSL representation of the Connection object. Used for writing and reading
@@ -15,6 +18,10 @@ import javax.net.ssl.SSLSocketFactory;
  * @author Lucas Baizer
  */
 public class SSLConnection extends TCPConnection {
+	static {
+		Security.addProvider(new Provider());
+	}
+
 	public SSLConnection(SSLSocket socket) throws IOException {
 		super(socket);
 	}

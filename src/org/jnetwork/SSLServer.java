@@ -19,10 +19,12 @@ import com.sun.net.ssl.internal.ssl.Provider;
  * @author Lucas Baizer
  */
 public class SSLServer extends TCPServer {
+	static {
+		Security.addProvider(new Provider());
+	}
+
 	public SSLServer(Keystore keystore, int port, TCPConnectionListener clientSocketThread) {
 		super(port, clientSocketThread);
-
-		Security.addProvider(new Provider());
 
 		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreLocation().getPath());
 		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreLocation().getPath());
