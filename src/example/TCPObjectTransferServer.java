@@ -10,8 +10,8 @@ import org.jnetwork.DataPackage;
 import org.jnetwork.Server;
 import org.jnetwork.SocketPackage;
 import org.jnetwork.TCPConnection;
+import org.jnetwork.TCPConnectionListener;
 import org.jnetwork.TCPServer;
-import org.jnetwork.listener.TCPConnectionListener;
 
 /**
  * This class sends an object to each client that connects and then reads an

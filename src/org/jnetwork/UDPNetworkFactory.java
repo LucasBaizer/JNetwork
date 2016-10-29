@@ -3,9 +3,6 @@ package org.jnetwork;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.jnetwork.listener.ClientConnectionListener;
-import org.jnetwork.listener.UDPConnectionListener;
-
 /**
  * A factory for creating UDP sockets.
  * 

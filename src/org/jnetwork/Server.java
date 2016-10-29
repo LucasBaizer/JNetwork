@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-import org.jnetwork.listener.ClientConnectionListener;
-import org.jnetwork.listener.ClientDisconnectionListener;
-
 /**
  * A server-side utility used for easily handling an infinite amount of
  * connections between clients. When the constructor is called, a
@@ -40,7 +37,7 @@ import org.jnetwork.listener.ClientDisconnectionListener;
  * @see java.net.ServerSocket
  * @see org.jnetwork.SocketPackage
  * @see org.jnetwork.listener.network.event.RefreshListener
- * @see org.jnetwork.listener.network.event.ClientConnectionListener
+ * @see org.jnetwork.network.event.ClientConnectionListener
  * @see org.jnetwork.listener.ClientDisconnectionListener.event.
  *      ClientRemovedListener
  * @see org.jnetwork.SocketPackage

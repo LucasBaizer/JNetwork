@@ -8,8 +8,26 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jnetwork.listener.TCPConnectionListener;
-
+/**
+ * A JNetwork-level secure TCP server. When a client initially connects, a
+ * handshake is performed between the client and the server. The handshake works
+ * like so:<br>
+ * <p>
+ * 1. A client connects to the server.<br>
+ * 2. The server sends its public RSA key to the client.<br>
+ * 3. The client generates a symmetric AES key, encrypts it with the public RSA
+ * key sent by the server, and sends it to the server.<br>
+ * 4. The server decrypts the RSA-encrypted AES key using the public RSA key's
+ * paired private key.<br>
+ * 5. The handshake is complete.<br>
+ * <p>
+ * After the handshake is complete, the AES key is used for encrypting and
+ * decrypting when writeXXX and readXXX are called on the Connection object.
+ * <b>It is neccessary to call writeXXX and readXXX on the Connection object,
+ * not the Connection's input/output streams.</b>
+ * 
+ * @author Lucas Baizer
+ */
 public class JLSTServer extends TCPServer {
 	private SecurityService crypto;
 

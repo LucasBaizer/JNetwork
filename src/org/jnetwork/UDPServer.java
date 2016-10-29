@@ -5,8 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
-import org.jnetwork.listener.UDPConnectionListener;
-
 /**
  * A UDP representation of the Server object. Used for sending and receiving
  * data with UDPConnection objects.

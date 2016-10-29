@@ -8,8 +8,6 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
-import org.jnetwork.listener.TCPConnectionListener;
-
 import com.sun.net.ssl.internal.ssl.Provider;
 
 /**

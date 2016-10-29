@@ -6,8 +6,8 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.SDTPConnection;
 import org.jnetwork.SDTPServer;
 import org.jnetwork.SocketPackage;
+import org.jnetwork.UDPConnectionListener;
 import org.jnetwork.UDPUtils;
-import org.jnetwork.listener.UDPConnectionListener;
 
 public class SDTPObjectTransfer {
 	/**

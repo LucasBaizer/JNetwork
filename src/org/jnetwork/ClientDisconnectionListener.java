@@ -1,6 +1,4 @@
-package org.jnetwork.listener;
-
-import org.jnetwork.SocketPackage;
+package org.jnetwork;
 
 /**
  * Used in pair with a {@code Server}. When the {@code removeClientt()} method

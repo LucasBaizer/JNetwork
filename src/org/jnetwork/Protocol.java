@@ -7,10 +7,10 @@ package org.jnetwork;
  * @author Lucas Baizer
  */
 public enum Protocol {
-	TCP(new TCPNetworkFactory(), "Transport Control Protocol"), UDP(new UDPNetworkFactory(),
+	TCP(new TCPNetworkFactory(), "Transmission Control Protocol"), UDP(new UDPNetworkFactory(),
 			"User Datagram Protocol"), SSL(new SSLNetworkFactory(), "Secure Socket Layer"), SDTP(
-					new SDTPNetworkFactory(),
-					"Secure Datagram Transport Protocol"), JLST(new JLSTNetworkFactory(), "JNetwork-Level Secure TCP");
+					new SDTPNetworkFactory(), "Secure Datagram Transmission Protocol"), JLST(new JLSTNetworkFactory(),
+							"JNetwork-Level Secure TCP");
 
 	private NetworkFactory factory;
 	private String protocolName;

@@ -14,9 +14,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jnetwork.listener.ClientDisconnectionListener;
-import org.jnetwork.listener.UDPConnectionListener;
-
 /**
  * A JNetwork-level secure UDP server. When a client initially connects, a
  * handshake is performed between the client and the server. The handshake works

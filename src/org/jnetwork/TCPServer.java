@@ -5,8 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.jnetwork.listener.TCPConnectionListener;
-
 /**
  * A TCP representation of the Server object. Used for sending and receiving
  * data with TCPConnection objects.

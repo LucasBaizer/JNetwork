@@ -13,6 +13,12 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
+/**
+ * A JNetwork-level secure TCP connection. An explanation of how this works can
+ * be found in the documentation for {@link JLSTServer}.
+ * 
+ * @author Lucas Baizer
+ */
 public class JLSTConnection extends TCPConnection {
 	private SecurityService rsa;
 	private SecurityService aes;

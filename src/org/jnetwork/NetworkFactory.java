@@ -3,8 +3,6 @@ package org.jnetwork;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.jnetwork.listener.ClientConnectionListener;
-
 /**
  * A factory used for creating connections and servers, typically from a
  * {@link Protocol}.

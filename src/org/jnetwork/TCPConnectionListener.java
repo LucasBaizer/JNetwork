@@ -1,6 +1,4 @@
-package org.jnetwork.listener;
-
-import org.jnetwork.SocketPackage;
+package org.jnetwork;
 
 public interface TCPConnectionListener extends ClientConnectionListener {
 	/**

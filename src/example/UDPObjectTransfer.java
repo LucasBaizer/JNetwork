@@ -5,9 +5,9 @@ import java.io.IOException;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.SocketPackage;
 import org.jnetwork.UDPConnection;
+import org.jnetwork.UDPConnectionListener;
 import org.jnetwork.UDPServer;
 import org.jnetwork.UDPUtils;
-import org.jnetwork.listener.UDPConnectionListener;
 
 public class UDPObjectTransfer {
 	/**

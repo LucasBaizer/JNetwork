@@ -1,4 +1,4 @@
-package org.jnetwork.listener;
+package org.jnetwork;
 
 /**
  * Used in pair with a {@code Server}. When a client connects to the

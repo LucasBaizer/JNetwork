@@ -8,7 +8,7 @@ import org.jnetwork.SSLConnection;
 import org.jnetwork.Keystore;
 import org.jnetwork.SSLServer;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.listener.TCPConnectionListener;
+import org.jnetwork.TCPConnectionListener;
 
 public class SSLObjectTransfer {
 	/**

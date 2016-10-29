@@ -3,9 +3,11 @@ package org.jnetwork;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.jnetwork.listener.ClientConnectionListener;
-import org.jnetwork.listener.TCPConnectionListener;
-
+/**
+ * A factory for creating JLST sockets.
+ * 
+ * @author Lucas Baizer
+ */
 public class JLSTNetworkFactory extends NetworkFactory {
 	JLSTNetworkFactory() {
 	}

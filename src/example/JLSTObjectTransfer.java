@@ -4,7 +4,7 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.JLSTConnection;
 import org.jnetwork.JLSTServer;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.listener.TCPConnectionListener;
+import org.jnetwork.TCPConnectionListener;
 
 public class JLSTObjectTransfer {
 	/**

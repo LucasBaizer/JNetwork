@@ -1,4 +1,4 @@
-package org.jnetwork.listener;
+package org.jnetwork;
 
 /**
  * A tagging interface that all networking interfaces should extend.

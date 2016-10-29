@@ -2,7 +2,7 @@ package org.jnetwork.database;
 
 import org.jnetwork.DataPackage;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.listener.TCPConnectionListener;
+import org.jnetwork.TCPConnectionListener;
 
 public class DatabaseServerConnectionHandler implements TCPConnectionListener {
 	private Database db;
