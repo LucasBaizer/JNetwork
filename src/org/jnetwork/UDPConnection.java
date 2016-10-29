@@ -1,12 +1,13 @@
 package org.jnetwork;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketException;
 
 /**
  * A UDP representation of the Connection object. Used for writing and reading
@@ -15,15 +16,30 @@ import java.net.SocketException;
  * @author Lucas Baizer
  */
 public class UDPConnection extends Connection {
+	protected InputStream in;
+	protected OutputStream out;
 	protected InetSocketAddress targetAddress;
 	protected DatagramSocket socket;
 	protected int bufferSize = 1024;
 
-	public UDPConnection(String host, int port) throws SocketException {
+	public UDPConnection(String host, int port) throws IOException {
 		super(host, port);
 
 		socket = new DatagramSocket();
 		targetAddress = new InetSocketAddress(host, port);
+		in = new InputStream() {
+			@Override
+			public int read() throws IOException {
+				return UDPConnection.this.read();
+			}
+		};
+		out = new OutputStream() {
+			@Override
+			public void write(int b) throws IOException {
+				UDPConnection.this.write(b);
+			}
+		};
+
 	}
 
 	/**
@@ -143,5 +159,15 @@ public class UDPConnection extends Connection {
 	 */
 	public void setTargetAddress(InetSocketAddress targetAddress) {
 		this.targetAddress = targetAddress;
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
+		return out;
+	}
+
+	@Override
+	public InputStream getInputStream() {
+		return in;
 	}
 }

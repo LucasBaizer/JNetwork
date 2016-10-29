@@ -133,16 +133,12 @@ public class TCPConnection extends Connection {
 		this.in = new AdvancedInputStream(connection.getInputStream());
 	}
 
-	/**
-	 * @return The connection's output stream.
-	 */
+	@Override
 	public AdvancedOutputStream getOutputStream() {
 		return out;
 	}
 
-	/**
-	 * @return The connection's input stream.
-	 */
+	@Override
 	public AdvancedInputStream getInputStream() {
 		return in;
 	}

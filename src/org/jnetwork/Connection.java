@@ -2,6 +2,8 @@ package org.jnetwork;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.SocketAddress;
 
@@ -109,6 +111,16 @@ public abstract class Connection implements Closeable {
 	 * See {@link java.io.ObjectInputStream#readUnshared(Object)}.
 	 */
 	public abstract Serializable readUnshared() throws IOException, ClassNotFoundException;
+
+	/**
+	 * @return the output stream for this Connection.
+	 */
+	public abstract OutputStream getOutputStream();
+
+	/**
+	 * @return the input stream for this Connection.
+	 */
+	public abstract InputStream getInputStream();
 
 	/**
 	 * Closes the <code>Socket</code>.
