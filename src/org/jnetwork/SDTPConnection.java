@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.security.Key;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
 
 import javax.crypto.KeyGenerator;
+import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 /**
@@ -18,7 +20,6 @@ import javax.crypto.SecretKey;
  * @author Lucas Baizer
  */
 public class SDTPConnection extends UDPConnection {
-	protected SecretKey aesKey;
 	private SecurityService rsa;
 	private SecurityService aes;
 
@@ -27,18 +28,19 @@ public class SDTPConnection extends UDPConnection {
 		bufferSize = 8192;
 
 		try {
-			aes = new SecurityService("AES/CBC/PKCS5Padding");
-			aes.setUseParameters(true);
+			aes = new SecurityService("AES/CBC/PKCS5Padding", true);
 
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 			keyGen.init(128);
-			aesKey = keyGen.generateKey();
+			SecretKey aesKey = keyGen.generateKey();
+			aes.setPublicKey(aesKey);
+			aes.setPrivateKey(aesKey);
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
 
 		try {
-			rsa = new SecurityService("RSA");
+			rsa = new SecurityService("RSA", false);
 
 			writeUnencryptedObject("JNETWORK_SECURE_UDP_INITIATE_HANDSHAKE");
 
@@ -46,11 +48,9 @@ public class SDTPConnection extends UDPConnection {
 			PublicKey serverRSAPublicKey = (PublicKey) back.getObjects()[0];
 			rsa.setPublicKey(serverRSAPublicKey);
 
-			byte[] keyBytes = aesKey.getEncoded();
-			write(keyBytes, 0, keyBytes.length, rsa, rsa.getPublicKey());
-
-			byte[] paramsBytes = aes.getParameters().getIV();
-			write(paramsBytes, 0, paramsBytes.length, rsa, rsa.getPublicKey());
+			byte[] serial = UDPUtils.serializeObject(new DataPackage(rsa.encrypt(aes.getPrivateKey().getEncoded()),
+					rsa.encrypt(aes.getParameters().getIV())));
+			write(serial, 0, serial.length, null);
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		}
@@ -59,8 +59,7 @@ public class SDTPConnection extends UDPConnection {
 	public SDTPConnection(DatagramSocket socket) throws CryptographyException {
 		super(socket);
 
-		aes = new SecurityService("AES/CBC/PKCS5Padding");
-		aes.setUseParameters(true);
+		aes = new SecurityService("AES/CBC/PKCS5Padding", true);
 	}
 
 	@Override
@@ -75,9 +74,30 @@ public class SDTPConnection extends UDPConnection {
 		return aes;
 	}
 
-	void writeUnencryptedObject(Serializable obj) throws IOException {
+	public void writeUnencryptedObject(Serializable obj) throws IOException {
 		byte[] bytes = UDPUtils.serializeObject(obj);
-		write(bytes, 0, bytes.length, null, null);
+		write(bytes, 0, bytes.length, null);
+	}
+
+	@Override
+	public void writeObject(Serializable obj) throws IOException {
+		try {
+			SealedObject s = new SealedObject(obj, aes.getEncryptionCipher());
+			byte[] bytes = UDPUtils.serializeObject(s);
+			write(bytes, 0, bytes.length, null);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public Serializable readObject() throws ClassNotFoundException, IOException {
+		SealedObject obj = (SealedObject) readUnencryptedObject();
+		try {
+			return (Serializable) obj.getObject(aes.getPrivateKey());
+		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
+			throw new IOException(e);
+		}
 	}
 
 	/**
@@ -87,15 +107,16 @@ public class SDTPConnection extends UDPConnection {
 	 */
 	@Override
 	public void write(byte[] bytes, int offset, int length) throws IOException {
-		write(bytes, offset, length, aes, aesKey);
+		write(bytes, offset, length, aes);
 	}
 
-	void write(byte[] bytes, int offset, int length, SecurityService crypto, Key key) throws IOException {
+	void write(byte[] bytes, int offset, int length, SecurityService crypto) throws IOException {
 		try {
 			byte[] b = bytes;
 			if (crypto != null) {
-				b = crypto.encrypt(bytes, key);
+				b = crypto.encrypt(bytes);
 			}
+
 			socket.send(new DatagramPacket(b, offset, b.length, targetAddress));
 		} catch (CryptographyException e) {
 			throw new IOException("Failure writing bytes", e);
@@ -107,15 +128,15 @@ public class SDTPConnection extends UDPConnection {
 	 */
 	@Override
 	public void read(byte[] arr, int off, int len) throws IOException {
-		read(arr, off, len, aes, aesKey);
+		read(arr, off, len, aes);
 	}
 
-	void read(byte[] arr, int off, int len, SecurityService crypto, Key key) throws IOException {
+	void read(byte[] arr, int off, int len, SecurityService crypto) throws IOException {
 		DatagramPacket packet = new DatagramPacket(arr, off, len);
 		socket.receive(packet);
 
 		try {
-			packet.setData(crypto.decrypt(trim(packet.getData()), key));
+			packet.setData(crypto.decrypt(trim(packet.getData())));
 		} catch (CryptographyException e) {
 			throw new IOException("Failure reading bytes", e);
 		}
@@ -138,10 +159,11 @@ public class SDTPConnection extends UDPConnection {
 		DatagramPacket packet = new DatagramPacket(receive, receive.length);
 		socket.receive(packet);
 		try {
-			packet.setData(aes.decrypt(trim(packet.getData()), aesKey));
+			packet.setData(aes.decrypt(trim(packet.getData())));
 		} catch (CryptographyException e) {
 			throw new IOException("Failure reading bytes", e);
 		}
+		packet.setData(Arrays.copyOf(packet.getData(), 8192));
 
 		return packet;
 	}

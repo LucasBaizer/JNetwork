@@ -2,7 +2,7 @@ package org.jnetwork;
 
 /**
  * A checked exception, to be thrown if an exception occurs with cryptography in
- * SDTP sockets.
+ * SDTP/JLST sockets.
  * 
  * @author Lucas Baizer
  */

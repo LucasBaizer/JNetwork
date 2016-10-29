@@ -5,8 +5,11 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
+import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -109,20 +112,13 @@ public class SDTPServer extends UDPServer {
 				/* start handshake */
 				conn.writeUnencryptedObject(new DataPackage(crypto.getPublicKey()));
 
-				byte[] read = new byte[256];
-				conn.readUnencrypted(read); // read AES symmetric key
-				read = crypto.decrypt(read);
+				byte[] arr = new byte[1024];
+				conn.readUnencrypted(arr);
 
-				byte[] aesKey = read.clone();
-
-				read = new byte[256];
-				conn.readUnencrypted(read); // read IV parameters
-				read = crypto.decrypt(read);
-
-				byte[] iv = read.clone();
-
+				DataPackage pkg = UDPUtils.deserializeObject(arr);
 				handshakeData.put(receivePacket.getSocketAddress(),
-						new HandshakeData(new SecretKeySpec(aesKey, "AES"), new IvParameterSpec(iv)));
+						new HandshakeData(new SecretKeySpec(crypto.decrypt((byte[]) pkg.getObjects()[0]), "AES"),
+								new IvParameterSpec(crypto.decrypt((byte[]) pkg.getObjects()[1]))));
 
 				/* finished handshake */
 				launchNewThread();
@@ -130,7 +126,9 @@ public class SDTPServer extends UDPServer {
 			}
 
 			HandshakeData data = handshakeData.get(receivePacket.getSocketAddress());
-			conn.aesKey = data.getKey();
+			SecretKey key = data.getKey();
+			conn.getAESSecurityService().setPublicKey(key);
+			conn.getAESSecurityService().setPrivateKey(key);
 			conn.getAESSecurityService().setParameters(data.getParameters());
 
 			final SocketPackage event = new SocketPackage(conn);
@@ -143,9 +141,17 @@ public class SDTPServer extends UDPServer {
 				@Override
 				public void run() {
 					try {
-						((UDPConnectionListener) getClientConnectionListener()).dataReceived(event,
-								conn.getAESSecurityService().decrypt(conn.trim(receivePacket.getData()), conn.aesKey));
-					} catch (CryptographyException e1) {
+						byte[] data;
+						if (isSealedObject(receivePacket.getData())) {
+							data = UDPUtils.serializeObject(
+									(Serializable) ((SealedObject) UDPUtils.deserializeObject(receivePacket.getData()))
+											.getObject(key));
+						} else {
+							data = conn.getAESSecurityService().decrypt(conn.trim(receivePacket.getData()));
+						}
+						((UDPConnectionListener) getClientConnectionListener()).dataReceived(event, data);
+					} catch (CryptographyException | InvalidKeyException | ClassNotFoundException
+							| NoSuchAlgorithmException | IOException e1) {
 						e1.printStackTrace();
 					}
 					try {
@@ -163,5 +169,17 @@ public class SDTPServer extends UDPServer {
 		}
 
 		launchNewThread();
+	}
+
+	private static final byte[] sealedObjectData = new byte[] { -84, -19, 0, 5, 115, 114, 0, 25, 106, 97, 118, 97, 120,
+			46, 99, 114, 121, 112, 116, 111, 46, 83, 101, 97, 108, 101, 100, 79, 98, 106, 101, 99, 116 };
+
+	private boolean isSealedObject(byte[] data) {
+		for (int i = 0; i < Math.min(data.length, sealedObjectData.length); i++) {
+			if (data[i] != sealedObjectData[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

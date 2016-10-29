@@ -21,9 +21,10 @@ import javax.crypto.spec.IvParameterSpec;
 class SecurityService {
 	private static final Random random = new SecureRandom();
 
-	private PublicKey publicKey;
-	private PrivateKey privateKey;
-	private Cipher cipher;
+	private Key publicKey;
+	private Key privateKey;
+	private Cipher encCipher;
+	private Cipher decCipher;
 	private IvParameterSpec iv;
 	private boolean useParams = false;
 
@@ -46,12 +47,14 @@ class SecurityService {
 	 */
 	static SecurityService generateRSASecurityService() throws CryptographyException {
 		KeyPair pair = generateRSAKeyPair();
-		return new SecurityService("RSA", pair.getPublic(), pair.getPrivate());
+		return new SecurityService("RSA", pair.getPublic(), pair.getPrivate(), false);
 	}
 
-	public SecurityService(String algorithm) throws CryptographyException {
+	public SecurityService(String algorithm, boolean params) throws CryptographyException {
 		try {
-			cipher = Cipher.getInstance(algorithm);
+			this.useParams = params;
+			encCipher = Cipher.getInstance(algorithm);
+			decCipher = Cipher.getInstance(algorithm);
 
 			byte[] bytes = new byte[16];
 			random.nextBytes(bytes);
@@ -62,20 +65,20 @@ class SecurityService {
 		}
 	}
 
-	public SecurityService(String algorithm, PublicKey publicKey, PrivateKey privateKey) throws CryptographyException {
-		this(algorithm);
+	public SecurityService(String algorithm, PublicKey publicKey, PrivateKey privateKey, boolean params)
+			throws CryptographyException {
+		this(algorithm, params);
 
-		this.publicKey = publicKey;
-		this.privateKey = privateKey;
+		setPublicKey(publicKey);
+		setPrivateKey(privateKey);
 	}
 
-	/**
-	 * @param params
-	 *            Whether or not to use IV parameters. This is required with an
-	 *            AES SecurityService.
-	 */
-	public void setUseParameters(boolean params) {
-		this.useParams = params;
+	public Cipher getEncryptionCipher() {
+		return encCipher;
+	}
+
+	public Cipher getDecryptionCipher() {
+		return decCipher;
 	}
 
 	/**
@@ -99,32 +102,12 @@ class SecurityService {
 	 *         key.
 	 */
 	public KeyPair getKeyPair() {
-		return new KeyPair(publicKey, privateKey);
+		return new KeyPair((PublicKey) publicKey, (PrivateKey) privateKey);
 	}
 
-	/**
-	 * @param data
-	 *            The data to encrypt.
-	 * @return An encrypted copy of the parameter.
-	 */
 	public byte[] encrypt(byte[] data) throws CryptographyException {
-		return encrypt(data, publicKey);
-	}
-
-	/**
-	 * @param data
-	 *            The data to encrypt.
-	 * @param key
-	 *            The key to use to encrypt the data.
-	 * @return An encrypted copy of the parameter.
-	 */
-	public byte[] encrypt(byte[] data, Key key) throws CryptographyException {
 		try {
-			if (useParams)
-				cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-			else
-				cipher.init(Cipher.ENCRYPT_MODE, key);
-			return cipher.doFinal(data);
+			return encCipher.doFinal(data);
 		} catch (Exception e) {
 			throw new CryptographyException("Error encryping bytes", e);
 		}
@@ -144,26 +127,13 @@ class SecurityService {
 	/**
 	 * @param data
 	 *            The data to decrypt.
-	 * @return A decrypted copy of the parameter.
-	 */
-	public byte[] decrypt(byte[] data) throws CryptographyException {
-		return decrypt(data, privateKey);
-	}
-
-	/**
-	 * @param data
-	 *            The data to decrypt.
 	 * @param key
 	 *            The key to decrypt the dat with.
 	 * @return A decrypted copy of the parameter.
 	 */
-	public byte[] decrypt(byte[] data, Key key) throws CryptographyException {
+	public byte[] decrypt(byte[] data) throws CryptographyException {
 		try {
-			if (useParams)
-				cipher.init(Cipher.DECRYPT_MODE, key, iv);
-			else
-				cipher.init(Cipher.DECRYPT_MODE, key);
-			return cipher.doFinal(data);
+			return decCipher.doFinal(data);
 		} catch (Exception e) {
 			throw new CryptographyException("Error decrypting bytes", e);
 		}
@@ -180,7 +150,17 @@ class SecurityService {
 	 * @param publicKey
 	 *            The new public key.
 	 */
-	public SecurityService setPublicKey(PublicKey publicKey) {
+	public SecurityService setPublicKey(Key publicKey) throws CryptographyException {
+		try {
+			if (useParams) {
+				encCipher.init(Cipher.ENCRYPT_MODE, publicKey, iv);
+			} else {
+				encCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+			}
+		} catch (Exception e) {
+			throw new CryptographyException(e);
+		}
+
 		this.publicKey = publicKey;
 		return this;
 	}
@@ -196,7 +176,17 @@ class SecurityService {
 	 * @param privateKey
 	 *            the new private key.
 	 */
-	public SecurityService setPrivateKey(PrivateKey privateKey) {
+	public SecurityService setPrivateKey(Key privateKey) throws CryptographyException {
+		try {
+			if (useParams) {
+				decCipher.init(Cipher.DECRYPT_MODE, privateKey, iv);
+			} else {
+				decCipher.init(Cipher.DECRYPT_MODE, privateKey);
+			}
+		} catch (Exception e) {
+			throw new CryptographyException(e);
+		}
+
 		this.privateKey = privateKey;
 		return this;
 	}

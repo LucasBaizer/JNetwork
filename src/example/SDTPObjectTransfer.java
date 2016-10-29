@@ -13,8 +13,6 @@ public class SDTPObjectTransfer {
 	/**
 	 * Prints "Hey, secure server!" server-side and "Hey, secure client!"
 	 * client-side.
-	 * 
-	 * @param args
 	 */
 	public static void main(String[] args) {
 		try {
@@ -27,7 +25,7 @@ public class SDTPObjectTransfer {
 									+ (Object) UDPUtils.deserializeObject(data));
 						} catch (StreamCorruptedException e) {
 							System.out.print(Thread.currentThread().getName() + ": " + data.length + " bytes: ");
-							for (int i = 0; i < 1024; i++) {
+							for (int i = 0; i < Math.min(data.length, 1024); i++) {
 								System.out.print(data[i] + " ");
 							}
 							System.out.println();
@@ -43,7 +41,7 @@ public class SDTPObjectTransfer {
 			server.start();
 
 			SDTPConnection client = new SDTPConnection("localhost", 1337);
-			client.writeObject("Hey, secure server!");
+			client.writeObject("Allah, cancer server!");
 
 			System.out.println(Thread.currentThread().getName() + ": " + client.readObject());
 		} catch (Exception e) {

@@ -28,7 +28,7 @@ public class TCPServer extends Server {
 	}
 
 	@Override
-	protected void launchNewThread() throws IOException, InterruptedException {
+	protected void launchNewThread() throws IOException {
 		final Socket client;
 		try {
 			client = server.accept();
@@ -40,10 +40,10 @@ public class TCPServer extends Server {
 		}
 		final SocketPackage event = new SocketPackage(new TCPConnection(client));
 
-		launchThreadForConnectedClient(event);
+		launchThreadForConnectedClient(event, "TCPServer");
 	}
 
-	protected void launchThreadForConnectedClient(SocketPackage event) throws IOException, InterruptedException {
+	protected void launchThreadForConnectedClient(SocketPackage event, String name) throws IOException {
 		refresh();
 		clients.add(event);
 		refresh();
@@ -60,7 +60,7 @@ public class TCPServer extends Server {
 			}
 		});
 		event.setHoldingThread(thr);
-		thr.setName("JNetwork-TCPServer-Thread-" + event.getConnection().getRemoteSocketAddress());
+		thr.setName("JNetwork-" + name + "-Thread-" + event.getConnection().getRemoteSocketAddress());
 		thr.start();
 
 		launchNewThread();

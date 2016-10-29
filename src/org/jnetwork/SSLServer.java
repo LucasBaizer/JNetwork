@@ -51,7 +51,7 @@ public class SSLServer extends TCPServer {
 	}
 
 	@Override
-	protected void launchNewThread() throws IOException, InterruptedException {
+	protected void launchNewThread() throws IOException {
 		final SSLSocket client;
 		try {
 			client = (SSLSocket) ((SSLServerSocket) server).accept();
@@ -63,6 +63,6 @@ public class SSLServer extends TCPServer {
 		}
 
 		final SocketPackage event = new SocketPackage(new SSLConnection(client));
-		super.launchThreadForConnectedClient(event);
+		super.launchThreadForConnectedClient(event, "SSLServer");
 	}
 }
