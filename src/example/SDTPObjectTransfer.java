@@ -41,7 +41,7 @@ public class SDTPObjectTransfer {
 			server.start();
 
 			SDTPConnection client = new SDTPConnection("localhost", 1337);
-			client.writeObject("Allah, cancer server!");
+			client.writeObject("Hey, secure server!");
 
 			System.out.println(Thread.currentThread().getName() + ": " + client.readObject());
 		} catch (Exception e) {
