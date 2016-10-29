@@ -48,12 +48,6 @@ public class TCPServer extends Server {
 		clients.add(event);
 		refresh();
 
-		// sets saved data
-		for (SavedData data : savedData)
-			if (event.getConnection().getRemoteSocketAddress().toString()
-					.equals(data.pkg.getConnection().getRemoteSocketAddress().toString()))
-				event.setExtraData(data.data);
-
 		Thread thr = new Thread(new Runnable() {
 			@Override
 			public void run() {

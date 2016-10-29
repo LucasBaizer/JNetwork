@@ -14,8 +14,8 @@ import org.jnetwork.listener.UDPConnectionListener;
  * @author Lucas Baizer
  */
 public class UDPServer extends Server {
-	private DatagramSocket server;
-	private int bufferSize = 1024;
+	protected DatagramSocket server;
+	protected int bufferSize = 1024;
 
 	public UDPServer(int port, UDPConnectionListener clientSocketThread) {
 		super(port, clientSocketThread);
@@ -41,11 +41,6 @@ public class UDPServer extends Server {
 		refresh();
 		clients.add(event);
 		refresh();
-
-		for (SavedData data : savedData)
-			if (event.getConnection().getRemoteSocketAddress().toString()
-					.equals(data.pkg.getConnection().getRemoteSocketAddress().toString()))
-				event.setExtraData(data.data);
 
 		Thread thr = new Thread(new Runnable() {
 			@Override

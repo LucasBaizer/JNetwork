@@ -15,9 +15,9 @@ import java.net.SocketException;
  * @author Lucas Baizer
  */
 public class UDPConnection extends Connection {
-	private InetSocketAddress targetAddress;
-	private DatagramSocket socket;
-	private int bufferSize = 1024;
+	protected InetSocketAddress targetAddress;
+	protected DatagramSocket socket;
+	protected int bufferSize = 1024;
 
 	public UDPConnection(String host, int port) throws SocketException {
 		super(host, port);
@@ -60,7 +60,7 @@ public class UDPConnection extends Connection {
 
 	@Override
 	public void write(byte[] bytes) throws IOException {
-		socket.send(new DatagramPacket(bytes, 0, bytes.length, targetAddress));
+		write(bytes, 0, bytes.length);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class UDPConnection extends Connection {
 	@Override
 	public void writeObject(Serializable obj) throws IOException {
 		byte[] bytes = UDPUtils.serializeObject(obj);
-		socket.send(new DatagramPacket(bytes, 0, bytes.length, targetAddress));
+		write(bytes, 0, bytes.length);
 	}
 
 	@Override
@@ -79,28 +79,27 @@ public class UDPConnection extends Connection {
 		writeObject(obj);
 	}
 
-	@Override
-	public int read() throws IOException {
+	protected DatagramPacket readPacket() throws IOException {
 		byte[] receive = new byte[bufferSize];
 		DatagramPacket packet = new DatagramPacket(receive, receive.length);
 		socket.receive(packet);
 
-		return packet.getData()[0];
+		return packet;
+	}
+
+	@Override
+	public int read() throws IOException {
+		return readPacket().getData()[0];
 	}
 
 	@Override
 	public void read(byte[] arr) throws IOException {
-		byte[] receive = new byte[bufferSize];
-		DatagramPacket packet = new DatagramPacket(receive, receive.length);
-		socket.receive(packet);
-
-		arr = packet.getData();
+		read(arr, 0, arr.length);
 	}
 
 	@Override
 	public void read(byte[] arr, int off, int len) throws IOException {
-		byte[] receive = new byte[bufferSize];
-		DatagramPacket packet = new DatagramPacket(receive, off, len);
+		DatagramPacket packet = new DatagramPacket(arr, off, len);
 		socket.receive(packet);
 
 		arr = packet.getData();
@@ -108,11 +107,7 @@ public class UDPConnection extends Connection {
 
 	@Override
 	public Serializable readObject() throws IOException, ClassNotFoundException {
-		byte[] receive = new byte[bufferSize];
-		DatagramPacket packet = new DatagramPacket(receive, receive.length);
-		socket.receive(packet);
-
-		return UDPUtils.deserializeObject(packet.getData());
+		return UDPUtils.deserializeObject(readPacket().getData());
 	}
 
 	@Override

@@ -51,7 +51,6 @@ public abstract class Server implements Closeable {
 	private ClientConnectionListener thread;
 	private int port;
 	protected ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
-	protected ArrayList<SavedData> savedData = new ArrayList<SavedData>();
 	private ArrayList<ClientDisconnectionListener> removers = new ArrayList<ClientDisconnectionListener>();
 	private boolean started;
 	private Object closeWaiter = new Object();
@@ -194,33 +193,6 @@ public abstract class Server implements Closeable {
 			client.setExtraData(data);
 
 			clients.set(clients.indexOf(client), client);
-		} else {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Saves the data of a connected client to a List. If the client
-	 * disconnects, and than later reconnects, and their connection data was
-	 * saved before they disconnected, their connection data will be set to the
-	 * previously saved data.
-	 * 
-	 * @param client
-	 *            - The <code>SocketPackage</code> whose data will be saved.
-	 * @return boolean - If <code>client</code> was actually connected.
-	 * 
-	 * @throws NullPointerException
-	 *             If <code>client</code> is <code>null</code>.
-	 */
-	public boolean saveConnectionData(SocketPackage client) {
-		if (client == null)
-			throw new NullPointerException();
-
-		if (clients.contains(client)) {
-			if (client.getExtraData().length != 0) {
-				savedData.add(new SavedData(client, client.getExtraData()));
-			}
 		} else {
 			return false;
 		}
@@ -461,21 +433,5 @@ public abstract class Server implements Closeable {
 	 */
 	public ClientConnectionListener getClientConnectionListener() {
 		return thread;
-	}
-
-	/**
-	 * Essentially a <code>struct</code> to hold saved data saved with
-	 * {@link Server#saveConnectionData(SocketPackage)}.
-	 * 
-	 * @author Lucas Baizer
-	 */
-	static class SavedData {
-		SocketPackage pkg;
-		Object[] data;
-
-		public SavedData(SocketPackage pkg, Object[] data) {
-			this.pkg = pkg;
-			this.data = data;
-		}
 	}
 }
