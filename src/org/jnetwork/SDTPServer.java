@@ -33,10 +33,10 @@ import org.jnetwork.listener.UDPConnectionListener;
  * 
  * @author Lucas Baizer
  */
-public class SecureUDPServer extends UDPServer {
+public class SDTPServer extends UDPServer {
 	private SecurityService crypto;
 
-	public SecureUDPServer(int port, UDPConnectionListener clientSocketThread) throws CryptographyException {
+	public SDTPServer(int port, UDPConnectionListener clientSocketThread) throws CryptographyException {
 		super(port, clientSocketThread);
 
 		setBufferSize(8192);
@@ -88,7 +88,7 @@ public class SecureUDPServer extends UDPServer {
 		server.receive(receivePacket); // initial package (new DataPackage())
 
 		try {
-			SecureUDPConnection conn = new SecureUDPConnection(server);
+			SDTPConnection conn = new SDTPConnection(server);
 			conn.setBufferSize(8192);
 			conn.setTargetAddress((InetSocketAddress) receivePacket.getSocketAddress());
 
@@ -155,7 +155,7 @@ public class SecureUDPServer extends UDPServer {
 								e);
 					}
 				}
-			}, "JNetwork-SecureUDPServer-Thread-" + receivePacket.getSocketAddress());
+			}, "JNetwork-SDTPServer-Thread-" + receivePacket.getSocketAddress());
 			event.setHoldingThread(thr);
 			thr.start();
 		} catch (Exception e1) {

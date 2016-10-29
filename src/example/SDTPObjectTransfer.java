@@ -3,13 +3,13 @@ package example;
 import java.io.StreamCorruptedException;
 
 import org.jnetwork.CloseRequest;
-import org.jnetwork.SecureUDPConnection;
-import org.jnetwork.SecureUDPServer;
+import org.jnetwork.SDTPConnection;
+import org.jnetwork.SDTPServer;
 import org.jnetwork.SocketPackage;
 import org.jnetwork.UDPUtils;
 import org.jnetwork.listener.UDPConnectionListener;
 
-public class SecureUDPObjectTransfer {
+public class SDTPObjectTransfer {
 	/**
 	 * Prints "Hey, secure server!" server-side and "Hey, secure client!"
 	 * client-side.
@@ -18,7 +18,7 @@ public class SecureUDPObjectTransfer {
 	 */
 	public static void main(String[] args) {
 		try {
-			SecureUDPServer server = new SecureUDPServer(1337, new UDPConnectionListener() {
+			SDTPServer server = new SDTPServer(1337, new UDPConnectionListener() {
 				@Override
 				public void dataReceived(SocketPackage event, byte[] data) {
 					try {
@@ -42,7 +42,7 @@ public class SecureUDPObjectTransfer {
 			CloseRequest.addObjectToClose(server);
 			server.start();
 
-			SecureUDPConnection client = new SecureUDPConnection("localhost", 1337);
+			SDTPConnection client = new SDTPConnection("localhost", 1337);
 			client.writeObject("Hey, secure server!");
 
 			System.out.println(Thread.currentThread().getName() + ": " + client.readObject());

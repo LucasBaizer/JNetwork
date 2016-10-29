@@ -13,16 +13,16 @@ import javax.crypto.SecretKey;
 
 /**
  * A JNetwork-level secure UDP connection. An explanation of how this works can
- * be found in the documentation for {@link SecureUDPServer}.
+ * be found in the documentation for {@link SDTPServer}.
  * 
  * @author Lucas Baizer
  */
-public class SecureUDPConnection extends UDPConnection {
+public class SDTPConnection extends UDPConnection {
 	protected SecretKey aesKey;
 	private SecurityService rsa;
 	private SecurityService aes;
 
-	public SecureUDPConnection(String host, int port) throws CryptographyException, IOException {
+	public SDTPConnection(String host, int port) throws CryptographyException, IOException {
 		super(host, port);
 		bufferSize = 8192;
 
@@ -56,7 +56,7 @@ public class SecureUDPConnection extends UDPConnection {
 		}
 	}
 
-	public SecureUDPConnection(DatagramSocket socket) throws CryptographyException {
+	public SDTPConnection(DatagramSocket socket) throws CryptographyException {
 		super(socket);
 
 		aes = new SecurityService("AES/CBC/PKCS5Padding");
