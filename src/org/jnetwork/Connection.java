@@ -21,6 +21,15 @@ public abstract class Connection implements Closeable {
 	Connection() {
 	}
 
+	/**
+	 * Creates a general Connection, which should connect to the specified host
+	 * and port.
+	 * 
+	 * @param host
+	 *            - The host to connect to.
+	 * @param port
+	 *            - The port to connect to.
+	 */
 	public Connection(String host, int port) {
 		this.hostAddress = host;
 		this.hostPort = port;

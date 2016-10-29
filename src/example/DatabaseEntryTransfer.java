@@ -2,6 +2,7 @@ package example;
 
 import java.io.File;
 
+import org.jnetwork.Protocol;
 import org.jnetwork.Server;
 import org.jnetwork.TCPServer;
 import org.jnetwork.database.ColumnHeader;
@@ -27,7 +28,7 @@ public class DatabaseEntryTransfer {
 			Server databaseServer = new TCPServer(1337, new DatabaseServerConnectionHandler(database));
 			databaseServer.start();
 
-			QueryConnection query = QueryConnection.createConnection("localhost", 1337, false);
+			QueryConnection query = new QueryConnection("localhost", 1337, Protocol.TCP);
 			// add an employee named Foo Bar of age 46
 			query.query("ADD [Foo Bar, 46] IN Employees");
 			// add an employee named Joe Blow of age 96

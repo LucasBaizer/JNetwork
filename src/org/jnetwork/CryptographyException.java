@@ -1,5 +1,11 @@
 package org.jnetwork;
 
+/**
+ * A checked exception, to be thrown if an exception occurs with cryptography in
+ * SDTP sockets.
+ * 
+ * @author Lucas Baizer
+ */
 public class CryptographyException extends Exception {
 	private static final long serialVersionUID = -7382959768483957637L;
 

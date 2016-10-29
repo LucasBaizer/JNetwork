@@ -3,6 +3,7 @@ package org.jnetwork.ui.database;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import org.jnetwork.Protocol;
 import org.jnetwork.Server;
 import org.jnetwork.TCPServer;
 import org.jnetwork.database.Database;
@@ -20,7 +21,7 @@ public class DatabaseService {
 		if (connection != null) {
 			connection.closeConnection();
 		}
-		connection = QueryConnection.createConnection(host, port, false);
+		connection = new QueryConnection(host, port, Protocol.TCP);
 	}
 
 	public static QueryConnection getConnection() {
