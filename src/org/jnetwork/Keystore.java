@@ -19,6 +19,8 @@ public class Keystore implements Serializable {
 
 	private File keystoreLocation;
 	private String password;
+	private String keyPassword;
+	private String alias;
 
 	/**
 	 * Creates a new reference to a keystore on the computer.
@@ -32,15 +34,17 @@ public class Keystore implements Serializable {
 	 *            - The keystore password, which was specified when the keystore
 	 *            was created with an external tool.
 	 */
-	public Keystore(File location, String password) {
+	public Keystore(File location, String password, String alias, String keyPass) {
 		this.keystoreLocation = location;
 		this.password = password;
+		this.alias = alias;
+		this.keyPassword = keyPass;
 	}
 
 	/**
 	 * @return the location of the keystore on the file system.
 	 */
-	public File getKeystoreLocation() {
+	public File getKeystoreFile() {
 		return keystoreLocation;
 	}
 
@@ -49,5 +53,34 @@ public class Keystore implements Serializable {
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	/**
+	 * @return the password to the keystore, in char array format.
+	 */
+	public char[] getPasswordArray() {
+		return password.toCharArray();
+	}
+
+	/**
+	 * @return the password to the private key stored in the keystore.
+	 */
+	public String getKeyPassword() {
+		return keyPassword;
+	}
+
+	/**
+	 * @return the password to the private key stored in the keystore, in char
+	 *         array format.
+	 */
+	public char[] getKeyPasswordArray() {
+		return keyPassword.toCharArray();
+	}
+
+	/**
+	 * @return the alias to the keystore.
+	 */
+	public String getAlias() {
+		return alias;
 	}
 }

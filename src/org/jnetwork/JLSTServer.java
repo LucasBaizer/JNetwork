@@ -3,6 +3,8 @@ package org.jnetwork;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.security.KeyStore;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -31,10 +33,26 @@ import javax.crypto.spec.SecretKeySpec;
 public class JLSTServer extends TCPServer {
 	private SecurityService crypto;
 
-	public JLSTServer(int i, TCPConnectionListener tcpConnectionListener) throws CryptographyException {
+	public JLSTServer(int i, TCPConnectionListener tcpConnectionListener, Keystore keystore)
+			throws CryptographyException {
 		super(i, tcpConnectionListener);
 
-		crypto = SecurityService.generateRSASecurityService();
+		if (keystore != null) {
+			setKeystore(keystore);
+		}
+	}
+
+	public void setKeystore(Keystore keystore) throws CryptographyException {
+		try {
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
+
+			crypto = new SecurityService("RSA", false);
+			crypto.setPublicKey(keyStore.getCertificate(keystore.getAlias()).getPublicKey());
+			crypto.setPrivateKey(keyStore.getKey(keystore.getAlias(), keystore.getKeyPasswordArray()));
+		} catch (Exception e) {
+			throw new CryptographyException(e);
+		}
 	}
 
 	@Override

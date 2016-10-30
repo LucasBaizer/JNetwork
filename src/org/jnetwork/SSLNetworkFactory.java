@@ -19,6 +19,6 @@ public class SSLNetworkFactory extends NetworkFactory {
 
 	@Override
 	public Server createServer(int port, ClientConnectionListener l) throws ServerException {
-		return new SSLServer(null, port, (TCPConnectionListener) l);
+		return new SSLServer(port, (TCPConnectionListener) l, null);
 	}
 }

@@ -21,7 +21,7 @@ public class SSLServer extends TCPServer {
 		Security.addProvider(new Provider());
 	}
 
-	public SSLServer(Keystore keystore, int port, TCPConnectionListener clientSocketThread) {
+	public SSLServer(int port, TCPConnectionListener clientSocketThread, Keystore keystore) {
 		super(port, clientSocketThread);
 
 		if (keystore != null) {
@@ -36,8 +36,8 @@ public class SSLServer extends TCPServer {
 	 *            The keystore.
 	 */
 	public void setKeystoreData(Keystore keystore) {
-		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreLocation().getPath());
-		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreLocation().getPath());
+		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getPath());
+		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getPath());
 		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
 	}
 

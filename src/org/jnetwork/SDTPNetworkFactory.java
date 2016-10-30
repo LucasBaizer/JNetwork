@@ -24,7 +24,7 @@ public class SDTPNetworkFactory extends NetworkFactory {
 	@Override
 	public Server createServer(int port, ClientConnectionListener l) throws ServerException {
 		try {
-			return new SDTPServer(port, (UDPConnectionListener) l);
+			return new SDTPServer(port, (UDPConnectionListener) l, null);
 		} catch (CryptographyException e) {
 			throw new ServerException(e);
 		}

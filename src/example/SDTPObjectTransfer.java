@@ -1,8 +1,10 @@
 package example;
 
+import java.io.File;
 import java.io.StreamCorruptedException;
 
 import org.jnetwork.CloseRequest;
+import org.jnetwork.Keystore;
 import org.jnetwork.SDTPConnection;
 import org.jnetwork.SDTPServer;
 import org.jnetwork.SocketPackage;
@@ -36,7 +38,7 @@ public class SDTPObjectTransfer {
 						e.printStackTrace();
 					}
 				}
-			});
+			}, new Keystore(new File("keystore.jks"), "password", "jnetwork", "password"));
 			CloseRequest.addObjectToClose(server);
 			server.start();
 

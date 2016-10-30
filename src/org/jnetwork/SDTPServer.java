@@ -5,7 +5,9 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
@@ -36,24 +38,25 @@ import javax.crypto.spec.SecretKeySpec;
 public class SDTPServer extends UDPServer {
 	private SecurityService crypto;
 
-	public SDTPServer(int port, UDPConnectionListener clientSocketThread) throws CryptographyException {
+	public SDTPServer(int port, UDPConnectionListener clientSocketThread, Keystore keystore)
+			throws CryptographyException {
 		super(port, clientSocketThread);
 
 		setBufferSize(8192);
 
-		addClientDisconnectionListener(new ClientDisconnectionListener() {
-			@Override
-			public void clientDisconnected(SocketPackage event) {
-				handshakeData.remove(event.getConnection().getRemoteSocketAddress());
-			}
-		});
-
-		init();
+		if (keystore != null) {
+			setKeystore(keystore);
+		}
 	}
 
-	private void init() throws CryptographyException {
+	public void setKeystore(Keystore keystore) throws CryptographyException {
 		try {
-			crypto = SecurityService.generateRSASecurityService();
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
+
+			crypto = new SecurityService("RSA", false);
+			crypto.setPublicKey(keyStore.getCertificate(keystore.getAlias()).getPublicKey());
+			crypto.setPrivateKey(keyStore.getKey(keystore.getAlias(), keystore.getKeyPasswordArray()));
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
@@ -149,13 +152,8 @@ public class SDTPServer extends UDPServer {
 						((UDPConnectionListener) getClientConnectionListener()).dataReceived(event, data);
 					} catch (CryptographyException | InvalidKeyException | ClassNotFoundException
 							| NoSuchAlgorithmException | IOException e1) {
-						e1.printStackTrace();
-					}
-					try {
-						removeClient(event);
-					} catch (IOException e) {
 						Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(),
-								e);
+								e1);
 					}
 				}
 			}, "JNetwork-SDTPServer-Thread-" + receivePacket.getSocketAddress());

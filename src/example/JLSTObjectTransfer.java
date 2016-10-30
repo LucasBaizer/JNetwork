@@ -1,8 +1,11 @@
 package example;
 
+import java.io.File;
+
 import org.jnetwork.CloseRequest;
 import org.jnetwork.JLSTConnection;
 import org.jnetwork.JLSTServer;
+import org.jnetwork.Keystore;
 import org.jnetwork.SocketPackage;
 import org.jnetwork.TCPConnectionListener;
 
@@ -25,7 +28,7 @@ public class JLSTObjectTransfer {
 						e.printStackTrace();
 					}
 				}
-			});
+			}, new Keystore(new File("keystore.jks"), "password", "jnetwork", "password"));
 			CloseRequest.addObjectToClose(server);
 			server.start();
 

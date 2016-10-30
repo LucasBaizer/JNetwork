@@ -18,20 +18,19 @@ public class SSLObjectTransfer {
 	 **/
 	public static void main(String[] args) {
 		try {
-			SSLServer server = new SSLServer(new Keystore(new File("keystore.jks"), "password"), 1337,
-					new TCPConnectionListener() {
-						@Override
-						public void clientConnected(SocketPackage event) {
-							try {
-								System.out.println(event.getConnection().readObject());
-								event.getConnection().writeObject("Hello, from the server!");
-							} catch (ClassNotFoundException e) {
-								e.printStackTrace();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-					});
+			SSLServer server = new SSLServer(1337, new TCPConnectionListener() {
+				@Override
+				public void clientConnected(SocketPackage event) {
+					try {
+						System.out.println(event.getConnection().readObject());
+						event.getConnection().writeObject("Hello, from the server!");
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}, new Keystore(new File("keystore.jks"), "password", "jnetwork", "password"));
 			CloseRequest.addObjectToClose(server);
 			server.start();
 			SSLConnection connection = new SSLConnection("localhost", 1337);
