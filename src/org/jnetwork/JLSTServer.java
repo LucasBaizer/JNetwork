@@ -42,7 +42,7 @@ public class JLSTServer extends TCPServer {
 		}
 	}
 
-	public void setKeystore(Keystore keystore) throws CryptographyException {
+	public JLSTServer setKeystore(Keystore keystore) throws CryptographyException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
@@ -53,6 +53,7 @@ public class JLSTServer extends TCPServer {
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
+		return this;
 	}
 
 	@Override

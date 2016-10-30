@@ -25,20 +25,15 @@ public class SSLServer extends TCPServer {
 		super(port, clientSocketThread);
 
 		if (keystore != null) {
-			setKeystoreData(keystore);
+			setKeystore(keystore);
 		}
 	}
 
-	/**
-	 * Sets the SSL data using the keystore.
-	 * 
-	 * @param keystore
-	 *            The keystore.
-	 */
-	public void setKeystoreData(Keystore keystore) {
+	public SSLServer setKeystore(Keystore keystore) {
 		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getPath());
 		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getPath());
 		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
+		return this;
 	}
 
 	@Override

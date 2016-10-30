@@ -49,7 +49,7 @@ public class SDTPServer extends UDPServer {
 		}
 	}
 
-	public void setKeystore(Keystore keystore) throws CryptographyException {
+	public SDTPServer setKeystore(Keystore keystore) throws CryptographyException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
@@ -60,6 +60,7 @@ public class SDTPServer extends UDPServer {
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
+		return this;
 	}
 
 	private static class HandshakeData implements Serializable {
