@@ -33,7 +33,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class JLSTServer extends TCPServer {
 	private SecurityService crypto;
 
-	public JLSTServer(int i, TCPConnectionListener tcpConnectionListener, Keystore keystore)
+	public JLSTServer(int i, TCPConnectionCallback tcpConnectionListener, Keystore keystore)
 			throws CryptographyException {
 		super(i, tcpConnectionListener);
 

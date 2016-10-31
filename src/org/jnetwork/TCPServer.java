@@ -14,7 +14,7 @@ import java.net.SocketException;
 public class TCPServer extends Server {
 	protected ServerSocket server;
 
-	public TCPServer(int port, TCPConnectionListener clientSocketThread) {
+	public TCPServer(int port, TCPConnectionCallback clientSocketThread) {
 		super(port, clientSocketThread);
 	}
 
@@ -49,7 +49,7 @@ public class TCPServer extends Server {
 		Thread thr = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				((TCPConnectionListener) getClientConnectionListener()).clientConnected(event);
+				((TCPConnectionCallback) getClientConnectionListener()).clientConnected(event);
 				try {
 					removeClient(event);
 				} catch (IOException e) {

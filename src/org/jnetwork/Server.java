@@ -16,7 +16,7 @@ import java.util.Objects;
  * they do, a new <code>SocketPackage</code> will be created containing all the
  * information required for the connection with the client. In another new
  * thread, launched from the new thread initially launched, the
- * <code>ClientConnectionListener.clientConnected</code> will be called and
+ * <code>ClientConnectionCallback.clientConnected</code> will be called and
  * parameterized with the <code>SocketPackage</code>. <br>
  * <br>
  * Whenever the <code>Server</code> is asked to run any function that deals with
@@ -28,8 +28,8 @@ import java.util.Objects;
  * parameterized with the client's <code>SocketPackage</code>. <br>
  * <br>
  * When {@link Server#removeClient(SocketPackage)} is called, every
- * <code>ClientDisconnectionListener</code> added with
- * {@link Server#addClientDisconnectionListener(ClientDisconnectionListener)}
+ * <code>ClientDisconnectionCallback</code> added with
+ * {@link Server#addClientDisconnectionListener(ClientDisconnectionCallback)}
  * will be called and parameterized with the client's <code>SocketPackage</code>
  * . <br>
  * <br>
@@ -37,18 +37,18 @@ import java.util.Objects;
  * @see java.net.ServerSocket
  * @see org.jnetwork.SocketPackage
  * @see org.jnetwork.listener.network.event.RefreshListener
- * @see org.jnetwork.network.event.ClientConnectionListener
- * @see org.jnetwork.listener.ClientDisconnectionListener.event.
+ * @see org.jnetwork.ClientConnectionCallback.event.ClientConnectionListener
+ * @see org.jnetwork.ClientDisconnectionCallback.ClientDisconnectionListener.event.
  *      ClientRemovedListener
  * @see org.jnetwork.SocketPackage
  * 
  * @author Lucas Baizer
  */
 public abstract class Server implements Closeable {
-	private ClientConnectionListener thread;
+	private ClientConnectionCallback thread;
 	private int port;
 	protected ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
-	private ArrayList<ClientDisconnectionListener> removers = new ArrayList<ClientDisconnectionListener>();
+	private ArrayList<ClientDisconnectionCallback> removers = new ArrayList<ClientDisconnectionCallback>();
 	private boolean started;
 	private Object closeWaiter = new Object();
 
@@ -59,16 +59,16 @@ public abstract class Server implements Closeable {
 	 * @param port
 	 *            - The port to start the server on.
 	 * @param clientSocketThread
-	 *            - The <code>ClientConnectionListener<code> to be called when a
+	 *            - The <code>ClientConnectionCallback<code> to be called when a
 	 *            client connects. It will be given the client's <code>Socket</code>
 	 *            and an instance of <code>this</code>.
 	 * 
 	 * @throws NullPointerException
 	 *             If <code>clientSocketThread</code> is null.
 	 */
-	public Server(int port, ClientConnectionListener clientSocketThread) {
+	public Server(int port, ClientConnectionCallback clientSocketThread) {
 		if (clientSocketThread == null)
-			throw new NullPointerException("ClientConnectionListener is null");
+			throw new NullPointerException("ClientConnectionCallback is null");
 
 		this.thread = clientSocketThread;
 		this.port = port;
@@ -117,12 +117,12 @@ public abstract class Server implements Closeable {
 	 * @throws NullPointerException
 	 *             If <code>listener</code> is null.
 	 */
-	public void addClientDisconnectionListener(ClientDisconnectionListener listener) {
+	public void addClientDisconnectionListener(ClientDisconnectionCallback listener) {
 		removers.add(listener);
 	}
 
 	/**
-	 * Removes a <code>ClientDisconnectionListener</code> to be called on when a
+	 * Removes a <code>ClientDisconnectionCallback</code> to be called on when a
 	 * client is removed by <b>
 	 * <code>removeClient(SocketPackage event)</code></b>
 	 * 
@@ -134,7 +134,7 @@ public abstract class Server implements Closeable {
 	 * @throws NullPointerException
 	 *             If <code>listener</code> is null.
 	 */
-	public boolean removeClientDisconnectionListener(ClientDisconnectionListener listener) {
+	public boolean removeClientDisconnectionListener(ClientDisconnectionCallback listener) {
 		return removers.remove(listener);
 	}
 
@@ -163,15 +163,15 @@ public abstract class Server implements Closeable {
 	}
 
 	/**
-	 * Gets every <code>ClientDisconnectionListener</code> added with <b>
-	 * <code>addClientDisconnectionListener(ClientDisconnectionListener)</code>
+	 * Gets every <code>ClientDisconnectionCallback</code> added with <b>
+	 * <code>addClientDisconnectionListener(ClientDisconnectionCallback)</code>
 	 * </b>.
 	 * 
-	 * @return ClientDisconnectionListener[] - The array containing the
+	 * @return ClientDisconnectionCallback[] - The array containing the
 	 *         ClientRemovedListeners.
 	 */
-	public ClientDisconnectionListener[] getClientDisconnectionListeners() {
-		return removers.toArray(new ClientDisconnectionListener[removers.size()]);
+	public ClientDisconnectionCallback[] getClientDisconnectionListeners() {
+		return removers.toArray(new ClientDisconnectionCallback[removers.size()]);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public abstract class Server implements Closeable {
 			if (client.getHoldingThread().isAlive())
 				client.getHoldingThread().interrupt();
 
-			for (ClientDisconnectionListener listener : removers) {
+			for (ClientDisconnectionCallback listener : removers) {
 				listener.clientDisconnected(client);
 			}
 
@@ -426,9 +426,9 @@ public abstract class Server implements Closeable {
 	protected abstract void launchNewThread() throws IOException, InterruptedException;
 
 	/**
-	 * @return the ClientConnectionListener specified at instantiation.
+	 * @return the ClientConnectionCallback specified at instantiation.
 	 */
-	public ClientConnectionListener getClientConnectionListener() {
+	public ClientConnectionCallback getClientConnectionListener() {
 		return thread;
 	}
 }

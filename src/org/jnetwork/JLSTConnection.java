@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
  * 
  * @author Lucas Baizer
  */
-public class JLSTConnection extends TCPConnection {
+public class JLSTConnection extends TCPConnection implements EncryptedConnection {
 	private SecurityService rsa;
 	private SecurityService aes;
 
@@ -63,39 +63,22 @@ public class JLSTConnection extends TCPConnection {
 		return aes;
 	}
 
-	/**
-	 * Writes an object without encrypting it.
-	 * 
-	 * @param obj
-	 *            - The object to send.
-	 * @throws IOException
-	 *             If an error occurs while writing the object.
-	 */
+	@Override
 	public void writeUnencryptedObject(Serializable obj) throws IOException {
 		out.writeObject(obj);
 	}
 
-	/**
-	 * Reads an object without decrypting it.
-	 * 
-	 * @return The undecrypted object.
-	 * @throws ClassNotFoundException
-	 *             If the class of the object cannot be found.
-	 * @throws IOException
-	 *             If an error occurs while reading the object.
-	 */
+	@Override
 	public Serializable readUnencryptedObject() throws ClassNotFoundException, IOException {
 		return (Serializable) in.readObject();
 	}
 
+	@Override
 	public void writeUnencrypted(int b) throws IOException {
 		out.write(b);
 	}
 
-	public void writeUnencrypted(byte[] bytes) throws IOException {
-		writeUnencrypted(bytes, 0, bytes.length);
-	}
-
+	@Override
 	public void writeUnencrypted(byte[] bytes, int off, int len) throws IOException {
 		out.write(bytes, off, len);
 	}
@@ -145,14 +128,12 @@ public class JLSTConnection extends TCPConnection {
 		}
 	}
 
+	@Override
 	public int readUnencrypted() throws IOException {
 		return in.read();
 	}
 
-	public void readUnencrypted(byte[] arr) throws IOException {
-		readUnencrypted(arr, 0, arr.length);
-	}
-
+	@Override
 	public void readUnencrypted(byte[] arr, int off, int len) throws IOException {
 		in.read(arr, off, len);
 	}

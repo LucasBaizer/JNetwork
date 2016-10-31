@@ -22,9 +22,9 @@ public class JLSTNetworkFactory extends NetworkFactory {
 	}
 
 	@Override
-	public Server createServer(int port, ClientConnectionListener l) throws ServerException {
+	public Server createServer(int port, ClientConnectionCallback l) throws ServerException {
 		try {
-			return new JLSTServer(port, (TCPConnectionListener) l, null);
+			return new JLSTServer(port, (TCPConnectionCallback) l, null);
 		} catch (CryptographyException e) {
 			throw new ServerException(e);
 		}

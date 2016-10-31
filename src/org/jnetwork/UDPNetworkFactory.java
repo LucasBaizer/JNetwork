@@ -18,7 +18,7 @@ public class UDPNetworkFactory extends NetworkFactory {
 	}
 
 	@Override
-	public Server createServer(int port, ClientConnectionListener l) throws ServerException {
-		return new UDPServer(port, (UDPConnectionListener) l);
+	public Server createServer(int port, ClientConnectionCallback l) throws ServerException {
+		return new UDPServer(port, (UDPConnectionCallback) l);
 	}
 }

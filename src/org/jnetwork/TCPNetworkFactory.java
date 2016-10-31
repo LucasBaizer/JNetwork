@@ -18,7 +18,7 @@ public class TCPNetworkFactory extends NetworkFactory {
 	}
 
 	@Override
-	public Server createServer(int port, ClientConnectionListener l) throws ServerException {
-		return new TCPServer(port, (TCPConnectionListener) l);
+	public Server createServer(int port, ClientConnectionCallback l) throws ServerException {
+		return new TCPServer(port, (TCPConnectionCallback) l);
 	}
 }

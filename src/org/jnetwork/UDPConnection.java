@@ -90,11 +90,6 @@ public class UDPConnection extends Connection {
 		write(bytes, 0, bytes.length);
 	}
 
-	@Override
-	public void writeUnshared(Serializable obj) throws IOException {
-		writeObject(obj);
-	}
-
 	protected DatagramPacket readPacket() throws IOException {
 		byte[] receive = new byte[bufferSize];
 		DatagramPacket packet = new DatagramPacket(receive, receive.length);
@@ -124,11 +119,6 @@ public class UDPConnection extends Connection {
 	@Override
 	public Serializable readObject() throws IOException, ClassNotFoundException {
 		return UDPUtils.deserializeObject(readPacket().getData());
-	}
-
-	@Override
-	public Serializable readUnshared() throws IOException, ClassNotFoundException {
-		return readObject();
 	}
 
 	/**

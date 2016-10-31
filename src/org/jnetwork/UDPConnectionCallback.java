@@ -1,6 +1,6 @@
 package org.jnetwork;
 
-public interface UDPConnectionListener extends ClientConnectionListener {
+public interface UDPConnectionCallback extends ClientConnectionCallback {
 	/**
 	 * This method gets called on when a client sends UDP data to the
 	 * <code>Server</code>.

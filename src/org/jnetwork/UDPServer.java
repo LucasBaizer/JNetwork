@@ -15,7 +15,7 @@ public class UDPServer extends Server {
 	protected DatagramSocket server;
 	protected int bufferSize = 1024;
 
-	public UDPServer(int port, UDPConnectionListener clientSocketThread) {
+	public UDPServer(int port, UDPConnectionCallback clientSocketThread) {
 		super(port, clientSocketThread);
 	}
 
@@ -43,7 +43,7 @@ public class UDPServer extends Server {
 		Thread thr = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				((UDPConnectionListener) getClientConnectionListener()).dataReceived(event, receivePacket.getData());
+				((UDPConnectionCallback) getClientConnectionListener()).dataReceived(event, receivePacket.getData());
 				try {
 					removeClient(event);
 				} catch (IOException e) {

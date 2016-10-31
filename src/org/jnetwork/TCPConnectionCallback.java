@@ -1,6 +1,6 @@
 package org.jnetwork;
 
-public interface TCPConnectionListener extends ClientConnectionListener {
+public interface TCPConnectionCallback extends ClientConnectionCallback {
 	/**
 	 * This method gets called on when a client connects to the
 	 * <code>Server</code>.

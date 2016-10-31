@@ -8,7 +8,7 @@ import org.jnetwork.SSLConnection;
 import org.jnetwork.Keystore;
 import org.jnetwork.SSLServer;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.TCPConnectionListener;
+import org.jnetwork.TCPConnectionCallback;
 
 public class SSLObjectTransfer {
 	/**
@@ -18,7 +18,7 @@ public class SSLObjectTransfer {
 	 **/
 	public static void main(String[] args) {
 		try {
-			SSLServer server = new SSLServer(1337, new TCPConnectionListener() {
+			SSLServer server = new SSLServer(1337, new TCPConnectionCallback() {
 				@Override
 				public void clientConnected(SocketPackage event) {
 					try {

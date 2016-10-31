@@ -8,7 +8,7 @@ import org.jnetwork.Keystore;
 import org.jnetwork.SDTPConnection;
 import org.jnetwork.SDTPServer;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.UDPConnectionListener;
+import org.jnetwork.UDPConnectionCallback;
 import org.jnetwork.UDPUtils;
 
 public class SDTPObjectTransfer {
@@ -18,7 +18,7 @@ public class SDTPObjectTransfer {
 	 */
 	public static void main(String[] args) {
 		try {
-			SDTPServer server = new SDTPServer(1337, new UDPConnectionListener() {
+			SDTPServer server = new SDTPServer(1337, new UDPConnectionCallback() {
 				@Override
 				public void dataReceived(SocketPackage event, byte[] data) {
 					try {

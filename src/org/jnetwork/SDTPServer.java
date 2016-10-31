@@ -38,7 +38,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SDTPServer extends UDPServer {
 	private SecurityService crypto;
 
-	public SDTPServer(int port, UDPConnectionListener clientSocketThread, Keystore keystore)
+	public SDTPServer(int port, UDPConnectionCallback clientSocketThread, Keystore keystore)
 			throws CryptographyException {
 		super(port, clientSocketThread);
 
@@ -150,7 +150,7 @@ public class SDTPServer extends UDPServer {
 						} else {
 							data = conn.getAESSecurityService().decrypt(conn.trim(receivePacket.getData()));
 						}
-						((UDPConnectionListener) getClientConnectionListener()).dataReceived(event, data);
+						((UDPConnectionCallback) getClientConnectionListener()).dataReceived(event, data);
 					} catch (CryptographyException | InvalidKeyException | ClassNotFoundException
 							| NoSuchAlgorithmException | IOException e1) {
 						Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(),

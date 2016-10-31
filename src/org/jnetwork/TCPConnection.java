@@ -195,12 +195,10 @@ public class TCPConnection extends Connection {
 		return (Serializable) in.readObject();
 	}
 
-	@Override
 	public void writeUnshared(Serializable obj) throws IOException {
 		out.writeUnshared(obj);
 	}
 
-	@Override
 	public Serializable readUnshared() throws IOException, ClassNotFoundException {
 		return (Serializable) in.readUnshared();
 	}

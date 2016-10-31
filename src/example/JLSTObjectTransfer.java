@@ -7,7 +7,7 @@ import org.jnetwork.JLSTConnection;
 import org.jnetwork.JLSTServer;
 import org.jnetwork.Keystore;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.TCPConnectionListener;
+import org.jnetwork.TCPConnectionCallback;
 
 public class JLSTObjectTransfer {
 	/**
@@ -16,7 +16,7 @@ public class JLSTObjectTransfer {
 	 */
 	public static void main(String[] args) {
 		try {
-			JLSTServer server = new JLSTServer(1337, new TCPConnectionListener() {
+			JLSTServer server = new JLSTServer(1337, new TCPConnectionCallback() {
 				@Override
 				public void clientConnected(SocketPackage event) {
 					try {

@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
  * 
  * @author Lucas Baizer
  */
-public class SDTPConnection extends UDPConnection {
+public class SDTPConnection extends UDPConnection implements EncryptedConnection {
 	private SecurityService rsa;
 	private SecurityService aes;
 
@@ -74,6 +74,7 @@ public class SDTPConnection extends UDPConnection {
 		return aes;
 	}
 
+	@Override
 	public void writeUnencryptedObject(Serializable obj) throws IOException {
 		byte[] bytes = UDPUtils.serializeObject(obj);
 		write(bytes, 0, bytes.length, null);
@@ -135,19 +136,23 @@ public class SDTPConnection extends UDPConnection {
 		DatagramPacket packet = new DatagramPacket(arr, off, len);
 		socket.receive(packet);
 
-		try {
-			packet.setData(crypto.decrypt(trim(packet.getData())));
-		} catch (CryptographyException e) {
-			throw new IOException("Failure reading bytes", e);
+		if (crypto != null) {
+			try {
+				packet.setData(crypto.decrypt(trim(packet.getData())));
+			} catch (CryptographyException e) {
+				throw new IOException("Failure reading bytes", e);
+			}
 		}
 	}
 
-	void readUnencrypted(byte[] arr) throws IOException {
+	@Override
+	public void readUnencrypted(byte[] arr) throws IOException {
 		DatagramPacket packet = new DatagramPacket(arr, arr.length);
 		socket.receive(packet);
 	}
 
-	Serializable readUnencryptedObject() throws IOException, ClassNotFoundException {
+	@Override
+	public Serializable readUnencryptedObject() throws IOException, ClassNotFoundException {
 		byte[] arr = new byte[bufferSize];
 		readUnencrypted(arr);
 		return UDPUtils.deserializeObject(arr);
@@ -175,5 +180,27 @@ public class SDTPConnection extends UDPConnection {
 		}
 
 		return Arrays.copyOf(bytes, i + 1);
+	}
+
+	@Override
+	public void writeUnencrypted(int v) throws IOException {
+		write(new byte[] { (byte) v }, 0, 1, null);
+	}
+
+	@Override
+	public void writeUnencrypted(byte[] arr, int off, int len) throws IOException {
+		write(arr, off, len, null);
+	}
+
+	@Override
+	public int readUnencrypted() throws IOException {
+		byte[] arr = new byte[1];
+		read(arr, 0, 1, null);
+		return arr[0];
+	}
+
+	@Override
+	public void readUnencrypted(byte[] arr, int off, int len) throws IOException {
+		read(arr, off, len, null);
 	}
 }

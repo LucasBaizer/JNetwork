@@ -17,8 +17,8 @@ public class QueryConnection {
 
 	public synchronized EntrySet query(String query) throws IOException, QueryException {
 		try {
-			client.writeUnshared(new DataPackage(Query.parseQuery(query)).setMessage("SERVER_DATABASE_QUERY"));
-			DataPackage response = (DataPackage) client.readUnshared();
+			client.writeObject(new DataPackage(Query.parseQuery(query)).setMessage("SERVER_DATABASE_QUERY"));
+			DataPackage response = (DataPackage) client.readObject();
 			if (response.getMessage().equals("SERVER_DATABASE_QUERY_RESPONSE_ERROR")) {
 				throw (QueryException) response.getObjects()[0];
 			} else {
@@ -30,7 +30,7 @@ public class QueryConnection {
 	}
 
 	public synchronized void closeConnection() throws IOException {
-		client.writeUnshared(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
+		client.writeObject(new DataPackage().setMessage("CLIENT_DATABASE_CLOSE_CONNECTION"));
 		if (client instanceof TCPConnection) {
 			((TCPConnection) client).getOutputStream().flush();
 		}

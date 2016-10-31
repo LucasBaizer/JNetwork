@@ -21,7 +21,7 @@ public class SSLServer extends TCPServer {
 		Security.addProvider(new Provider());
 	}
 
-	public SSLServer(int port, TCPConnectionListener clientSocketThread, Keystore keystore) {
+	public SSLServer(int port, TCPConnectionCallback clientSocketThread, Keystore keystore) {
 		super(port, clientSocketThread);
 
 		if (keystore != null) {

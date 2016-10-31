@@ -32,13 +32,13 @@ public abstract class NetworkFactory {
 	 * 
 	 * @param port
 	 *            - The port to bind the server to. See
-	 *            {@link Server#Server(int, ClientConnectionListener)}.
+	 *            {@link Server#Server(int, ClientConnectionCallback)}.
 	 * @param l
 	 *            - The event to be called when a client connects. See
-	 *            {@link Server#Server(int, ClientConnectionListener)}.
+	 *            {@link Server#Server(int, ClientConnectionCallback)}.
 	 * @return The server.
 	 * @throws ServerException
 	 *             If an error occurs while creating the server.
 	 */
-	public abstract Server createServer(int port, ClientConnectionListener l) throws ServerException;
+	public abstract Server createServer(int port, ClientConnectionCallback l) throws ServerException;
 }

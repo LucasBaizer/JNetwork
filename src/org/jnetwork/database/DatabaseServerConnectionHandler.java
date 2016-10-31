@@ -2,9 +2,9 @@ package org.jnetwork.database;
 
 import org.jnetwork.DataPackage;
 import org.jnetwork.SocketPackage;
-import org.jnetwork.TCPConnectionListener;
+import org.jnetwork.TCPConnectionCallback;
 
-public class DatabaseServerConnectionHandler implements TCPConnectionListener {
+public class DatabaseServerConnectionHandler implements TCPConnectionCallback {
 	private Database db;
 
 	public DatabaseServerConnectionHandler(Database database) {
@@ -15,16 +15,16 @@ public class DatabaseServerConnectionHandler implements TCPConnectionListener {
 	public void clientConnected(SocketPackage event) {
 		try {
 			while (true) {
-				DataPackage in = (DataPackage) event.getConnection().readUnshared();
+				DataPackage in = (DataPackage) event.getConnection().readObject();
 				if (in.getMessage().equals("SERVER_DATABASE_QUERY")) {
 					Query query = (Query) in.getObjects()[0];
 					try {
 						EntrySet set = db.query(query);
-						event.getConnection().writeUnshared(
-								new DataPackage(set).setMessage("SERVER_DATABASE_QUERY_RESPONSE_SUCCESS"));
+						event.getConnection()
+								.writeObject(new DataPackage(set).setMessage("SERVER_DATABASE_QUERY_RESPONSE_SUCCESS"));
 					} catch (QueryException e) {
 						event.getConnection()
-								.writeUnshared(new DataPackage(e).setMessage("SERVER_DATABASE_QUERY_RESPONSE_ERROR"));
+								.writeObject(new DataPackage(e).setMessage("SERVER_DATABASE_QUERY_RESPONSE_ERROR"));
 					}
 				} else {
 					return;

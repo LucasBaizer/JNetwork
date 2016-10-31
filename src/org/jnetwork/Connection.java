@@ -81,11 +81,6 @@ public abstract class Connection implements Closeable {
 	public abstract void writeObject(Serializable obj) throws IOException;
 
 	/**
-	 * See {@link java.io.ObjectOutputStream#writeUnshared(Object)}.
-	 */
-	public abstract void writeUnshared(Serializable obj) throws IOException;
-
-	/**
 	 * See {@link java.io.InputStream#read()}.
 	 */
 	public abstract int read() throws IOException;
@@ -106,11 +101,6 @@ public abstract class Connection implements Closeable {
 	 * See {@link java.io.ObjectInputStream#readObject(Object)}.
 	 */
 	public abstract Serializable readObject() throws IOException, ClassNotFoundException;
-
-	/**
-	 * See {@link java.io.ObjectInputStream#readUnshared(Object)}.
-	 */
-	public abstract Serializable readUnshared() throws IOException, ClassNotFoundException;
 
 	/**
 	 * @return the output stream for this Connection.
