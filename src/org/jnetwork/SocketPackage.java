@@ -8,7 +8,6 @@ package org.jnetwork;
  */
 public class SocketPackage {
 	private Connection socket;
-	private Object[] data;
 	private Thread holder;
 
 	/**
@@ -16,16 +15,9 @@ public class SocketPackage {
 	 * 
 	 * @param socket
 	 *            - The socket.
-	 * @param in
-	 *            - The input stream.
-	 * @param out
-	 *            - The output stream.
-	 * @param extraData
-	 *            - Any extra data to add to the package.
 	 */
-	public SocketPackage(Connection socket, Object... extraData) {
+	public SocketPackage(Connection socket) {
 		this.socket = socket;
-		this.data = extraData;
 	}
 
 	/**
@@ -36,11 +28,9 @@ public class SocketPackage {
 	 *            - The socket.
 	 * @param holder
 	 *            - The thread which this SocketPackage is connected to.
-	 * @param extraData
-	 *            - Any extra data to add to the package.
 	 */
-	SocketPackage(Connection socket, Thread holder, Object... extraData) {
-		this(socket, extraData);
+	SocketPackage(Connection socket, Thread holder) {
+		this(socket);
 
 		this.holder = holder;
 	}
@@ -52,22 +42,6 @@ public class SocketPackage {
 	 */
 	public Connection getConnection() {
 		return this.socket;
-	}
-
-	/**
-	 * Gets the extra data set when the constructor was called.
-	 * 
-	 * @return The data.
-	 */
-	public Object[] getExtraData() {
-		return data;
-	}
-
-	/**
-	 * Sets the extra data.
-	 */
-	public void setExtraData(Object... extraData) {
-		this.data = extraData;
 	}
 
 	/**

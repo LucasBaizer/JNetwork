@@ -2,11 +2,8 @@ package org.jnetwork;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * A server-side utility used for easily handling an infinite amount of
@@ -175,28 +172,6 @@ public abstract class Server implements Closeable {
 	}
 
 	/**
-	 * Sets data to the SocketPackage of a connected client.
-	 * 
-	 * @param client
-	 *            - The SocketPackage of the client whose data will be set to.
-	 * @param data
-	 *            - The data.
-	 * 
-	 * @return boolean - If the client was actually connected.
-	 */
-	public boolean setConnectionData(SocketPackage client, Object... data) {
-		refresh();
-		if (clients.contains(client)) {
-			client.setExtraData(data);
-
-			clients.set(clients.indexOf(client), client);
-		} else {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Removes the client from the server's list of clients and closes it if it
 	 * was not already closed.
 	 * 
@@ -269,7 +244,7 @@ public abstract class Server implements Closeable {
 	 * <code>Socket</code>.
 	 * 
 	 * @param socket
-	 *            - The <code>Socket</code> of the client.
+	 *            - The <code>Connection</code> of the client.
 	 * @return SocketPackage - If a user has the same <code>Socket</code> as the
 	 *         <code>socket</code> parameter. <br>
 	 *         null - If no <code>SocketPackage</code> is found with the same
@@ -277,77 +252,12 @@ public abstract class Server implements Closeable {
 	 * 
 	 * @see org.jnetwork.SocketPackage
 	 */
-	public SocketPackage getClient(Socket socket) {
+	public SocketPackage getClient(Connection socket) {
 		for (SocketPackage evt : clients) {
 			if (evt.getConnection().equals(socket))
 				return evt;
 		}
 		return null;
-	}
-
-	/**
-	 * Gets the SocketPackage for every client with matching extra data as the
-	 * <code>data</code> parameter.
-	 * 
-	 * @param data
-	 *            - The data to check for.
-	 * 
-	 * @return SocketPackage[] - An array containing each
-	 *         <code>SocketPackage</code> with matching data.<br>
-	 *         null - If no <code>SocketPackage</code> has the same data.
-	 */
-	public SocketPackage[] getClientsByData(Object... data) {
-		ArrayList<SocketPackage> evts = new ArrayList<SocketPackage>();
-
-		for (int i = 0; i < clients.size(); i++) {
-			if (Arrays.equals(clients.get(i).getExtraData(), data)) {
-				evts.add(clients.get(i));
-			}
-		}
-
-		return evts.toArray(new SocketPackage[evts.size()]);
-	}
-
-	/**
-	 * Gets the SocketPackage for every client with matching extra data at the
-	 * same index as the <code>index</code> and data at that index equal to the
-	 * <code>data</code> parameter.<br>
-	 * <br>
-	 * For example, assume that a client has extra data like so: <br>
-	 * <code>{1, "username"}</code><br>
-	 * and another client has extra data like so:<br>
-	 * <code>{2, "username"}</code>. If <code>getByDataIndex(0, 1)</code><br>
-	 * is called, this will return the SocketPackage for the first client. If
-	 * <code>getByDataIndex(1, "username")</code> is called, this will return
-	 * the SocketPackage for both clients.<br>
-	 * <br>
-	 * If an <code>ArrayIndexOutOfBoundsException</code> is thrown, it will be
-	 * ignored and the method will continue on as normal.
-	 * 
-	 * @param index
-	 *            - The index to check the data at.
-	 * @param data
-	 *            - The data to check for at the index.
-	 * 
-	 * @return SocketPackage[] - An array containing each
-	 *         <code>SocketPackage</code> with matching data at the index.<br>
-	 *         null - If no <code>SocketPackage</code> has the same data.
-	 */
-	public SocketPackage[] getClientsByDataIndex(int index, Object data) {
-		ArrayList<SocketPackage> evts = new ArrayList<SocketPackage>();
-
-		for (int i = 0; i < clients.size(); i++) {
-			try {
-				data = clients.get(i).getExtraData()[index].getClass();
-				if (Objects.equals(clients.get(i).getExtraData()[index], data)) {
-					evts.add(clients.get(i));
-				}
-			} catch (ArrayIndexOutOfBoundsException ex) {
-				continue;
-			}
-		}
-
-		return evts.toArray(new SocketPackage[evts.size()]);
 	}
 
 	/**
