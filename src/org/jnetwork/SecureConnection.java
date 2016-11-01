@@ -3,7 +3,7 @@ package org.jnetwork;
 import java.io.IOException;
 import java.io.Serializable;
 
-public interface EncryptedConnection {
+public interface SecureConnection {
 	public void writeUnencrypted(int v) throws IOException;
 
 	public default void writeUnencrypted(byte[] arr) throws IOException {

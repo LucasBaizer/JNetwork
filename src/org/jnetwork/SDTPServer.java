@@ -35,13 +35,13 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Lucas Baizer
  */
-public class SDTPServer extends UDPServer {
+public class SDTPServer extends UDPServer implements SecureServer {
 	private SecurityService crypto;
+	private Keystore store;
 
 	public SDTPServer(int port, UDPConnectionCallback clientSocketThread, Keystore keystore)
 			throws CryptographyException {
 		super(port, clientSocketThread);
-
 		setBufferSize(8192);
 
 		if (keystore != null) {
@@ -49,7 +49,14 @@ public class SDTPServer extends UDPServer {
 		}
 	}
 
-	public SDTPServer setKeystore(Keystore keystore) throws CryptographyException {
+	public SDTPServer(int port, UDPConnectionCallback clientSocketThread) throws CryptographyException {
+		super(port, clientSocketThread);
+		setBufferSize(8192);
+
+		crypto = SecurityService.generateRSASecurityService();
+	}
+
+	public void setKeystore(Keystore keystore) throws CryptographyException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
@@ -57,10 +64,11 @@ public class SDTPServer extends UDPServer {
 			crypto = new SecurityService("RSA", false);
 			crypto.setPublicKey(keyStore.getCertificate(keystore.getAlias()).getPublicKey());
 			crypto.setPrivateKey(keyStore.getKey(keystore.getAlias(), keystore.getKeyPasswordArray()));
+
+			this.store = keystore;
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
-		return this;
 	}
 
 	private static class HandshakeData implements Serializable {
@@ -177,5 +185,15 @@ public class SDTPServer extends UDPServer {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public Keystore getKeystore() {
+		return store;
+	}
+
+	@Override
+	public void useRandomKeystore() throws CryptographyException {
+		crypto = SecurityService.generateRSASecurityService();
 	}
 }

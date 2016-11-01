@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
  * 
  * @author Lucas Baizer
  */
-public class SDTPConnection extends UDPConnection implements EncryptedConnection {
+public class SDTPConnection extends UDPConnection implements SecureConnection {
 	private SecurityService rsa;
 	private SecurityService aes;
 

@@ -30,7 +30,8 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Lucas Baizer
  */
-public class JLSTServer extends TCPServer {
+public class JLSTServer extends TCPServer implements SecureServer {
+	private Keystore keystore;
 	private SecurityService crypto;
 
 	public JLSTServer(int i, TCPConnectionCallback tcpConnectionListener, Keystore keystore)
@@ -42,7 +43,13 @@ public class JLSTServer extends TCPServer {
 		}
 	}
 
-	public JLSTServer setKeystore(Keystore keystore) throws CryptographyException {
+	public JLSTServer(int i, TCPConnectionCallback tcpConnectionListener) throws CryptographyException {
+		super(i, tcpConnectionListener);
+
+		crypto = SecurityService.generateRSASecurityService();
+	}
+
+	public void setKeystore(Keystore keystore) throws CryptographyException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(Files.newInputStream(keystore.getKeystoreFile().toPath()), keystore.getPasswordArray());
@@ -50,10 +57,11 @@ public class JLSTServer extends TCPServer {
 			crypto = new SecurityService("RSA", false);
 			crypto.setPublicKey(keyStore.getCertificate(keystore.getAlias()).getPublicKey());
 			crypto.setPrivateKey(keyStore.getKey(keystore.getAlias(), keystore.getKeyPasswordArray()));
+
+			this.keystore = keystore;
 		} catch (Exception e) {
 			throw new CryptographyException(e);
 		}
-		return this;
 	}
 
 	@Override
@@ -86,5 +94,15 @@ public class JLSTServer extends TCPServer {
 			launchNewThread();
 			throw new IOException(e);
 		}
+	}
+
+	@Override
+	public Keystore getKeystore() {
+		return keystore;
+	}
+
+	@Override
+	public void useRandomKeystore() throws CryptographyException {
+		crypto = SecurityService.generateRSASecurityService();
 	}
 }

@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
  * 
  * @author Lucas Baizer
  */
-public class JLSTConnection extends TCPConnection implements EncryptedConnection {
+public class JLSTConnection extends TCPConnection implements SecureConnection {
 	private SecurityService rsa;
 	private SecurityService aes;
 
