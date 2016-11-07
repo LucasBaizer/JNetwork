@@ -10,41 +10,41 @@ import java.util.ArrayList;
  * connections between clients. When the constructor is called, a
  * <code>ServerSocket</code> is bound to a given port and then created. A new
  * thread is then launched, which will wait for a client to connect, and when
- * they do, a new <code>SocketPackage</code> will be created containing all the
+ * they do, a new <code>ClientData</code> will be created containing all the
  * information required for the connection with the client. In another new
  * thread, launched from the new thread initially launched, the
  * <code>ClientConnectionCallback.clientConnected</code> will be called and
- * parameterized with the <code>SocketPackage</code>. <br>
+ * parameterized with the <code>ClientData</code>. <br>
  * <br>
  * Whenever the <code>Server</code> is asked to run any function that deals with
  * the connected clients, it will call {@link Server#refresh()}. For each closed
  * client that that is still in the <code>Server</code>'s {@code List
- * <SocketPackage>}, the client will be removed, and every
+ * <ClientData>}, the client will be removed, and every
  * <code>RefreshListener.clientDisconnect</code> added with
  * {@link Server#addRefreshListener(RefreshListener)} will be called and
- * parameterized with the client's <code>SocketPackage</code>. <br>
+ * parameterized with the client's <code>ClientData</code>. <br>
  * <br>
- * When {@link Server#removeClient(SocketPackage)} is called, every
+ * When {@link Server#removeClient(ClientData)} is called, every
  * <code>ClientDisconnectionCallback</code> added with
  * {@link Server#addClientDisconnectionListener(ClientDisconnectionCallback)}
- * will be called and parameterized with the client's <code>SocketPackage</code>
+ * will be called and parameterized with the client's <code>ClientData</code>
  * . <br>
  * <br>
  * 
  * @see java.net.ServerSocket
- * @see org.jnetwork.SocketPackage
+ * @see org.jnetwork.ClientData
  * @see org.jnetwork.listener.network.event.RefreshListener
  * @see org.jnetwork.ClientConnectionCallback.event.ClientConnectionListener
  * @see org.jnetwork.ClientDisconnectionCallback.ClientDisconnectionListener.event.
  *      ClientRemovedListener
- * @see org.jnetwork.SocketPackage
+ * @see org.jnetwork.ClientData
  * 
  * @author Lucas Baizer
  */
 public abstract class Server implements Closeable {
 	private ClientConnectionCallback thread;
 	private int port;
-	protected ArrayList<SocketPackage> clients = new ArrayList<SocketPackage>();
+	protected ArrayList<ClientData> clients = new ArrayList<ClientData>();
 	private ArrayList<ClientDisconnectionCallback> removers = new ArrayList<ClientDisconnectionCallback>();
 	private boolean started;
 	private Object closeWaiter = new Object();
@@ -106,7 +106,7 @@ public abstract class Server implements Closeable {
 
 	/**
 	 * Adds a <code>ClientRemoveListener</code> to be called on when a client is
-	 * removed by <b><code>removeClient(SocketPackage client)</code></b>
+	 * removed by <b><code>removeClient(ClientData client)</code></b>
 	 * 
 	 * @param listener
 	 *            - The listener to be removed.
@@ -121,7 +121,7 @@ public abstract class Server implements Closeable {
 	/**
 	 * Removes a <code>ClientDisconnectionCallback</code> to be called on when a
 	 * client is removed by <b>
-	 * <code>removeClient(SocketPackage event)</code></b>
+	 * <code>removeClient(ClientData event)</code></b>
 	 * 
 	 * @param listener
 	 *            - The listener to be added.
@@ -176,15 +176,15 @@ public abstract class Server implements Closeable {
 	 * was not already closed.
 	 * 
 	 * @param client
-	 *            - The SocketPackage of the client.
+	 *            - The ClientData of the client.
 	 * 
 	 * @returns boolean - If the client was actually in the server's
-	 *          {@code List <SocketPackage> }
+	 *          {@code List <ClientData> }
 	 * @throws IOException
 	 *             If there is an error closing the client if it is not already
 	 *             closed.
 	 */
-	public void removeClient(SocketPackage client) throws IOException {
+	public void removeClient(ClientData client) throws IOException {
 		if (clients.contains(client)) {
 			clients.remove(client);
 
@@ -210,7 +210,7 @@ public abstract class Server implements Closeable {
 	 *            - The client's address.
 	 * 
 	 * @returns boolean - If the client was actually in the server's
-	 *          {@code List <SocketPackage> }
+	 *          {@code List <ClientData> }
 	 * 
 	 * @throws IOException
 	 *             If there is an error closing the client if it is not already
@@ -221,18 +221,18 @@ public abstract class Server implements Closeable {
 	}
 
 	/**
-	 * Gets a connected client's <code>SocketPackage</code> by their IP address.
+	 * Gets a connected client's <code>ClientData</code> by their IP address.
 	 * 
 	 * @param addr
 	 *            - The <code>SocketAddress</code> of the client.
 	 * 
-	 * @return SocketPackage - If a user has the same <code>SocketAddress</code>
+	 * @return ClientData - If a user has the same <code>SocketAddress</code>
 	 *         as the <code>addr</code> parameter.<br>
-	 *         null - If no <code>SocketPackage</code> is found with the same
+	 *         null - If no <code>ClientData</code> is found with the same
 	 *         <code>SocketAddress</code> as the <code>addr</code> parameter.
 	 */
-	public SocketPackage getClient(SocketAddress addr) {
-		for (SocketPackage evt : clients) {
+	public ClientData getClient(SocketAddress addr) {
+		for (ClientData evt : clients) {
 			if (evt.getConnection().getRemoteSocketAddress().toString().equals(addr.toString()))
 				return evt;
 		}
@@ -240,20 +240,20 @@ public abstract class Server implements Closeable {
 	}
 
 	/**
-	 * Gets a connected client's <code>SocketPackage</code> by their
+	 * Gets a connected client's <code>ClientData</code> by their
 	 * <code>Socket</code>.
 	 * 
 	 * @param socket
 	 *            - The <code>Connection</code> of the client.
-	 * @return SocketPackage - If a user has the same <code>Socket</code> as the
+	 * @return ClientData - If a user has the same <code>Socket</code> as the
 	 *         <code>socket</code> parameter. <br>
-	 *         null - If no <code>SocketPackage</code> is found with the same
+	 *         null - If no <code>ClientData</code> is found with the same
 	 *         <code>Socket</code> as the <code>socket</code> parameter.
 	 * 
-	 * @see org.jnetwork.SocketPackage
+	 * @see org.jnetwork.ClientData
 	 */
-	public SocketPackage getClient(Connection socket) {
-		for (SocketPackage evt : clients) {
+	public ClientData getClient(Connection socket) {
+		for (ClientData evt : clients) {
 			if (evt.getConnection().equals(socket))
 				return evt;
 		}
@@ -262,12 +262,12 @@ public abstract class Server implements Closeable {
 
 	/**
 	 * Removes all of the closed clients that are still in the server's internal
-	 * {@code List<SocketPackage>}.
+	 * {@code List<ClientData>}.
 	 **/
 	public void refresh() {
-		ArrayList<SocketPackage> closedClients = new ArrayList<>();
+		ArrayList<ClientData> closedClients = new ArrayList<>();
 
-		for (SocketPackage ce : clients) {
+		for (ClientData ce : clients) {
 			Connection client = ce.getConnection();
 			if (client.isClosed()) {
 				closedClients.add(ce);
@@ -275,7 +275,7 @@ public abstract class Server implements Closeable {
 		}
 
 		// prevent CME
-		for (SocketPackage closedClient : closedClients) {
+		for (ClientData closedClient : closedClients) {
 			clients.remove(closedClient);
 		}
 	}
@@ -288,8 +288,8 @@ public abstract class Server implements Closeable {
 	 * 
 	 * @see java.net.Socket
 	 */
-	public SocketPackage[] getClients() {
-		return clients.toArray(new SocketPackage[clients.size()]);
+	public ClientData[] getClients() {
+		return clients.toArray(new ClientData[clients.size()]);
 	}
 
 	/**

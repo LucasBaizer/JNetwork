@@ -7,7 +7,7 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.Keystore;
 import org.jnetwork.SDTPConnection;
 import org.jnetwork.SDTPServer;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.UDPConnectionCallback;
 import org.jnetwork.UDPUtils;
 
@@ -20,7 +20,7 @@ public class SDTPObjectTransfer {
 		try {
 			SDTPServer server = new SDTPServer(1337, new UDPConnectionCallback() {
 				@Override
-				public void dataReceived(SocketPackage event, byte[] data) {
+				public void dataReceived(ClientData event, byte[] data) {
 					try {
 						try {
 							System.out.println(Thread.currentThread().getName() + ": "

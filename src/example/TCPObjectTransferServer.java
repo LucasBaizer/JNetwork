@@ -8,7 +8,7 @@ import org.jnetwork.AdvancedOutputStream;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.DataPackage;
 import org.jnetwork.Server;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.TCPConnection;
 import org.jnetwork.TCPConnectionCallback;
 import org.jnetwork.TCPServer;
@@ -31,7 +31,7 @@ public class TCPObjectTransferServer implements TCPConnectionCallback {
 
 	// this method is called each time a client connects
 	@Override
-	public void clientConnected(SocketPackage event) {
+	public void clientConnected(ClientData event) {
 		// gets the IP address of the client
 		SocketAddress address = event.getConnection().getRemoteSocketAddress();
 

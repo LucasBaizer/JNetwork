@@ -140,7 +140,7 @@ public class SDTPServer extends UDPServer implements SecureServer {
 			conn.getAESSecurityService().setPrivateKey(key);
 			conn.getAESSecurityService().setParameters(data.getParameters());
 
-			final SocketPackage event = new SocketPackage(conn);
+			final ClientData event = new ClientData(conn);
 
 			refresh();
 			clients.add(event);

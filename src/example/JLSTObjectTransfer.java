@@ -6,7 +6,7 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.JLSTConnection;
 import org.jnetwork.JLSTServer;
 import org.jnetwork.Keystore;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.TCPConnectionCallback;
 
 public class JLSTObjectTransfer {
@@ -18,7 +18,7 @@ public class JLSTObjectTransfer {
 		try {
 			JLSTServer server = new JLSTServer(1337, new TCPConnectionCallback() {
 				@Override
-				public void clientConnected(SocketPackage event) {
+				public void clientConnected(ClientData event) {
 					try {
 						System.out
 								.println(Thread.currentThread().getName() + ": " + event.getConnection().readObject());

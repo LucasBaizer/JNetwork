@@ -36,12 +36,12 @@ public class TCPServer extends Server {
 			}
 			throw e;
 		}
-		final SocketPackage event = new SocketPackage(new TCPConnection(client));
+		final ClientData event = new ClientData(new TCPConnection(client));
 
 		launchThreadForConnectedClient(event, "TCPServer");
 	}
 
-	protected void launchThreadForConnectedClient(SocketPackage event, String name) throws IOException {
+	protected void launchThreadForConnectedClient(ClientData event, String name) throws IOException {
 		refresh();
 		clients.add(event);
 		refresh();

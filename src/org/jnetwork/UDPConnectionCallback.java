@@ -10,5 +10,5 @@ public interface UDPConnectionCallback extends ClientConnectionCallback {
 	 * @param data
 	 *            - The data sent to the server by the client.
 	 */
-	public void dataReceived(SocketPackage event, byte[] data);
+	public void dataReceived(ClientData event, byte[] data);
 }

@@ -3,7 +3,7 @@ package example;
 import java.io.IOException;
 
 import org.jnetwork.CloseRequest;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.UDPConnection;
 import org.jnetwork.UDPConnectionCallback;
 import org.jnetwork.UDPServer;
@@ -18,7 +18,7 @@ public class UDPObjectTransfer {
 		try {
 			UDPServer server = new UDPServer(1337, new UDPConnectionCallback() {
 				@Override
-				public void dataReceived(SocketPackage event, byte[] data) {
+				public void dataReceived(ClientData event, byte[] data) {
 					try {
 						System.out.println((String) UDPUtils.deserializeObject(data));
 

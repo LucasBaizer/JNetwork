@@ -88,7 +88,7 @@ public class JLSTServer extends TCPServer implements SecureServer {
 			client.getAESSecurityService()
 					.setParameters(new IvParameterSpec(crypto.decrypt((byte[]) data.getObjects()[1])));
 
-			SocketPackage event = new SocketPackage(client);
+			ClientData event = new ClientData(client);
 			launchThreadForConnectedClient(event, "JLSTServer");
 		} catch (CryptographyException | ClassNotFoundException e) {
 			launchNewThread();

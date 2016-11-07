@@ -6,30 +6,30 @@ package org.jnetwork;
  * 
  * @author Lucas Baizer
  */
-public class SocketPackage {
+public class ClientData {
 	private Connection socket;
 	private Thread holder;
 
 	/**
-	 * Creates a new SocketPackage with all the required data.
+	 * Creates a new ClientData with all the required data.
 	 * 
 	 * @param socket
 	 *            - The socket.
 	 */
-	public SocketPackage(Connection socket) {
+	public ClientData(Connection socket) {
 		this.socket = socket;
 	}
 
 	/**
-	 * Creates a new SocketPackage with all the required data and a holding
+	 * Creates a new ClientData with all the required data and a holding
 	 * thread.
 	 * 
 	 * @param socket
 	 *            - The socket.
 	 * @param holder
-	 *            - The thread which this SocketPackage is connected to.
+	 *            - The thread which this ClientData is connected to.
 	 */
-	SocketPackage(Connection socket, Thread holder) {
+	ClientData(Connection socket, Thread holder) {
 		this(socket);
 
 		this.holder = holder;
@@ -54,14 +54,14 @@ public class SocketPackage {
 	}
 
 	/**
-	 * @return the thread that this SocketPackage is connected to.
+	 * @return the thread that this ClientData is connected to.
 	 */
 	Thread getHoldingThread() {
 		return holder;
 	}
 
 	/**
-	 * Sets the thread that this SocketPackage is connected to.
+	 * Sets the thread that this ClientData is connected to.
 	 * 
 	 * @param holder
 	 *            - The thread.

@@ -55,7 +55,7 @@ public class SSLServer extends TCPServer {
 			throw e;
 		}
 
-		final SocketPackage event = new SocketPackage(new SSLConnection(client));
+		final ClientData event = new ClientData(new SSLConnection(client));
 		super.launchThreadForConnectedClient(event, "SSLServer");
 	}
 }

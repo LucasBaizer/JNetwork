@@ -34,7 +34,7 @@ public class UDPServer extends Server {
 
 		UDPConnection conn = new UDPConnection(server);
 		conn.setTargetAddress((InetSocketAddress) receivePacket.getSocketAddress());
-		final SocketPackage event = new SocketPackage(conn);
+		final ClientData event = new ClientData(conn);
 
 		refresh();
 		clients.add(event);

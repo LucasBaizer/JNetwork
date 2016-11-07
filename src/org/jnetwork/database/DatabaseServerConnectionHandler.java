@@ -1,7 +1,7 @@
 package org.jnetwork.database;
 
 import org.jnetwork.DataPackage;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.TCPConnectionCallback;
 
 public class DatabaseServerConnectionHandler implements TCPConnectionCallback {
@@ -12,7 +12,7 @@ public class DatabaseServerConnectionHandler implements TCPConnectionCallback {
 	}
 
 	@Override
-	public void clientConnected(SocketPackage event) {
+	public void clientConnected(ClientData event) {
 		try {
 			while (true) {
 				DataPackage in = (DataPackage) event.getConnection().readObject();

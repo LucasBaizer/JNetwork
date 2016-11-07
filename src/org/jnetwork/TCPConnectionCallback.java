@@ -9,5 +9,5 @@ public interface TCPConnectionCallback extends ClientConnectionCallback {
 	 *            - All the data required to read and write objects with the
 	 *            client.
 	 */
-	public void clientConnected(SocketPackage event);
+	public void clientConnected(ClientData event);
 }

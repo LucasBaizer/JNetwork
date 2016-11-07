@@ -7,7 +7,7 @@ import org.jnetwork.CloseRequest;
 import org.jnetwork.SSLConnection;
 import org.jnetwork.Keystore;
 import org.jnetwork.SSLServer;
-import org.jnetwork.SocketPackage;
+import org.jnetwork.ClientData;
 import org.jnetwork.TCPConnectionCallback;
 
 public class SSLObjectTransfer {
@@ -20,7 +20,7 @@ public class SSLObjectTransfer {
 		try {
 			SSLServer server = new SSLServer(1337, new TCPConnectionCallback() {
 				@Override
-				public void clientConnected(SocketPackage event) {
+				public void clientConnected(ClientData event) {
 					try {
 						System.out.println(event.getConnection().readObject());
 						event.getConnection().writeObject("Hello, from the server!");

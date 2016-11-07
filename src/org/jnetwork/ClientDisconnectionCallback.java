@@ -17,5 +17,5 @@ public interface ClientDisconnectionCallback extends NetworkListener {
 	 *            - All the data required to make the closing of the client
 	 *            cleaner.
 	 */
-	public void clientDisconnected(SocketPackage event);
+	public void clientDisconnected(ClientData event);
 }
