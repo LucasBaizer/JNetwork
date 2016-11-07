@@ -16,7 +16,9 @@ import com.sun.net.ssl.internal.ssl.Provider;
  * 
  * @author Lucas Baizer
  */
-public class SSLServer extends TCPServer {
+public class SSLServer extends TCPServer implements SecureServer {
+	private Keystore keystore;
+
 	static {
 		Security.addProvider(new Provider());
 	}
@@ -29,11 +31,15 @@ public class SSLServer extends TCPServer {
 		}
 	}
 
-	public SSLServer setKeystore(Keystore keystore) {
+	public void setKeystore(Keystore keystore) {
 		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getPath());
 		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getPath());
 		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
-		return this;
+		this.keystore = keystore;
+	}
+
+	public Keystore getKeystore() {
+		return this.keystore;
 	}
 
 	@Override
@@ -57,5 +63,10 @@ public class SSLServer extends TCPServer {
 
 		final ClientData event = new ClientData(new SSLConnection(client));
 		super.launchThreadForConnectedClient(event, "SSLServer");
+	}
+
+	@Override
+	public void useRandomKeystore() {
+		throw new UnsupportedOperationException("A keystore file must be specified for SSL");
 	}
 }
