@@ -82,7 +82,8 @@ public class FileMenu extends ApplicationMenu {
 
 					@Override
 					public boolean accept(File f) {
-						return f.isDirectory() || f.getPath().substring(f.getPath().lastIndexOf('.')).equals(".table");
+						return f.isDirectory() || f.getPath().contains("\\.")
+								&& f.getPath().substring(f.getPath().lastIndexOf('.')).equals(".table");
 					}
 				});
 				if (file.showOpenDialog(Main.MAIN_FRAME) == JFileChooser.APPROVE_OPTION) {

@@ -56,7 +56,7 @@ public class ClientData {
 	/**
 	 * @return the thread that this ClientData is connected to.
 	 */
-	Thread getHoldingThread() {
+	public Thread getHoldingThread() {
 		return holder;
 	}
 

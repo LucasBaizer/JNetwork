@@ -32,8 +32,8 @@ public class SSLServer extends TCPServer implements SecureServer {
 	}
 
 	public void setKeystore(Keystore keystore) {
-		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getPath());
-		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getPath());
+		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getAbsolutePath());
+		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getAbsolutePath());
 		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
 		this.keystore = keystore;
 	}
