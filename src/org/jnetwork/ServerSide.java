@@ -1,4 +1,5 @@
 package org.jnetwork;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -26,17 +27,19 @@ public class ServerSide extends CommonSide implements TCPConnectionCallback, Ser
 		server.close();
 	}
 
-	private HashMap<String, ClientSide> threadMapping = new HashMap<>();
+	private HashMap<String, ClientSide> threadSideMapping = new HashMap<>();
+	private HashMap<String, TCPConnection> threadMapping = new HashMap<>();
 
 	@Override
 	public void clientConnected(ClientData data) {
 		try {
 			TCPConnection client = (TCPConnection) data.getConnection();
+			threadMapping.put(Thread.currentThread().getName(), client);
 			while (!client.isClosed()) {
 				DataPackage in = (DataPackage) client.readObject();
 				if (in.getMessage().equals("EXECUTE_METHOD")) {
 					ClientSide clientSide = (ClientSide) in.getObjects()[0];
-					threadMapping.put(Thread.currentThread().getName(), clientSide);
+					threadSideMapping.put(Thread.currentThread().getName(), clientSide);
 					handleExecutionPacket(in);
 				}
 			}
@@ -48,12 +51,8 @@ public class ServerSide extends CommonSide implements TCPConnectionCallback, Ser
 	}
 
 	public void invokeClient(String name, Object... args) throws IOException {
-		for (ClientData client : server.getClients()) {
-			if (client.getHoldingThread().getName().equals(Thread.currentThread().getName())) {
-				((TCPConnection) client.getConnection()).getOutputStream().writeUnshared(
-						new DataPackage(threadMapping.get(client.getHoldingThread().getName()), name, args)
-								.setMessage("EXECUTE_METHOD"));
-			}
-		}
+		threadMapping.get(Thread.currentThread().getName()).getOutputStream()
+				.writeUnshared(new DataPackage(threadSideMapping.get(Thread.currentThread().getName()), name, args)
+						.setMessage("EXECUTE_METHOD"));
 	}
 }

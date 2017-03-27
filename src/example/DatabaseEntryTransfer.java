@@ -35,7 +35,7 @@ public class DatabaseEntryTransfer {
 			query.query("ADD [Joe Blow, 96] IN Employees");
 
 			// for-each through employees of age 96
-			for (Entry employee : query.query("GET WHERE Age IS 96 IN Employees")) {
+			for (Entry employee : query.query("GET WHERE Age INCLUDES 6 IN Employees")) {
 				// prints Joe Blow
 				System.out.println(employee.getData("Name"));
 			}
