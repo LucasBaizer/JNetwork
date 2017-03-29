@@ -1,11 +1,14 @@
 package org.jnetwork;
+
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jnetwork.DataPackage;
 
-abstract class CommonSide {
+abstract class CommonSide implements Serializable {
+	private static final long serialVersionUID = 7021053060292818871L;
 	private transient HashMap<String, Method> cachedMethods = new HashMap<>();
 
 	protected void handleExecutionPacket(DataPackage in) throws ReflectiveOperationException {

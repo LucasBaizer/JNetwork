@@ -2,20 +2,13 @@ package org.jnetwork;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.SocketException;
 import java.util.HashMap;
 
-import org.jnetwork.ClientData;
-import org.jnetwork.DataPackage;
-import org.jnetwork.TCPConnection;
-import org.jnetwork.TCPConnectionCallback;
-import org.jnetwork.TCPServer;
-
-public class ServerSide extends CommonSide implements TCPConnectionCallback, Serializable {
+public class ServerSide extends CommonSide implements TCPConnectionCallback {
 	private static final long serialVersionUID = 3133250598296571865L;
 
-	private transient TCPServer server;
+	protected transient TCPServer server;
 
 	public ServerSide(int port) {
 		server = new TCPServer(port, this);
@@ -27,8 +20,8 @@ public class ServerSide extends CommonSide implements TCPConnectionCallback, Ser
 		server.close();
 	}
 
-	private HashMap<String, ClientSide> threadSideMapping = new HashMap<>();
-	private HashMap<String, TCPConnection> threadMapping = new HashMap<>();
+	private transient HashMap<String, ClientSide> threadSideMapping = new HashMap<>();
+	private transient HashMap<String, TCPConnection> threadMapping = new HashMap<>();
 
 	@Override
 	public void clientConnected(ClientData data) {

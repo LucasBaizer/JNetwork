@@ -4,14 +4,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketException;
 
-import org.jnetwork.Connection;
-import org.jnetwork.DataPackage;
-import org.jnetwork.Protocol;
-
-public class ClientSide extends CommonSide implements Serializable {
+public class ClientSide extends CommonSide {
 	private static final long serialVersionUID = 4323680714979039861L;
 
-	private transient Connection client;
+	protected transient Connection client;
 
 	public ClientSide(Protocol protocol, String host, int port) throws IOException {
 		client = protocol.getNetworkFactory().createConnection(host, port);
