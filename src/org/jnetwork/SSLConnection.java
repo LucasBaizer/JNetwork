@@ -23,6 +23,9 @@ public class SSLConnection extends TCPConnection implements SecureConnection {
 		Security.addProvider(new Provider());
 	}
 
+	SSLConnection() {
+	}
+
 	public SSLConnection(SSLSocket socket) throws IOException {
 		super(socket);
 	}
