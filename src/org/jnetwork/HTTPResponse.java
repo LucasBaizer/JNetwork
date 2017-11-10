@@ -92,8 +92,10 @@ public class HTTPResponse {
 	public int error(int code, String msg) throws IOException {
 		HTTPHeader header = header(HTTPHeader.CONTENT_TYPE);
 		if (!header.isValidHeader()) {
-			header = new HTTPHeader(HTTPHeader.CONTENT_TYPE, headers.get(HTTPHeader.CONTENT_TYPE));
+			header = new HTTPHeader(HTTPHeader.CONTENT_TYPE, defaultHeaders.get(HTTPHeader.CONTENT_TYPE));
 		}
+
+		System.out.println(header.getName() + ": " + header.getValues());
 
 		if (header.isValidHeader()) {
 			msg = format(msg, header.getFirstValue());
@@ -105,7 +107,7 @@ public class HTTPResponse {
 
 	private static String format(String str, String mimeType) {
 		if (mimeType.equals(HTTPContentTypes.APPLICATION_JSON)) {
-			str = "{'error':'" + str + "'}";
+			str = "{\"error\":\"" + str + "\"}";
 		} else if (mimeType.equals(HTTPContentTypes.TEXT_HTML)) {
 			str = "<html><body>" + str + "</body></html>";
 		}

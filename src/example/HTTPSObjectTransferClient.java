@@ -43,7 +43,7 @@ public class HTTPSObjectTransferClient {
 		HTTPConnection.setKeepAliveEnabled(true);
 		HTTPSConnection connection = new HTTPSConnection("localhost/test", 9191);
 		HTTPResult result = connection.accept(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET)
-				.authorization(new HTTPBasicAuthorization("username", "password")).send();
+				.authorization(new HTTPBasicAuthorization("username", "password1")).send();
 		System.out.println("<-- Response -->");
 		System.out.println(result);
 	}
