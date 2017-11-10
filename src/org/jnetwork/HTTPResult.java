@@ -1,6 +1,7 @@
 package org.jnetwork;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HTTPResult {
@@ -9,8 +10,18 @@ public class HTTPResult {
 	private List<HTTPHeader> headers;
 
 	HTTPResult(int code, List<HTTPHeader> headers, String body) throws IOException {
+		List<HTTPHeader> sorted = new ArrayList<>(headers);
+		sorted.sort((a, b) -> {
+			if (a.getName() == null) {
+				return -1;
+			} else if (b.getName() == null) {
+				return 1;
+			}
+			return a.getName().compareTo(b.getName());
+		});
+
 		this.code = code;
-		this.headers = headers;
+		this.headers = sorted;
 		this.body = body;
 	}
 
@@ -34,14 +45,14 @@ public class HTTPResult {
 	public int getResponseCode() {
 		return this.code;
 	}
-	
+
 	@Override
 	public String toString() {
 		String result = "";
-		for(HTTPHeader header : headers) {
+		for (HTTPHeader header : headers) {
 			result += header.toString() + System.lineSeparator();
 		}
-		
+
 		result += System.lineSeparator() + body;
 		return result;
 	}

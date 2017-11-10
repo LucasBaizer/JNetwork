@@ -9,11 +9,14 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.jnetwork.HTTPAuthorization;
+import org.jnetwork.HTTPBasicAuthorization;
 import org.jnetwork.HTTPConnection;
 import org.jnetwork.HTTPContentTypes;
 import org.jnetwork.HTTPHeader;
 import org.jnetwork.HTTPMethodTypes;
 import org.jnetwork.HTTPResponse;
+import org.jnetwork.HTTPResponseCodes;
 import org.jnetwork.HTTPResult;
 import org.jnetwork.HTTPSConnection;
 import org.jnetwork.HTTPSServer;
@@ -30,9 +33,24 @@ public class HTTPSObjectTransfer {
 			server.start();
 
 			server.get("/test", (req, res) -> {
+				System.out.println("<-- Request -->");
 				for (HTTPHeader header : req.headers()) {
 					System.out.println(header);
 				}
+				System.out.println();
+
+				HTTPHeader authHeader = req.header(HTTPHeader.AUTHORIZATION);
+				if (!authHeader.isValidHeader()) {
+					res.code(HTTPResponseCodes.UNAUTHORIZED).send();
+					return;
+				}
+
+				HTTPBasicAuthorization auth = HTTPAuthorization.fromHeader(authHeader);
+				if (!auth.matches("username", "password")) {
+					res.code(HTTPResponseCodes.FORBIDDEN).send();
+					return;
+				}
+
 				res.contentType(HTTPContentTypes.TEXT_HTML).send("<html><body>Hello, world!</body></html>");
 			});
 
@@ -54,7 +72,9 @@ public class HTTPSObjectTransfer {
 
 			HTTPConnection.setKeepAliveEnabled(true);
 			HTTPSConnection connection = new HTTPSConnection("localhost/test", 9191);
-			HTTPResult result = connection.contentType(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET).send();
+			HTTPResult result = connection.accept(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET)
+					.authorization(new HTTPBasicAuthorization("username", "password")).send();
+			System.out.println("<-- Response -->");
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();

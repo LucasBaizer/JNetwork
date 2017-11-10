@@ -54,7 +54,7 @@ public class HTTPHeader {
 	}
 
 	public String getFirstValue() {
-		return this.values.size() > 0 ? this.values.get(0) : null;
+		return this.isValidHeader() ? this.values.get(0) : null;
 	}
 
 	public List<String> getValues() {
@@ -83,6 +83,10 @@ public class HTTPHeader {
 
 	public void removeValue(String value) {
 		this.values.remove(value);
+	}
+	
+	public boolean isValidHeader() {
+		return this.values.size() > 0;
 	}
 
 	@Override

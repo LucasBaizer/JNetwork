@@ -26,7 +26,7 @@ public class HTTPObjectTransfer {
 
 			HTTPConnection.setKeepAliveEnabled(true);
 			HTTPConnection connection = new HTTPConnection("localhost/test", 9292);
-			HTTPResult result = connection.contentType(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET).send();
+			HTTPResult result = connection.accept(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET).send();
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();

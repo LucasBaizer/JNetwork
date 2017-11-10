@@ -53,20 +53,28 @@ public class HTTPConnection extends SSLConnection {
 		return client.getRequestProperty(header);
 	}
 
-	public HTTPConnection contentType(String type) {
-		return header("Content-Type", type);
+	public HTTPConnection accept(String type) {
+		return header(HTTPHeader.ACCEPT, type);
 	}
 
-	public String contentType() {
-		return header("Content-Type");
+	public String accept() {
+		return header(HTTPHeader.ACCEPT);
 	}
 
 	public HTTPConnection userAgent(String type) {
-		return header("User-Agent", type);
+		return header(HTTPHeader.USER_AGENT, type);
 	}
 
 	public String userAgent() {
-		return header("User-Agent");
+		return header(HTTPHeader.USER_AGENT);
+	}
+
+	public HTTPConnection authorization(HTTPAuthorization auth) {
+		return header(HTTPHeader.AUTHORIZATION, auth.toString());
+	}
+
+	public HTTPAuthorization authorization() {
+		return HTTPAuthorization.fromString(header(HTTPHeader.AUTHORIZATION));
 	}
 
 	public HTTPResult send() throws IOException {
@@ -87,9 +95,12 @@ public class HTTPConnection extends SSLConnection {
 			headers.add(new HTTPHeader(entry.getKey(), entry.getValue()));
 		}
 
-		byte[] bytes = new byte[client.getContentLength()];
-		(code >= 200 && code <= 299 ? client.getInputStream() : client.getErrorStream()).read(bytes);
-		String body = new String(bytes, StandardCharsets.ISO_8859_1);
+		String body = "";
+		if (client.getContentLength() > 0) {
+			byte[] bytes = new byte[client.getContentLength()];
+			(code >= 200 && code <= 299 ? client.getInputStream() : client.getErrorStream()).read(bytes);
+			body = new String(bytes, StandardCharsets.ISO_8859_1);
+		}
 
 		return new HTTPResult(code, headers, body);
 	}

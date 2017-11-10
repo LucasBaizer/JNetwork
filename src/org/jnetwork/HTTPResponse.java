@@ -59,6 +59,10 @@ public class HTTPResponse {
 	public int code() {
 		return this.responseCode;
 	}
+	
+	public HTTPResponse send() throws IOException {
+		return send("");
+	}
 
 	public HTTPResponse send(File file) throws IOException {
 		return send(new String(Files.readAllBytes(file.toPath()), StandardCharsets.ISO_8859_1));
