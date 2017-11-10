@@ -17,7 +17,7 @@ import com.sun.net.ssl.internal.ssl.Provider;
  * @author Lucas Baizer
  */
 public class SSLServer extends TCPServer implements SecureServer {
-	private Keystore keystore;
+	protected Keystore keystore;
 
 	static {
 		Security.addProvider(new Provider());

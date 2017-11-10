@@ -27,8 +27,8 @@ import java.util.ArrayList;
  * When {@link Server#removeClient(ClientData)} is called, every
  * <code>ClientDisconnectionCallback</code> added with
  * {@link Server#addClientDisconnectionListener(ClientDisconnectionCallback)}
- * will be called and parameterized with the client's <code>ClientData</code>
- * . <br>
+ * will be called and parameterized with the client's <code>ClientData</code> .
+ * <br>
  * <br>
  * 
  * @see java.net.ServerSocket
@@ -59,14 +59,8 @@ public abstract class Server implements Closeable {
 	 *            - The <code>ClientConnectionCallback<code> to be called when a
 	 *            client connects. It will be given the client's <code>Socket</code>
 	 *            and an instance of <code>this</code>.
-	 * 
-	 * @throws NullPointerException
-	 *             If <code>clientSocketThread</code> is null.
 	 */
 	public Server(int port, ClientConnectionCallback clientSocketThread) {
-		if (clientSocketThread == null)
-			throw new NullPointerException("ClientConnectionCallback is null");
-
 		this.thread = clientSocketThread;
 		this.port = port;
 	}
@@ -120,8 +114,7 @@ public abstract class Server implements Closeable {
 
 	/**
 	 * Removes a <code>ClientDisconnectionCallback</code> to be called on when a
-	 * client is removed by <b>
-	 * <code>removeClient(ClientData event)</code></b>
+	 * client is removed by <b> <code>removeClient(ClientData event)</code></b>
 	 * 
 	 * @param listener
 	 *            - The listener to be added.
@@ -226,8 +219,8 @@ public abstract class Server implements Closeable {
 	 * @param addr
 	 *            - The <code>SocketAddress</code> of the client.
 	 * 
-	 * @return ClientData - If a user has the same <code>SocketAddress</code>
-	 *         as the <code>addr</code> parameter.<br>
+	 * @return ClientData - If a user has the same <code>SocketAddress</code> as
+	 *         the <code>addr</code> parameter.<br>
 	 *         null - If no <code>ClientData</code> is found with the same
 	 *         <code>SocketAddress</code> as the <code>addr</code> parameter.
 	 */
