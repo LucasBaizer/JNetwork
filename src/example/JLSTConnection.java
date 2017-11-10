@@ -1,4 +1,4 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,6 +12,11 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
+
+import org.jnetwork.CryptographyException;
+import org.jnetwork.DataPackage;
+import org.jnetwork.SecureConnection;
+import org.jnetwork.TCPConnection;
 
 /**
  * A JNetwork-level secure TCP connection. An explanation of how this works can

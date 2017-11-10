@@ -4,11 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
 public class HTTPRequest {
+	private HashMap<String, String> params = new HashMap<>();
 	private String body;
 	private String method;
 	private Headers headers;
@@ -28,6 +31,18 @@ public class HTTPRequest {
 		buffer.flush();
 
 		this.body = new String(buffer.toByteArray(), StandardCharsets.ISO_8859_1);
+
+		String query = http.getRequestURI().getQuery();
+		if (query != null) {
+			for (String param : query.split("&")) {
+				String pair[] = param.split("=");
+				if (pair.length > 1) {
+					this.params.put(pair[0], pair[1]);
+				} else {
+					this.params.put(pair[0], "");
+				}
+			}
+		}
 	}
 
 	public String requestBody() {
@@ -35,11 +50,19 @@ public class HTTPRequest {
 	}
 
 	public HTTPHeader header(String name) {
-		return new HTTPHeader(name, headers.get(name));
+		return new HTTPHeader(name, this.headers.get(name));
 	}
 
 	public HTTPHeader[] headers() {
 		return HTTPHeader.extractFromHeaders(this.headers);
+	}
+
+	public String param(String name) {
+		return this.params.get(name);
+	}
+
+	public Map<String, String> params() {
+		return this.params;
 	}
 
 	public String method() {

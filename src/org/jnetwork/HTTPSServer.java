@@ -73,9 +73,14 @@ public class HTTPSServer extends SSLServer {
 		}
 
 		server.createContext(uri, (http) -> {
-			HTTPRequest req = new HTTPRequest(http);
-			HTTPResponse res = new HTTPResponse(http);
-			back.get(req, res);
+			try {
+				HTTPRequest req = new HTTPRequest(http);
+				HTTPResponse res = new HTTPResponse(http);
+				back.get(req, res);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
 		});
 		return this;
 	}

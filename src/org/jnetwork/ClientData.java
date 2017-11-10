@@ -66,7 +66,7 @@ public class ClientData {
 	 * @param holder
 	 *            - The thread.
 	 */
-	void setHoldingThread(Thread holder) {
+	public void setHoldingThread(Thread holder) {
 		this.holder = holder;
 	}
 }

@@ -1,7 +1,15 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+
+import org.jnetwork.ClientConnectionCallback;
+import org.jnetwork.Connection;
+import org.jnetwork.CryptographyException;
+import org.jnetwork.NetworkFactory;
+import org.jnetwork.Server;
+import org.jnetwork.ServerException;
+import org.jnetwork.UDPConnectionCallback;
 
 /**
  * A factory for creating SDTP sockets.

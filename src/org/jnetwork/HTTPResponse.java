@@ -38,8 +38,8 @@ public class HTTPResponse {
 		defaultHeaders.remove(name);
 	}
 
-	public String header(String name) {
-		return headers.get(name).get(0);
+	public HTTPHeader header(String name) {
+		return new HTTPHeader(name, headers.get(name));
 	}
 
 	public HTTPResponse header(HTTPHeader header) {
@@ -59,16 +59,16 @@ public class HTTPResponse {
 	public int code() {
 		return this.responseCode;
 	}
-	
-	public HTTPResponse send() throws IOException {
+
+	public int send() throws IOException {
 		return send("");
 	}
 
-	public HTTPResponse send(File file) throws IOException {
+	public int send(File file) throws IOException {
 		return send(new String(Files.readAllBytes(file.toPath()), StandardCharsets.ISO_8859_1));
 	}
 
-	public HTTPResponse send(String responseText) throws IOException {
+	public int send(String responseText) throws IOException {
 		byte[] bytes = responseText.getBytes(StandardCharsets.ISO_8859_1);
 		headers.putAll(defaultHeaders);
 		http.sendResponseHeaders(responseCode, bytes.length);
@@ -77,7 +77,7 @@ public class HTTPResponse {
 		out.flush();
 		http.close();
 
-		return this;
+		return responseCode;
 	}
 
 	public HTTPResponse contentType(String type) {
@@ -87,5 +87,28 @@ public class HTTPResponse {
 
 	public String contentType() {
 		return this.headers.get("Content-Type").get(0);
+	}
+
+	public int error(int code, String msg) throws IOException {
+		HTTPHeader header = header(HTTPHeader.CONTENT_TYPE);
+		if (!header.isValidHeader()) {
+			header = new HTTPHeader(HTTPHeader.CONTENT_TYPE, headers.get(HTTPHeader.CONTENT_TYPE));
+		}
+
+		if (header.isValidHeader()) {
+			msg = format(msg, header.getFirstValue());
+		}
+
+		code(code).send(msg);
+		return code;
+	}
+
+	private static String format(String str, String mimeType) {
+		if (mimeType.equals(HTTPContentTypes.APPLICATION_JSON)) {
+			str = "{'error':'" + str + "'}";
+		} else if (mimeType.equals(HTTPContentTypes.TEXT_HTML)) {
+			str = "<html><body>" + str + "</body></html>";
+		}
+		return str;
 	}
 }

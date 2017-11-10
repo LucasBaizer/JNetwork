@@ -5,8 +5,6 @@ import java.io.StreamCorruptedException;
 
 import org.jnetwork.CloseRequest;
 import org.jnetwork.Keystore;
-import org.jnetwork.SDTPConnection;
-import org.jnetwork.SDTPServer;
 import org.jnetwork.ClientData;
 import org.jnetwork.UDPConnectionCallback;
 import org.jnetwork.UDPUtils;

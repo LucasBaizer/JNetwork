@@ -1,4 +1,4 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -15,6 +15,15 @@ import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.jnetwork.ClientData;
+import org.jnetwork.CryptographyException;
+import org.jnetwork.DataPackage;
+import org.jnetwork.Keystore;
+import org.jnetwork.SecureServer;
+import org.jnetwork.UDPConnectionCallback;
+import org.jnetwork.UDPServer;
+import org.jnetwork.UDPUtils;
 
 /**
  * A JNetwork-level secure UDP server. When a client initially connects, a

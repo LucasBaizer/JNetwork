@@ -21,13 +21,21 @@ public class HTTPConnection extends SSLConnection {
 
 	HTTPConnection() {
 	}
-
+	
 	public HTTPConnection(String host) throws IOException {
-		this(host, 80);
+		this(host, 80, new URLParameters());
+	}
+
+	public HTTPConnection(String host, URLParameters params) throws IOException {
+		this(host, 80, params);
 	}
 
 	public HTTPConnection(String host, int port) throws IOException {
-		URL portless = new URL("http://" + host);
+		this(host, port, new URLParameters());
+	}
+
+	public HTTPConnection(String host, int port, URLParameters params) throws IOException {
+		URL portless = new URL("http://" + host + params.toString());
 		URL url = new URL(portless.getProtocol(), portless.getHost(), port, portless.getFile());
 
 		client = (HttpURLConnection) url.openConnection();
@@ -83,6 +91,7 @@ public class HTTPConnection extends SSLConnection {
 
 	public HTTPResult send(String data) throws IOException {
 		client.setDoOutput(true);
+		client.setDoInput(true);
 		DataOutputStream out = new DataOutputStream(client.getOutputStream());
 		out.writeBytes(data);
 		out.flush();
@@ -90,16 +99,16 @@ public class HTTPConnection extends SSLConnection {
 
 		int code = client.getResponseCode();
 
-		List<HTTPHeader> headers = new ArrayList<>();
-		for (Entry<String, List<String>> entry : client.getHeaderFields().entrySet()) {
-			headers.add(new HTTPHeader(entry.getKey(), entry.getValue()));
-		}
-
 		String body = "";
 		if (client.getContentLength() > 0) {
 			byte[] bytes = new byte[client.getContentLength()];
 			(code >= 200 && code <= 299 ? client.getInputStream() : client.getErrorStream()).read(bytes);
 			body = new String(bytes, StandardCharsets.ISO_8859_1);
+		}
+
+		List<HTTPHeader> headers = new ArrayList<>();
+		for (Entry<String, List<String>> entry : client.getHeaderFields().entrySet()) {
+			headers.add(new HTTPHeader(entry.getKey(), entry.getValue()));
 		}
 
 		return new HTTPResult(code, headers, body);

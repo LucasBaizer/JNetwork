@@ -1,4 +1,4 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -13,12 +13,15 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.jnetwork.CryptographyException;
+import org.jnetwork.UDPUtils;
+
 /**
  * A bunch of cryptography utilities.
  * 
  * @author Lucas Baizer
  */
-class SecurityService {
+public class SecurityService {
 	private static final Random random = new SecureRandom();
 
 	private Key publicKey;
@@ -31,7 +34,7 @@ class SecurityService {
 	/**
 	 * @return A random RSA public/private key pair.
 	 */
-	static KeyPair generateRSAKeyPair() throws CryptographyException {
+	public static KeyPair generateRSAKeyPair() throws CryptographyException {
 		try {
 			KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 			keyGen.initialize(2048);
@@ -45,7 +48,7 @@ class SecurityService {
 	/**
 	 * @return A new RSA SecurityService with a new random RSA key pair.
 	 */
-	static SecurityService generateRSASecurityService() throws CryptographyException {
+	public static SecurityService generateRSASecurityService() throws CryptographyException {
 		KeyPair pair = generateRSAKeyPair();
 		return new SecurityService("RSA", pair.getPublic(), pair.getPrivate(), false);
 	}

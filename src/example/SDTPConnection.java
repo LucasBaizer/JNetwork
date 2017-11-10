@@ -1,4 +1,4 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,6 +12,12 @@ import java.util.Arrays;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
+
+import org.jnetwork.CryptographyException;
+import org.jnetwork.DataPackage;
+import org.jnetwork.SecureConnection;
+import org.jnetwork.UDPConnection;
+import org.jnetwork.UDPUtils;
 
 /**
  * A JNetwork-level secure UDP connection. An explanation of how this works can

@@ -21,7 +21,7 @@ public class HTTPObjectTransfer {
 				for (HTTPHeader header : req.headers()) {
 					System.out.println(header);
 				}
-				res.contentType(HTTPContentTypes.TEXT_HTML).send("<html><body>Hello, world!</body></html>");
+				return res.contentType(HTTPContentTypes.TEXT_HTML).send("<html><body>Hello, world!</body></html>");
 			});
 
 			HTTPConnection.setKeepAliveEnabled(true);
