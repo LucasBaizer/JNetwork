@@ -20,4 +20,4 @@ All examples can be found [here](src/example).
 [JNetwork Database](libs/jnetwork-database.jar) (Note: there is no documentation for this currently, we are working on it!)<br>
 
 # License
-Under the [GNU General Public License](LICENSE.md). 
+Licensed under the [MIT license](LICENSE). 
