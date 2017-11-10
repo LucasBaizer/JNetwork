@@ -1,7 +1,7 @@
 # What is JNetwork?
 JNetwork is a simple, lightweight, and documented Java networking library. It provides support for several common protocols. These protocols include:<br>
 * Hyper Text Transfer Protocol (HTTP)
-* Hyper Text Transfer Protcol Secure (HTTPS)
+* Hyper Text Transfer Protocol Secure (HTTPS)
 * Transmission Control Protocol (TCP)
 * User Datagram Protocol (UDP)
 * Secure Socket Layer/Transport Layer Security (SSL/TLS)
