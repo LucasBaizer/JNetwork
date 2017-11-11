@@ -95,8 +95,6 @@ public class HTTPResponse {
 			header = new HTTPHeader(HTTPHeader.CONTENT_TYPE, defaultHeaders.get(HTTPHeader.CONTENT_TYPE));
 		}
 
-		System.out.println(header.getName() + ": " + header.getValues());
-
 		if (header.isValidHeader()) {
 			msg = format(msg, header.getFirstValue());
 		}
