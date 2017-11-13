@@ -18,6 +18,15 @@ import com.sun.net.ssl.internal.ssl.Provider;
  */
 public class SSLServer extends TCPServer implements SecureServer {
 	protected Keystore keystore;
+	
+	static void ensureProvider() {
+	}
+	
+	static void setStaticKeystore(Keystore keystore) {
+		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getAbsolutePath());
+		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getAbsolutePath());
+		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
+	}
 
 	static {
 		Security.addProvider(new Provider());
@@ -32,9 +41,7 @@ public class SSLServer extends TCPServer implements SecureServer {
 	}
 
 	public void setKeystore(Keystore keystore) {
-		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getAbsolutePath());
-		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getAbsolutePath());
-		System.setProperty("javax.net.ssl.keyStorePassword", keystore.getPassword());
+		setStaticKeystore(keystore);
 		this.keystore = keystore;
 	}
 

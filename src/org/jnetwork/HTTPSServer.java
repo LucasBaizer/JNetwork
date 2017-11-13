@@ -15,15 +15,20 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
-public class HTTPSServer extends SSLServer {
+public class HTTPSServer extends HTTPServer {
 	private HttpsServer server;
+	private Keystore keystore;
 
 	public HTTPSServer(Keystore keystore) {
 		this(443, keystore);
 	}
 
 	public HTTPSServer(int port, Keystore keystore) {
-		super(port, null, keystore);
+		super(port);
+
+		SSLServer.ensureProvider();
+		SSLServer.setStaticKeystore(keystore);
+		this.keystore = keystore;
 	}
 
 	@Override
@@ -65,32 +70,5 @@ public class HTTPSServer extends SSLServer {
 
 		server.setExecutor(null);
 		server.start();
-	}
-
-	public HTTPSServer get(String uri, HTTPConnectionCallback back) throws ServerException {
-		if (server == null) {
-			throw new ServerException("Server must be started before endpoints are configured");
-		}
-
-		server.createContext(uri, (http) -> {
-			try {
-				HTTPRequest req = new HTTPRequest(http);
-				HTTPResponse res = new HTTPResponse(http);
-				back.get(req, res);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-		});
-		return this;
-	}
-
-	@Override
-	protected void launchNewThread() throws IOException {
-		// this doesn't matter
-	}
-
-	@Override
-	public void close() throws IOException {
 	}
 }
