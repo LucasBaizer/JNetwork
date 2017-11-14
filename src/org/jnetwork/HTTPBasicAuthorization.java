@@ -50,6 +50,10 @@ public class HTTPBasicAuthorization extends HTTPAuthorization {
 		this.setBase64();
 	}
 
+	public boolean matches(HTTPBasicAuthorization auth) {
+		return matches(auth.username, auth.password);
+	}
+
 	public boolean matches(String username, String password) {
 		return username.equals(this.username) && password.equals(this.password);
 	}

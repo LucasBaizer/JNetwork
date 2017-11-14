@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import com.sun.net.httpserver.HttpServer;
 
 public class HTTPServer extends TCPServer {
-	private HttpServer server;
+	protected HttpServer server;
 
 	public HTTPServer() {
 		this(80);

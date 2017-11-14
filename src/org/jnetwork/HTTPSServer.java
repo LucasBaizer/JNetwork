@@ -16,7 +16,6 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 public class HTTPSServer extends HTTPServer {
-	private HttpsServer server;
 	private Keystore keystore;
 
 	public HTTPSServer(Keystore keystore) {
@@ -48,7 +47,7 @@ public class HTTPSServer extends HTTPServer {
 			tmf.init(ks);
 
 			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-			server.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+			((HttpsServer) server).setHttpsConfigurator(new HttpsConfigurator(sslContext) {
 				public void configure(HttpsParameters params) {
 					try {
 						SSLContext c = SSLContext.getDefault();
