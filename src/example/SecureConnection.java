@@ -1,4 +1,4 @@
-package org.jnetwork;
+package example;
 
 import java.io.IOException;
 import java.io.Serializable;

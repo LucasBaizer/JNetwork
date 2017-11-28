@@ -27,7 +27,7 @@ public class TCPServer extends Server {
 
 	@Override
 	protected void launchNewThread() throws IOException {
-		final Socket client;
+		Socket client;
 		try {
 			client = server.accept();
 		} catch (SocketException e) {
@@ -36,9 +36,18 @@ public class TCPServer extends Server {
 			}
 			throw e;
 		}
-		final ClientData event = new ClientData(new TCPConnection(client));
-
-		launchThreadForConnectedClient(event, "TCPServer");
+		if (connectionHandler != null && !((ConnectionHandler<Socket>) connectionHandler).handle(this, client)) {
+			client.close();
+			launchNewThread();
+		} else {
+			if (capacity != -1 && capacity == clients.size()) {
+				client.close();
+				launchNewThread();
+			} else {
+				ClientData event = new ClientData(new TCPConnection(client));
+				launchThreadForConnectedClient(event, "TCPServer");
+			}
+		}
 	}
 
 	protected void launchThreadForConnectedClient(ClientData event, String name) throws IOException {
@@ -53,7 +62,12 @@ public class TCPServer extends Server {
 				try {
 					removeClient(event);
 				} catch (IOException e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+					if (exceptionCallback == null) {
+						Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(),
+								e);
+					} else {
+						exceptionCallback.exceptionThrown(e);
+					}
 				}
 			}
 		});

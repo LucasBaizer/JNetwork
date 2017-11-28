@@ -1,6 +1,7 @@
 package org.jnetwork;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketException;
 import java.security.Security;
 
@@ -18,10 +19,10 @@ import com.sun.net.ssl.internal.ssl.Provider;
  */
 public class SSLServer extends TCPServer implements SecureServer {
 	protected Keystore keystore;
-	
+
 	static void ensureProvider() {
 	}
-	
+
 	static void setStaticKeystore(Keystore keystore) {
 		System.setProperty("javax.net.ssl.keyStore", keystore.getKeystoreFile().getAbsolutePath());
 		System.setProperty("javax.net.ssl.trustStore", keystore.getKeystoreFile().getAbsolutePath());
@@ -58,18 +59,28 @@ public class SSLServer extends TCPServer implements SecureServer {
 
 	@Override
 	protected void launchNewThread() throws IOException {
-		final SSLSocket client;
+		SSLSocket client;
+		ClientData event;
 		try {
 			client = (SSLSocket) ((SSLServerSocket) server).accept();
+			if (connectionHandler != null && !((ConnectionHandler<Socket>) connectionHandler).handle(this, client)) {
+				client.close();
+				launchNewThread();
+			} else {
+				if (capacity != -1 && capacity == clients.size()) {
+					client.close();
+					launchNewThread();
+				} else {
+					event = new ClientData(new SSLConnection(client));
+					super.launchThreadForConnectedClient(event, "SSLServer");
+				}
+			}
 		} catch (SocketException e) {
 			if (e.getMessage().equals("socket closed")) {
 				return;
 			}
 			throw e;
 		}
-
-		final ClientData event = new ClientData(new SSLConnection(client));
-		super.launchThreadForConnectedClient(event, "SSLServer");
 	}
 
 	@Override

@@ -4,18 +4,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 import org.jnetwork.CryptographyException;
 import org.jnetwork.DataPackage;
-import org.jnetwork.SecureConnection;
 import org.jnetwork.TCPConnection;
 
 /**
@@ -70,12 +65,12 @@ public class JLSTConnection extends TCPConnection implements SecureConnection {
 
 	@Override
 	public void writeUnencryptedObject(Serializable obj) throws IOException {
-		out.writeObject(obj);
+		getObjectOutputStream().writeObject(obj);
 	}
 
 	@Override
 	public Serializable readUnencryptedObject() throws ClassNotFoundException, IOException {
-		return (Serializable) in.readObject();
+		return (Serializable) getObjectInputStream().readObject();
 	}
 
 	@Override
@@ -107,18 +102,9 @@ public class JLSTConnection extends TCPConnection implements SecureConnection {
 	}
 
 	@Override
-	public void writeObject(Serializable obj) throws IOException {
-		try {
-			out.writeObject(new SealedObject(obj, aes.getEncryptionCipher()));
-		} catch (IllegalBlockSizeException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
 	public int read() throws IOException {
 		try {
-			return aes.decrypt(new byte[] { (byte) in.read() })[0];
+			return aes.decrypt(new byte[] { (byte) getObjectInputStream().read() })[0];
 		} catch (CryptographyException e) {
 			throw new IOException(e);
 		}
@@ -127,7 +113,7 @@ public class JLSTConnection extends TCPConnection implements SecureConnection {
 	@Override
 	public void read(byte[] arr, int off, int len) throws IOException {
 		try {
-			in.read(aes.decrypt(arr), off, len);
+			getObjectInputStream().read(aes.decrypt(arr), off, len);
 		} catch (CryptographyException e) {
 			throw new IOException(e);
 		}
@@ -135,38 +121,11 @@ public class JLSTConnection extends TCPConnection implements SecureConnection {
 
 	@Override
 	public int readUnencrypted() throws IOException {
-		return in.read();
+		return getObjectInputStream().read();
 	}
 
 	@Override
 	public void readUnencrypted(byte[] arr, int off, int len) throws IOException {
-		in.read(arr, off, len);
-	}
-
-	@Override
-	public Serializable readObject() throws ClassNotFoundException, IOException {
-		try {
-			return (Serializable) ((SealedObject) in.readObject()).getObject(aes.getPrivateKey());
-		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public void writeUnshared(Serializable obj) throws IOException {
-		try {
-			out.writeUnshared(new SealedObject(obj, aes.getEncryptionCipher()));
-		} catch (IllegalBlockSizeException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public Serializable readUnshared() throws IOException, ClassNotFoundException {
-		try {
-			return (Serializable) ((SealedObject) in.readUnshared()).getObject(aes.getPrivateKey());
-		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
-			throw new IOException(e);
-		}
+		getObjectInputStream().read(arr, off, len);
 	}
 }

@@ -3,8 +3,9 @@ package org.jnetwork;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.SocketAddress;
 
 /**
@@ -76,11 +77,6 @@ public abstract class Connection implements Closeable {
 	public abstract void write(byte[] bytes, int off, int len) throws IOException;
 
 	/**
-	 * See {@link java.io.ObjectOutputStream#writeObject(Object)}.
-	 */
-	public abstract void writeObject(Serializable obj) throws IOException;
-
-	/**
 	 * See {@link java.io.InputStream#read()}.
 	 */
 	public abstract int read() throws IOException;
@@ -97,10 +93,9 @@ public abstract class Connection implements Closeable {
 	 */
 	public abstract void read(byte[] arr, int off, int len) throws IOException;
 
-	/**
-	 * See {@link java.io.ObjectInputStream#readObject(Object)}.
-	 */
-	public abstract Serializable readObject() throws IOException, ClassNotFoundException;
+	public abstract void setOutputStream(OutputStream out);
+	
+	public abstract void setInputStream(InputStream in);
 
 	/**
 	 * @return the output stream for this Connection.
@@ -111,6 +106,24 @@ public abstract class Connection implements Closeable {
 	 * @return the input stream for this Connection.
 	 */
 	public abstract InputStream getInputStream();
+	
+	public ObjectOutputStream getObjectOutputStream() throws IOException {
+		if (getOutputStream() instanceof ObjectOutputStream) {
+			return getObjectOutputStream();
+		} else {
+			setOutputStream(new ObjectOutputStream(getOutputStream()));
+			return (ObjectOutputStream) getOutputStream();
+		}
+	}
+
+	public ObjectInputStream getObjectInputStream() throws IOException {
+		if (getInputStream() instanceof ObjectInputStream) {
+			return getObjectInputStream();
+		} else {
+			setInputStream(new ObjectInputStream(getInputStream()));
+			return (ObjectInputStream) getInputStream();
+		}
+	}
 
 	/**
 	 * Closes the <code>Socket</code>.

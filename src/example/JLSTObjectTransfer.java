@@ -2,9 +2,9 @@ package example;
 
 import java.io.File;
 
+import org.jnetwork.ClientData;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.Keystore;
-import org.jnetwork.ClientData;
 import org.jnetwork.TCPConnectionCallback;
 
 public class JLSTObjectTransfer {
@@ -18,10 +18,10 @@ public class JLSTObjectTransfer {
 				@Override
 				public void clientConnected(ClientData event) {
 					try {
-						System.out
-								.println(Thread.currentThread().getName() + ": " + event.getConnection().readObject());
+						System.out.println(Thread.currentThread().getName() + ": "
+								+ event.getConnection().getObjectInputStream().readObject());
 
-						event.getConnection().writeObject("Hey, secure client!");
+						event.getConnection().getObjectOutputStream().writeObject("Hey, secure client!");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -31,9 +31,9 @@ public class JLSTObjectTransfer {
 			server.start();
 
 			JLSTConnection client = new JLSTConnection("localhost", 1337);
-			client.writeObject("Hey, secure server!");
+			client.getObjectOutputStream().writeObject("Hey, secure server!");
 
-			System.out.println(Thread.currentThread().getName() + ": " + client.readObject());
+			System.out.println(Thread.currentThread().getName() + ": " + client.getObjectInputStream().readObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

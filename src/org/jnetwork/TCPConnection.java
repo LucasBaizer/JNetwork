@@ -1,7 +1,8 @@
 package org.jnetwork;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -16,8 +17,8 @@ import java.util.Objects;
  */
 public class TCPConnection extends Connection {
 	protected Socket connection;
-	protected AdvancedOutputStream out;
-	protected AdvancedInputStream in;
+	protected OutputStream out;
+	protected InputStream in;
 	protected InetSocketAddress address;
 
 	protected TCPConnection() {
@@ -49,8 +50,8 @@ public class TCPConnection extends Connection {
 		super(socket.getInetAddress().getHostAddress(), socket.getPort());
 
 		this.connection = socket;
-		this.out = new AdvancedOutputStream(socket.getOutputStream());
-		this.in = new AdvancedInputStream(socket.getInputStream());
+		this.out = socket.getOutputStream();
+		this.in = socket.getInputStream();
 	}
 
 	/**
@@ -108,8 +109,8 @@ public class TCPConnection extends Connection {
 
 		if (connectNow) {
 			this.connection = new Socket(host, port);
-			this.out = new AdvancedOutputStream(connection.getOutputStream());
-			this.in = new AdvancedInputStream(connection.getInputStream());
+			this.out = connection.getOutputStream();
+			this.in = connection.getInputStream();
 		} else {
 			this.address = new InetSocketAddress(host, port);
 		}
@@ -129,17 +130,17 @@ public class TCPConnection extends Connection {
 	 */
 	public void connect() throws UnknownHostException, IOException {
 		this.connection = new Socket(address.getHostString(), address.getPort());
-		this.out = new AdvancedOutputStream(connection.getOutputStream());
-		this.in = new AdvancedInputStream(connection.getInputStream());
+		this.out = connection.getOutputStream();
+		this.in = connection.getInputStream();
 	}
 
 	@Override
-	public AdvancedOutputStream getOutputStream() {
+	public OutputStream getOutputStream() {
 		return out;
 	}
 
 	@Override
-	public AdvancedInputStream getInputStream() {
+	public InputStream getInputStream() {
 		return in;
 	}
 
@@ -176,11 +177,6 @@ public class TCPConnection extends Connection {
 	}
 
 	@Override
-	public void writeObject(Serializable obj) throws IOException {
-		out.writeObject(obj);
-	}
-
-	@Override
 	public int read() throws IOException {
 		return in.read();
 	}
@@ -191,15 +187,12 @@ public class TCPConnection extends Connection {
 	}
 
 	@Override
-	public Serializable readObject() throws ClassNotFoundException, IOException {
-		return (Serializable) in.readObject();
+	public void setOutputStream(OutputStream out) {
+		this.out = out;
 	}
 
-	public void writeUnshared(Serializable obj) throws IOException {
-		out.writeUnshared(obj);
-	}
-
-	public Serializable readUnshared() throws IOException, ClassNotFoundException {
-		return (Serializable) in.readUnshared();
+	@Override
+	public void setInputStream(InputStream in) {
+		this.in = in;
 	}
 }

@@ -22,7 +22,7 @@ public class UDPObjectTransfer {
 					try {
 						System.out.println((String) UDPUtils.deserializeObject(data));
 
-						event.getConnection().writeObject("Hello, from the server!");
+						event.getConnection().getObjectOutputStream().writeObject("Hello, from the server!");
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -34,9 +34,9 @@ public class UDPObjectTransfer {
 			CloseRequest.addObjectToClose(server);
 
 			UDPConnection client = new UDPConnection("localhost", 1337);
-			client.writeObject("Hello, from the client!");
+			client.getObjectOutputStream().writeObject("Hello, from the client!");
 
-			System.out.println(client.readObject());
+			System.out.println(client.getObjectInputStream().readObject());
 
 			client.close();
 			server.close();

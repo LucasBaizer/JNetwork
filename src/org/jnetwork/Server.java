@@ -44,10 +44,13 @@ import java.util.ArrayList;
 public abstract class Server implements Closeable {
 	private ClientConnectionCallback thread;
 	private int port;
+	protected int capacity = -1;
 	protected ArrayList<ClientData> clients = new ArrayList<ClientData>();
 	private ArrayList<ClientDisconnectionCallback> removers = new ArrayList<ClientDisconnectionCallback>();
+	protected ConnectionHandler<?> connectionHandler;
 	private boolean started;
 	private Object closeWaiter = new Object();
+	protected ExceptionCallback exceptionCallback;
 
 	/**
 	 * Constructs a new <code>Server</code> and starts a new
@@ -65,29 +68,56 @@ public abstract class Server implements Closeable {
 		this.port = port;
 	}
 
+	public Server setExceptionCallback(ExceptionCallback back) {
+		this.exceptionCallback = back;
+		return this;
+	}
+
 	/**
 	 * Starts the dispatch thread.
 	 * 
 	 * @throws ServerException
 	 *             If the server has already been started.
 	 */
+	private Thread dispatcher;
+
 	protected void startDispatch() throws ServerException {
 		if (started)
 			throw new ServerException("Server already started");
 
 		started = true;
 
-		Thread dispatcher = new Thread(new Runnable() {
+		dispatcher = new Thread(getDispatcher(), "JNetwork-Server-Accept-Dispatcher");
+		dispatcher.start();
+	}
+
+	private Runnable getDispatcher() {
+		return new Runnable() {
 			@Override
 			public void run() {
 				try {
 					launchNewThread();
 				} catch (Exception e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+					if (exceptionCallback != null) {
+						exceptionCallback.exceptionThrown(e);
+						dispatcher = new Thread(getDispatcher());
+						dispatcher.start();
+					} else {
+						Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(),
+								e);
+					}
 				}
 			}
-		}, "JNetwork-Server-Accept-Dispatcher");
-		dispatcher.start();
+		};
+	}
+
+	public void setCapacity(int cap) {
+		clients.ensureCapacity(cap);
+		this.capacity = cap;
+	}
+
+	public int getCapacity() {
+		return this.capacity;
 	}
 
 	/**
@@ -178,7 +208,7 @@ public abstract class Server implements Closeable {
 	 *             closed.
 	 */
 	public void removeClient(ClientData client) throws IOException {
-		if (clients.contains(client)) {
+		if (!client.isKeepAlive() && clients.contains(client)) {
 			clients.remove(client);
 
 			refresh();
@@ -333,5 +363,13 @@ public abstract class Server implements Closeable {
 	 */
 	public ClientConnectionCallback getClientConnectionListener() {
 		return thread;
+	}
+
+	public ConnectionHandler<?> getConnectionHandler() {
+		return connectionHandler;
+	}
+
+	public void setConnectionHandler(ConnectionHandler<?> connectionHandler) {
+		this.connectionHandler = connectionHandler;
 	}
 }

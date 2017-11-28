@@ -9,6 +9,7 @@ package org.jnetwork;
 public class ClientData {
 	private Connection socket;
 	private Thread holder;
+	private boolean keepAlive;
 
 	/**
 	 * Creates a new ClientData with all the required data.
@@ -68,5 +69,13 @@ public class ClientData {
 	 */
 	public void setHoldingThread(Thread holder) {
 		this.holder = holder;
+	}
+
+	public boolean isKeepAlive() {
+		return keepAlive;
+	}
+
+	public void setKeepAlive(boolean keepAlive) {
+		this.keepAlive = keepAlive;
 	}
 }

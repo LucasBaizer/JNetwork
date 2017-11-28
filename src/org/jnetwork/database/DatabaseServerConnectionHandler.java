@@ -15,15 +15,15 @@ public class DatabaseServerConnectionHandler implements TCPConnectionCallback {
 	public void clientConnected(ClientData event) {
 		try {
 			while (true) {
-				DataPackage in = (DataPackage) event.getConnection().readObject();
+				DataPackage in = (DataPackage) event.getConnection().getObjectInputStream().readObject();
 				if (in.getMessage().equals("SERVER_DATABASE_QUERY")) {
 					Query query = (Query) in.getObjects()[0];
 					try {
 						EntrySet set = db.query(query);
-						event.getConnection()
+						event.getConnection().getObjectOutputStream()
 								.writeObject(new DataPackage(set).setMessage("SERVER_DATABASE_QUERY_RESPONSE_SUCCESS"));
 					} catch (QueryException e) {
-						event.getConnection()
+						event.getConnection().getObjectOutputStream()
 								.writeObject(new DataPackage(e).setMessage("SERVER_DATABASE_QUERY_RESPONSE_ERROR"));
 					}
 				} else {

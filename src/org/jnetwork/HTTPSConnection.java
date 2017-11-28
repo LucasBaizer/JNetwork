@@ -19,8 +19,8 @@ public class HTTPSConnection extends HTTPConnection {
 
 	public HTTPSConnection(String host, int port, URLParameters params) throws IOException {
 		URL portless = new URL("https://" + host + params);
-		URL url = new URL(portless.getProtocol(), portless.getHost(), port, portless.getFile());
-
+		url = new URL(portless.getProtocol(), portless.getHost(), port, portless.getFile());
+		
 		client = (HttpURLConnection) url.openConnection();
 		client.setConnectTimeout(2000);
 		client.setReadTimeout(2000);

@@ -3,6 +3,7 @@ package org.jnetwork;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.sun.net.httpserver.Headers;
@@ -22,6 +23,10 @@ public class HTTPHeader {
 	private List<String> values;
 
 	static HTTPHeader[] extractFromHeaders(Headers headers) {
+		return extractFromMap(headers);
+	}
+
+	static HTTPHeader[] extractFromMap(Map<String, List<String>> headers) {
 		HTTPHeader[] array = new HTTPHeader[headers.size()];
 
 		int index = 0;
@@ -84,7 +89,7 @@ public class HTTPHeader {
 	public void removeValue(String value) {
 		this.values.remove(value);
 	}
-	
+
 	public boolean isValidHeader() {
 		return this.values.size() > 0;
 	}

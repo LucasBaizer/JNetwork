@@ -3,8 +3,6 @@ package example;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.jnetwork.AdvancedInputStream;
-import org.jnetwork.AdvancedOutputStream;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.DataPackage;
 import org.jnetwork.TCPConnection;
@@ -21,15 +19,8 @@ public class TCPObjectTransferClient {
 			// the client socket will be closed on program exit
 			CloseRequest.addObjectToClose(client);
 
-			// gets the output stream of the server, which data will be written
-			// out to
-			AdvancedOutputStream out = client.getOutputStream();
-
-			// gets the input stream of the server, which data will be read from
-			AdvancedInputStream in = client.getInputStream();
-
 			// reads the first DataPackage sent my the server
-			DataPackage packageFromServer = (DataPackage) in.readSpecificType(DataPackage.class);
+			DataPackage packageFromServer = (DataPackage) client.getObjectInputStream().readObject();
 
 			// prints out the received package's message, followed by the first
 			// and second
@@ -41,7 +32,7 @@ public class TCPObjectTransferClient {
 			// Server." and a message
 			// saying "ImportantPackageFromClient"
 			DataPackage pkgOut = new DataPackage("Hello, server!").setMessage("ImportantPackageFromClient");
-			out.writeObject(pkgOut);
+			client.getObjectOutputStream().writeObject(pkgOut);
 
 			// closes the client and all of its streams
 			client.close();

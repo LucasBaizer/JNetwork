@@ -3,9 +3,9 @@ package example;
 import java.io.File;
 import java.io.StreamCorruptedException;
 
+import org.jnetwork.ClientData;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.Keystore;
-import org.jnetwork.ClientData;
 import org.jnetwork.UDPConnectionCallback;
 import org.jnetwork.UDPUtils;
 
@@ -31,7 +31,7 @@ public class SDTPObjectTransfer {
 							System.out.println();
 						}
 
-						event.getConnection().writeObject("Hey, secure client!");
+						event.getConnection().getObjectOutputStream().writeObject("Hey, secure client!");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -41,9 +41,9 @@ public class SDTPObjectTransfer {
 			server.start();
 
 			SDTPConnection client = new SDTPConnection("localhost", 1337);
-			client.writeObject("Hey, secure server!");
+			client.getObjectOutputStream().writeObject("Hey, secure server!");
 
-			System.out.println(Thread.currentThread().getName() + ": " + client.readObject());
+			System.out.println(Thread.currentThread().getName() + ": " + client.getObjectInputStream().readObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

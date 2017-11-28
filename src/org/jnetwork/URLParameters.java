@@ -1,5 +1,8 @@
 package org.jnetwork;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +10,14 @@ import java.util.regex.Pattern;
 
 public class URLParameters {
 	private HashMap<String, String> params = new HashMap<>();
+
+	private static String encode(String str) {
+		try {
+			return URLEncoder.encode(str, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public URLParameters() {
 	}
@@ -17,7 +28,7 @@ public class URLParameters {
 		}
 
 		for (int i = 0; i < params.length; i += 2) {
-			this.params.put(params[i], params[i + 1]);
+			this.params.put(params[i], encode(params[i + 1]));
 		}
 	}
 
@@ -28,7 +39,7 @@ public class URLParameters {
 		String[] split = params.split(Pattern.quote("&"));
 		for (String par : split) {
 			String[] parSplit = par.split(Pattern.quote("="));
-			this.params.put(parSplit[0], parSplit[1]);
+			this.params.put(parSplit[0], encode(parSplit[1]));
 		}
 	}
 
@@ -37,17 +48,17 @@ public class URLParameters {
 	}
 
 	public URLParameters addParameter(String param, String val) {
-		params.put(param, val);
+		params.put(param, encode(val));
 		return this;
 	}
 
 	public URLParameters removeParameter(String param) {
-		params.remove(param);
+		params.remove(encode(param));
 		return this;
 	}
 
 	public boolean containsParameter(String param) {
-		return params.containsKey(param);
+		return params.containsKey(encode(param));
 	}
 
 	@Override

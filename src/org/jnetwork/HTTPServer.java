@@ -7,10 +7,12 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 public class HTTPServer extends TCPServer {
 	protected HttpServer server;
+	private int clients;
 
 	public HTTPServer() {
 		this(80);
@@ -33,9 +35,33 @@ public class HTTPServer extends TCPServer {
 		}
 
 		server.createContext(uri, (http) -> {
-			HTTPRequest req = new HTTPRequest(http);
-			HTTPResponse res = new HTTPResponse(http);
-			back.get(req, res);
+			if (connectionHandler != null
+					&& !((ConnectionHandler<HttpExchange>) connectionHandler).handle(this, http)) {
+				http.close();
+				return;
+			}
+
+			if (capacity != -1 && capacity == clients) {
+				http.close();
+				return;
+			}
+
+			clients++;
+
+			try {
+				HTTPRequest req = new HTTPRequest(http);
+				HTTPResponse res = new HTTPResponse(http);
+				back.get(req, res);
+			} catch (Throwable e) {
+				if (exceptionCallback == null) {
+					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+				} else {
+					exceptionCallback.exceptionThrown(e);
+				}
+				return;
+			} finally {
+				clients--;
+			}
 		});
 		return this;
 	}
@@ -109,31 +135,31 @@ public class HTTPServer extends TCPServer {
 	private static String getContentType(File file) {
 		String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase();
 		switch (extension) {
-		case "html":
-			return HTTPContentTypes.TEXT_HTML;
-		case "js":
-			return HTTPContentTypes.TEXT_JAVASCRIPT;
-		case "css":
-			return HTTPContentTypes.TEXT_CSS;
-		case "xml":
-			return HTTPContentTypes.APPLICATION_XML;
-		case "pdf":
-			return HTTPContentTypes.APPLICATION_PDF;
-		case "jpg":
-		case "jpeg":
-			return HTTPContentTypes.IMAGE_JPEG;
-		case "png":
-			return HTTPContentTypes.IMAGE_PNG;
-		case "gif":
-			return HTTPContentTypes.IMAGE_GIF;
-		case "mp4":
-			return HTTPContentTypes.VIDEO_MP4;
-		case "json":
-			return HTTPContentTypes.APPLICATION_JSON;
-		case "zip":
-			return HTTPContentTypes.APPLICATION_ZIP;
-		default:
-			return HTTPContentTypes.TEXT_PLAIN;
+			case "html":
+				return HTTPContentTypes.TEXT_HTML;
+			case "js":
+				return HTTPContentTypes.TEXT_JAVASCRIPT;
+			case "css":
+				return HTTPContentTypes.TEXT_CSS;
+			case "xml":
+				return HTTPContentTypes.APPLICATION_XML;
+			case "pdf":
+				return HTTPContentTypes.APPLICATION_PDF;
+			case "jpg":
+			case "jpeg":
+				return HTTPContentTypes.IMAGE_JPEG;
+			case "png":
+				return HTTPContentTypes.IMAGE_PNG;
+			case "gif":
+				return HTTPContentTypes.IMAGE_GIF;
+			case "mp4":
+				return HTTPContentTypes.VIDEO_MP4;
+			case "json":
+				return HTTPContentTypes.APPLICATION_JSON;
+			case "zip":
+				return HTTPContentTypes.APPLICATION_ZIP;
+			default:
+				return HTTPContentTypes.TEXT_PLAIN;
 		}
 	}
 

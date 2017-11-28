@@ -47,7 +47,12 @@ public class UDPServer extends Server {
 				try {
 					removeClient(event);
 				} catch (IOException e) {
-					Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+					if (exceptionCallback == null) {
+						Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(),
+								e);
+					} else {
+						exceptionCallback.exceptionThrown(e);
+					}
 				}
 			}
 		}, "JNetwork-UDPServer-Thread-" + receivePacket.getSocketAddress());

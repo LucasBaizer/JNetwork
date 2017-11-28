@@ -2,7 +2,6 @@ package org.jnetwork;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.SocketAddress;
@@ -14,6 +13,7 @@ import java.util.Map.Entry;
 
 public class HTTPConnection extends SSLConnection {
 	protected HttpURLConnection client;
+	protected URL url;
 
 	public static void setKeepAliveEnabled(boolean alive) {
 		System.setProperty("http.keepAlive", Boolean.toString(alive));
@@ -21,7 +21,7 @@ public class HTTPConnection extends SSLConnection {
 
 	HTTPConnection() {
 	}
-	
+
 	public HTTPConnection(String host) throws IOException {
 		this(host, 80, new URLParameters());
 	}
@@ -36,11 +36,15 @@ public class HTTPConnection extends SSLConnection {
 
 	public HTTPConnection(String host, int port, URLParameters params) throws IOException {
 		URL portless = new URL("http://" + host + params.toString());
-		URL url = new URL(portless.getProtocol(), portless.getHost(), port, portless.getFile());
+		url = new URL(portless.getProtocol(), portless.getHost(), port, portless.getFile());
 
 		client = (HttpURLConnection) url.openConnection();
 		client.setConnectTimeout(2000);
 		client.setReadTimeout(2000);
+	}
+	
+	public URL getURL() {
+		return this.url;
 	}
 
 	public HTTPConnection method(String type) throws ProtocolException {
@@ -75,6 +79,15 @@ public class HTTPConnection extends SSLConnection {
 
 	public String userAgent() {
 		return header(HTTPHeader.USER_AGENT);
+	}
+
+	public String getRequestString() {
+		String result = "";
+		for (HTTPHeader header : HTTPHeader.extractFromMap(client.getRequestProperties())) {
+			result += header.toString() + System.lineSeparator();
+		}
+
+		return result;
 	}
 
 	public HTTPConnection authorization(HTTPAuthorization auth) {
@@ -140,11 +153,6 @@ public class HTTPConnection extends SSLConnection {
 	}
 
 	@Override
-	public void writeObject(Serializable obj) throws IOException {
-		throw new UnsupportedOperationException("writeObject is not supported on HTTPSConnection objects");
-	}
-
-	@Override
 	public int read() throws IOException {
 		throw new UnsupportedOperationException("read is not supported on HTTPSConnection objects");
 	}
@@ -152,21 +160,6 @@ public class HTTPConnection extends SSLConnection {
 	@Override
 	public void read(byte[] arr, int off, int len) throws IOException {
 		throw new UnsupportedOperationException("read is not supported on HTTPSConnection objects");
-	}
-
-	@Override
-	public Serializable readObject() throws IOException, ClassNotFoundException {
-		throw new UnsupportedOperationException("readObject is not supported on HTTPSConnection objects");
-	}
-
-	@Override
-	public AdvancedOutputStream getOutputStream() {
-		throw new UnsupportedOperationException("getOutputStream is not supported on HTTPSConnection objects");
-	}
-
-	@Override
-	public AdvancedInputStream getInputStream() {
-		throw new UnsupportedOperationException("getInputStream is not supported on HTTPSConnection objects");
 	}
 
 	@Override

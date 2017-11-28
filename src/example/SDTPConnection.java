@@ -4,18 +4,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
 
 import javax.crypto.KeyGenerator;
-import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
 
 import org.jnetwork.CryptographyException;
 import org.jnetwork.DataPackage;
-import org.jnetwork.SecureConnection;
 import org.jnetwork.UDPConnection;
 import org.jnetwork.UDPUtils;
 
@@ -86,32 +82,6 @@ public class SDTPConnection extends UDPConnection implements SecureConnection {
 		write(bytes, 0, bytes.length, null);
 	}
 
-	@Override
-	public void writeObject(Serializable obj) throws IOException {
-		try {
-			SealedObject s = new SealedObject(obj, aes.getEncryptionCipher());
-			byte[] bytes = UDPUtils.serializeObject(s);
-			write(bytes, 0, bytes.length, null);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public Serializable readObject() throws ClassNotFoundException, IOException {
-		SealedObject obj = (SealedObject) readUnencryptedObject();
-		try {
-			return (Serializable) obj.getObject(aes.getPrivateKey());
-		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
-			throw new IOException(e);
-		}
-	}
-
-	/**
-	 * Encrypts and then writes an array of bytes. This array should <b>not</b>
-	 * be encrypted when it is passed as a parameter. It will be encrypted by
-	 * the method.
-	 */
 	@Override
 	public void write(byte[] bytes, int offset, int length) throws IOException {
 		write(bytes, offset, length, aes);

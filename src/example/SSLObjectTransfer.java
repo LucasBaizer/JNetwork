@@ -22,8 +22,8 @@ public class SSLObjectTransfer {
 				@Override
 				public void clientConnected(ClientData event) {
 					try {
-						System.out.println(event.getConnection().readObject());
-						event.getConnection().writeObject("Hello, from the server!");
+						System.out.println(event.getConnection().getObjectInputStream().readObject());
+						event.getConnection().getObjectOutputStream().writeObject("Hello, from the server!");
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -34,8 +34,8 @@ public class SSLObjectTransfer {
 			CloseRequest.addObjectToClose(server);
 			server.start();
 			SSLConnection connection = new SSLConnection("localhost", 1337);
-			connection.writeObject("Hello, from the client!");
-			System.out.println(connection.readObject());
+			connection.getObjectOutputStream().writeObject("Hello, from the client!");
+			System.out.println(connection.getObjectInputStream().readObject());
 
 			connection.close();
 			server.close();

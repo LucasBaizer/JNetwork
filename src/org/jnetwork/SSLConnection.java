@@ -1,7 +1,6 @@
 package org.jnetwork;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.Security;
@@ -18,7 +17,7 @@ import com.sun.net.ssl.internal.ssl.Provider;
  * 
  * @author Lucas Baizer
  */
-public class SSLConnection extends TCPConnection implements SecureConnection {
+public class SSLConnection extends TCPConnection {
 	static {
 		Security.addProvider(new Provider());
 	}
@@ -40,8 +39,8 @@ public class SSLConnection extends TCPConnection implements SecureConnection {
 
 		if (connectNow) {
 			this.connection = SSLSocketFactory.getDefault().createSocket(host, port);
-			this.out = new AdvancedOutputStream(connection.getOutputStream());
-			this.in = new AdvancedInputStream(connection.getInputStream());
+			this.out = connection.getOutputStream();
+			this.in = connection.getInputStream();
 		} else {
 			this.address = new InetSocketAddress(host, port);
 		}
@@ -50,41 +49,7 @@ public class SSLConnection extends TCPConnection implements SecureConnection {
 	@Override
 	public void connect() throws UnknownHostException, IOException {
 		this.connection = SSLSocketFactory.getDefault().createSocket(address.getHostString(), address.getPort());
-		this.out = new AdvancedOutputStream(connection.getOutputStream());
-		this.in = new AdvancedInputStream(connection.getInputStream());
-	}
-
-	@Override
-	public void writeUnencrypted(int v) {
-		throwUOE();
-	}
-
-	@Override
-	public void writeUnencrypted(byte[] arr, int off, int len) {
-		throwUOE();
-	}
-
-	@Override
-	public void writeUnencryptedObject(Serializable obj) {
-		throwUOE();
-	}
-
-	@Override
-	public Serializable readUnencryptedObject() {
-		return throwUOE();
-	}
-
-	@Override
-	public int readUnencrypted() {
-		return throwUOE();
-	}
-
-	@Override
-	public void readUnencrypted(byte[] arr, int off, int len) {
-		throwUOE();
-	}
-
-	private <T> T throwUOE() {
-		throw new UnsupportedOperationException("Cannot perform unencrypted operating on an SSL connection");
+		this.out = connection.getOutputStream();
+		this.in = connection.getInputStream();
 	}
 }

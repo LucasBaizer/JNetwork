@@ -3,13 +3,10 @@ package example;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.jnetwork.AdvancedInputStream;
-import org.jnetwork.AdvancedOutputStream;
+import org.jnetwork.ClientData;
 import org.jnetwork.CloseRequest;
 import org.jnetwork.DataPackage;
 import org.jnetwork.Server;
-import org.jnetwork.ClientData;
-import org.jnetwork.TCPConnection;
 import org.jnetwork.TCPConnectionCallback;
 import org.jnetwork.TCPServer;
 
@@ -35,12 +32,6 @@ public class TCPObjectTransferServer implements TCPConnectionCallback {
 		// gets the IP address of the client
 		SocketAddress address = event.getConnection().getRemoteSocketAddress();
 
-		// gets the output stream of the client, which data will be written out
-		AdvancedOutputStream out = ((TCPConnection) event.getConnection()).getOutputStream();
-
-		// gets the input stream of the client, which data will be read from
-		AdvancedInputStream in = ((TCPConnection) event.getConnection()).getInputStream();
-
 		// creates a new DataPackage containing a string saying "Hello, client."
 		// and the client's IP address. it also gives the package a message
 		// saying "ImportantPackageFromServer"
@@ -48,7 +39,7 @@ public class TCPObjectTransferServer implements TCPConnectionCallback {
 
 		try {
 			// writes the package out to the client
-			out.writeObject(pkg);
+			event.getConnection().getObjectOutputStream().writeObject(pkg);
 		} catch (IOException e) {
 			System.err.println("There was an error sending the object to the client.");
 			e.printStackTrace();
@@ -56,7 +47,7 @@ public class TCPObjectTransferServer implements TCPConnectionCallback {
 
 		try {
 			// reads the first DataPackage sent by the client
-			DataPackage packageFromClient = (DataPackage) in.readSpecificType(DataPackage.class);
+			DataPackage packageFromClient = (DataPackage) event.getConnection().getObjectInputStream().readObject();
 
 			// prints out the received package's message, followed by the first
 			// piece of data added to the package by the client

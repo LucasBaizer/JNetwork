@@ -3,7 +3,6 @@ package org.jnetwork;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -84,12 +83,6 @@ public class UDPConnection extends Connection {
 		socket.send(new DatagramPacket(bytes, offset, length, targetAddress));
 	}
 
-	@Override
-	public void writeObject(Serializable obj) throws IOException {
-		byte[] bytes = UDPUtils.serializeObject(obj);
-		write(bytes, 0, bytes.length);
-	}
-
 	protected DatagramPacket readPacket() throws IOException {
 		byte[] receive = new byte[bufferSize];
 		DatagramPacket packet = new DatagramPacket(receive, receive.length);
@@ -114,11 +107,6 @@ public class UDPConnection extends Connection {
 		socket.receive(packet);
 
 		arr = packet.getData();
-	}
-
-	@Override
-	public Serializable readObject() throws IOException, ClassNotFoundException {
-		return UDPUtils.deserializeObject(readPacket().getData());
 	}
 
 	/**
@@ -159,5 +147,15 @@ public class UDPConnection extends Connection {
 	@Override
 	public InputStream getInputStream() {
 		return in;
+	}
+
+	@Override
+	public void setOutputStream(OutputStream out) {
+		this.out = out;
+	}
+
+	@Override
+	public void setInputStream(InputStream in) {
+		this.in = in;
 	}
 }
