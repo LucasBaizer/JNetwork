@@ -94,7 +94,7 @@ public abstract class Connection implements Closeable {
 	public abstract void read(byte[] arr, int off, int len) throws IOException;
 
 	public abstract void setOutputStream(OutputStream out);
-	
+
 	public abstract void setInputStream(InputStream in);
 
 	/**
@@ -106,10 +106,10 @@ public abstract class Connection implements Closeable {
 	 * @return the input stream for this Connection.
 	 */
 	public abstract InputStream getInputStream();
-	
+
 	public ObjectOutputStream getObjectOutputStream() throws IOException {
 		if (getOutputStream() instanceof ObjectOutputStream) {
-			return getObjectOutputStream();
+			return (ObjectOutputStream) getOutputStream();
 		} else {
 			setOutputStream(new ObjectOutputStream(getOutputStream()));
 			return (ObjectOutputStream) getOutputStream();
@@ -118,7 +118,7 @@ public abstract class Connection implements Closeable {
 
 	public ObjectInputStream getObjectInputStream() throws IOException {
 		if (getInputStream() instanceof ObjectInputStream) {
-			return getObjectInputStream();
+			return (ObjectInputStream) getInputStream();
 		} else {
 			setInputStream(new ObjectInputStream(getInputStream()));
 			return (ObjectInputStream) getInputStream();

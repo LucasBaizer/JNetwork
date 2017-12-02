@@ -52,7 +52,11 @@ public class SSLServer extends TCPServer implements SecureServer {
 
 	@Override
 	public void start() throws IOException {
-		server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort());
+		if (boundAddress == null) {
+			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort());
+		} else {
+			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort(), 0, boundAddress);
+		}
 
 		super.startDispatch();
 	}

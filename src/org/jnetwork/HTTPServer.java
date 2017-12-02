@@ -24,7 +24,8 @@ public class HTTPServer extends TCPServer {
 
 	@Override
 	public void start() throws IOException {
-		server = HttpServer.create(new InetSocketAddress(getBoundPort()), 0);
+		server = HttpServer.create(boundAddress == null ? new InetSocketAddress(getBoundPort())
+				: new InetSocketAddress(boundAddress, getBoundPort()), 0);
 		server.setExecutor(null);
 		server.start();
 	}

@@ -32,7 +32,8 @@ public class HTTPSServer extends HTTPServer {
 
 	@Override
 	public void start() throws IOException {
-		server = HttpsServer.create(new InetSocketAddress(getBoundPort()), 0);
+		server = HttpsServer.create(boundAddress == null ? new InetSocketAddress(getBoundPort())
+				: new InetSocketAddress(boundAddress, getBoundPort()), 0);
 
 		try {
 			SSLContext sslContext = SSLContext.getInstance("TLS");

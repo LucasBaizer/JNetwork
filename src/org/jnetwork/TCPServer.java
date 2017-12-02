@@ -1,6 +1,7 @@
 package org.jnetwork;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -13,6 +14,7 @@ import java.net.SocketException;
  */
 public class TCPServer extends Server {
 	protected ServerSocket server;
+	protected InetAddress boundAddress;
 
 	public TCPServer(int port, TCPConnectionCallback clientSocketThread) {
 		super(port, clientSocketThread);
@@ -20,7 +22,11 @@ public class TCPServer extends Server {
 
 	@Override
 	public void start() throws IOException {
-		this.server = new ServerSocket(getBoundPort());
+		if (boundAddress == null) {
+			this.server = new ServerSocket(getBoundPort());
+		} else {
+			this.server = new ServerSocket(getBoundPort(), 0, boundAddress);
+		}
 
 		super.startDispatch();
 	}
@@ -95,5 +101,13 @@ public class TCPServer extends Server {
 	 */
 	public ServerSocket getServerSocket() {
 		return server;
+	}
+
+	public InetAddress getBoundAddress() {
+		return boundAddress;
+	}
+
+	public void setBoundAddress(InetAddress boundAddress) {
+		this.boundAddress = boundAddress;
 	}
 }
