@@ -111,7 +111,11 @@ public abstract class Server implements Closeable {
 		};
 	}
 
-	public void setCapacity(int cap) {
+	public void setCapacity(int cap) throws ServerException {
+		if (started) {
+			throw new ServerException("Server already started");
+		}
+
 		clients.ensureCapacity(cap);
 		this.capacity = cap;
 	}

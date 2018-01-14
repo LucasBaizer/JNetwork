@@ -65,11 +65,11 @@ public class HTTPResponse {
 	}
 
 	public int send(File file) throws IOException {
-		return send(new String(Files.readAllBytes(file.toPath()), StandardCharsets.ISO_8859_1));
+		return send(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
 	}
 
 	public int send(String responseText) throws IOException {
-		byte[] bytes = responseText.getBytes(StandardCharsets.ISO_8859_1);
+		byte[] bytes = responseText.getBytes(StandardCharsets.UTF_8);
 		headers.putAll(defaultHeaders);
 		http.sendResponseHeaders(responseCode, bytes.length);
 		DataOutputStream out = new DataOutputStream(http.getResponseBody());
@@ -104,9 +104,9 @@ public class HTTPResponse {
 	}
 
 	private static String format(String str, String mimeType) {
-		if (mimeType.equals(HTTPContentTypes.APPLICATION_JSON)) {
+		if (mimeType.equals(HTTPContentType.APPLICATION_JSON)) {
 			str = "{\"error\":\"" + str + "\"}";
-		} else if (mimeType.equals(HTTPContentTypes.TEXT_HTML)) {
+		} else if (mimeType.equals(HTTPContentType.TEXT_HTML)) {
 			str = "<html><body>" + str + "</body></html>";
 		}
 		return str;

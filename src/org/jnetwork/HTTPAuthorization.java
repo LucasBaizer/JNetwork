@@ -7,12 +7,12 @@ public abstract class HTTPAuthorization {
 	public HTTPAuthorization(String type) {
 		this.type = type;
 	}
-	
-	public static <T extends HTTPAuthorization> T fromHeader(HTTPHeader header) {
+
+	public static <T extends HTTPAuthorization> T fromHeader(HTTPHeader header) throws AuthorizationException {
 		return fromString(header.getFirstValue());
 	}
 
-	public static <T extends HTTPAuthorization> T fromString(String str) {
+	public static <T extends HTTPAuthorization> T fromString(String str) throws AuthorizationException {
 		if (!str.contains(" ")) {
 			throw new WebException("Invalid authorization");
 		}

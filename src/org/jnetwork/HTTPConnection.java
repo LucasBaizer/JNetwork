@@ -8,12 +8,18 @@ import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
+
+import com.sun.net.httpserver.Headers;
 
 public class HTTPConnection extends SSLConnection {
 	protected HttpURLConnection client;
 	protected URL url;
+	private boolean cacheBody = true;
+	private String cachedBody;
+	private Headers headers = new Headers();
 
 	public static void setKeepAliveEnabled(boolean alive) {
 		System.setProperty("http.keepAlive", Boolean.toString(alive));
@@ -42,7 +48,7 @@ public class HTTPConnection extends SSLConnection {
 		client.setConnectTimeout(2000);
 		client.setReadTimeout(2000);
 	}
-	
+
 	public URL getURL() {
 		return this.url;
 	}
@@ -57,20 +63,33 @@ public class HTTPConnection extends SSLConnection {
 	}
 
 	public HTTPConnection header(String header, String value) {
+		headers.put(header, Arrays.asList(value));
 		client.setRequestProperty(header, value);
 		return this;
 	}
 
 	public String header(String header) {
-		return client.getRequestProperty(header);
+		return headers.getFirst(header);
 	}
 
+	public HTTPHeader[] headers() {
+		return HTTPHeader.extractFromHeaders(headers);
+	}
+	
 	public HTTPConnection accept(String type) {
 		return header(HTTPHeader.ACCEPT, type);
 	}
 
 	public String accept() {
 		return header(HTTPHeader.ACCEPT);
+	}
+
+	public HTTPConnection contentType(String type) {
+		return header(HTTPHeader.CONTENT_TYPE, type);
+	}
+
+	public String contentType() {
+		return header(HTTPHeader.CONTENT_TYPE);
 	}
 
 	public HTTPConnection userAgent(String type) {
@@ -82,33 +101,63 @@ public class HTTPConnection extends SSLConnection {
 	}
 
 	public String getRequestString() {
-		String result = "";
-		for (HTTPHeader header : HTTPHeader.extractFromMap(client.getRequestProperties())) {
-			result += header.toString() + System.lineSeparator();
+		String result = method() + " " + url.getPath() + "\n";
+		for (HTTPHeader header : HTTPHeader.extractFromMap(headers)) {
+			result += header.toString() + "\n";
 		}
 
-		return result;
+		return result.substring(0, result.length() - 1);
 	}
 
 	public HTTPConnection authorization(HTTPAuthorization auth) {
 		return header(HTTPHeader.AUTHORIZATION, auth.toString());
 	}
 
-	public HTTPAuthorization authorization() {
-		return HTTPAuthorization.fromString(header(HTTPHeader.AUTHORIZATION));
+	public HTTPAuthorization authorization() throws AuthorizationException {
+		String auth = header(HTTPHeader.AUTHORIZATION);
+		if (auth == null) {
+			throw new AuthorizationException("No authorization was set");
+		}
+		return HTTPAuthorization.fromString(auth);
+	}
+
+	public HTTPResult get() throws IOException {
+		method(HTTPMethodType.GET);
+		return send(null);
+	}
+
+	public HTTPResult post(String data) throws IOException {
+		method(HTTPMethodType.POST);
+		return send(data);
 	}
 
 	public HTTPResult send() throws IOException {
-		return send("");
+		return send(null);
 	}
 
 	public HTTPResult send(String data) throws IOException {
-		client.setDoOutput(true);
+		if (cacheBody) {
+			cachedBody = data;
+		}
+
+		if (!method().equals(HTTPMethodType.GET)) {
+			client.setDoOutput(true);
+		} else {
+			if (data != null) {
+				throw new IOException("GET requests can not have bodies");
+			}
+		}
 		client.setDoInput(true);
-		DataOutputStream out = new DataOutputStream(client.getOutputStream());
-		out.writeBytes(data);
-		out.flush();
-		out.close();
+
+		if (!method().equals(HTTPMethodType.GET)) {
+			DataOutputStream out = new DataOutputStream(client.getOutputStream());
+			if (data == null) {
+				data = "";
+			}
+			out.writeBytes(data);
+			out.flush();
+			out.close();
+		}
 
 		int code = client.getResponseCode();
 
@@ -116,7 +165,7 @@ public class HTTPConnection extends SSLConnection {
 		if (client.getContentLength() > 0) {
 			byte[] bytes = new byte[client.getContentLength()];
 			(code >= 200 && code <= 299 ? client.getInputStream() : client.getErrorStream()).read(bytes);
-			body = new String(bytes, StandardCharsets.ISO_8859_1);
+			body = new String(bytes, StandardCharsets.UTF_8);
 		}
 
 		List<HTTPHeader> headers = new ArrayList<>();
@@ -166,5 +215,17 @@ public class HTTPConnection extends SSLConnection {
 	public void close() throws IOException {
 		// throw new UnsupportedOperationException("close is not supported on
 		// HTTPSConnection objects");
+	}
+
+	public boolean isCacheBody() {
+		return cacheBody;
+	}
+
+	public void setCacheBody(boolean cacheBody) {
+		this.cacheBody = cacheBody;
+	}
+
+	public String getCachedBody() {
+		return cachedBody;
 	}
 }

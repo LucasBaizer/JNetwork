@@ -1,9 +1,8 @@
 package example;
 
 import org.jnetwork.HTTPConnection;
-import org.jnetwork.HTTPContentTypes;
+import org.jnetwork.HTTPContentType;
 import org.jnetwork.HTTPHeader;
-import org.jnetwork.HTTPMethodTypes;
 import org.jnetwork.HTTPResponse;
 import org.jnetwork.HTTPResult;
 import org.jnetwork.HTTPServer;
@@ -21,12 +20,12 @@ public class HTTPObjectTransfer {
 				for (HTTPHeader header : req.headers()) {
 					System.out.println(header);
 				}
-				return res.contentType(HTTPContentTypes.TEXT_HTML).send("<html><body>Hello, world!</body></html>");
+				return res.contentType(HTTPContentType.TEXT_HTML).send("<html><body>Hello, world!</body></html>");
 			});
 
 			HTTPConnection.setKeepAliveEnabled(true);
 			HTTPConnection connection = new HTTPConnection("localhost/test", 9292);
-			HTTPResult result = connection.accept(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET).send();
+			HTTPResult result = connection.accept(HTTPContentType.TEXT_HTML).get();
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();

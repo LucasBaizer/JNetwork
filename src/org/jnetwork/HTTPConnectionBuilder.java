@@ -4,6 +4,7 @@ import java.io.IOException;
 
 public class HTTPConnectionBuilder {
 	private String host;
+	private String method;
 	private URLParameters params = new URLParameters();
 	private boolean secure;
 	private int port = 80;
@@ -12,8 +13,29 @@ public class HTTPConnectionBuilder {
 	private HTTPConnectionBuilder() {
 	}
 
+	public static HTTPConnectionBuilder get(String host) {
+		HTTPConnectionBuilder to = to(host);
+		to.method = HTTPMethodType.GET;
+		return to;
+	}
+
+	public static HTTPConnectionBuilder post(String host) {
+		HTTPConnectionBuilder to = to(host);
+		to.method = HTTPMethodType.POST;
+		return to;
+	}
+
 	public static HTTPConnectionBuilder to(String host) {
 		HTTPConnectionBuilder builder = new HTTPConnectionBuilder();
+
+		if (host.startsWith("http://")) {
+			host = host.substring(7);
+		} else if (host.startsWith("https://")) {
+			host = host.substring(8);
+			builder.secure = true;
+			builder.port = 443;
+		}
+
 		builder.host = host;
 		return builder;
 	}
@@ -37,11 +59,19 @@ public class HTTPConnectionBuilder {
 		return this;
 	}
 
+	@SuppressWarnings("resource")
 	public <T extends HTTPConnection> T build() throws IOException {
+		T conn = null;
 		if (secure) {
-			return (T) new HTTPSConnection(host, port, params);
+			conn = (T) new HTTPSConnection(host, port, params);
 		} else {
-			return (T) new HTTPConnection(host, port, params);
+			conn = (T) new HTTPConnection(host, port, params);
 		}
+
+		if (method != null) {
+			conn.method(method);
+		}
+
+		return conn;
 	}
 }

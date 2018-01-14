@@ -12,7 +12,6 @@ import com.sun.net.httpserver.HttpServer;
 
 public class HTTPServer extends TCPServer {
 	protected HttpServer server;
-	private int clients;
 
 	public HTTPServer() {
 		this(80);
@@ -25,7 +24,7 @@ public class HTTPServer extends TCPServer {
 	@Override
 	public void start() throws IOException {
 		server = HttpServer.create(boundAddress == null ? new InetSocketAddress(getBoundPort())
-				: new InetSocketAddress(boundAddress, getBoundPort()), 0);
+				: new InetSocketAddress(boundAddress, getBoundPort()), capacity == -1 ? 0 : capacity);
 		server.setExecutor(null);
 		server.start();
 	}
@@ -42,13 +41,6 @@ public class HTTPServer extends TCPServer {
 				return;
 			}
 
-			if (capacity != -1 && capacity == clients) {
-				http.close();
-				return;
-			}
-
-			clients++;
-
 			try {
 				HTTPRequest req = new HTTPRequest(http);
 				HTTPResponse res = new HTTPResponse(http);
@@ -60,8 +52,6 @@ public class HTTPServer extends TCPServer {
 					exceptionCallback.exceptionThrown(e);
 				}
 				return;
-			} finally {
-				clients--;
 			}
 		});
 		return this;
@@ -116,7 +106,7 @@ public class HTTPServer extends TCPServer {
 	}
 
 	public HTTPServer serveFile(String path, File file) throws IOException {
-		String contents = new String(Files.readAllBytes(file.toPath()), StandardCharsets.ISO_8859_1);
+		String contents = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
 
 		path = path.replace("\\", "/");
 		server.createContext(path, (http) -> {
@@ -137,30 +127,30 @@ public class HTTPServer extends TCPServer {
 		String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase();
 		switch (extension) {
 			case "html":
-				return HTTPContentTypes.TEXT_HTML;
+				return HTTPContentType.TEXT_HTML;
 			case "js":
-				return HTTPContentTypes.TEXT_JAVASCRIPT;
+				return HTTPContentType.TEXT_JAVASCRIPT;
 			case "css":
-				return HTTPContentTypes.TEXT_CSS;
+				return HTTPContentType.TEXT_CSS;
 			case "xml":
-				return HTTPContentTypes.APPLICATION_XML;
+				return HTTPContentType.APPLICATION_XML;
 			case "pdf":
-				return HTTPContentTypes.APPLICATION_PDF;
+				return HTTPContentType.APPLICATION_PDF;
 			case "jpg":
 			case "jpeg":
-				return HTTPContentTypes.IMAGE_JPEG;
+				return HTTPContentType.IMAGE_JPEG;
 			case "png":
-				return HTTPContentTypes.IMAGE_PNG;
+				return HTTPContentType.IMAGE_PNG;
 			case "gif":
-				return HTTPContentTypes.IMAGE_GIF;
+				return HTTPContentType.IMAGE_GIF;
 			case "mp4":
-				return HTTPContentTypes.VIDEO_MP4;
+				return HTTPContentType.VIDEO_MP4;
 			case "json":
-				return HTTPContentTypes.APPLICATION_JSON;
+				return HTTPContentType.APPLICATION_JSON;
 			case "zip":
-				return HTTPContentTypes.APPLICATION_ZIP;
+				return HTTPContentType.APPLICATION_ZIP;
 			default:
-				return HTTPContentTypes.TEXT_PLAIN;
+				return HTTPContentType.TEXT_PLAIN;
 		}
 	}
 

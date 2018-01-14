@@ -23,9 +23,9 @@ public class TCPServer extends Server {
 	@Override
 	public void start() throws IOException {
 		if (boundAddress == null) {
-			this.server = new ServerSocket(getBoundPort());
+			this.server = new ServerSocket(getBoundPort(), capacity == -1 ? 0 : capacity);
 		} else {
-			this.server = new ServerSocket(getBoundPort(), 0, boundAddress);
+			this.server = new ServerSocket(getBoundPort(), capacity == -1 ? 0 : capacity, boundAddress);
 		}
 
 		super.startDispatch();
@@ -46,13 +46,8 @@ public class TCPServer extends Server {
 			client.close();
 			launchNewThread();
 		} else {
-			if (capacity != -1 && capacity == clients.size()) {
-				client.close();
-				launchNewThread();
-			} else {
-				ClientData event = new ClientData(new TCPConnection(client));
-				launchThreadForConnectedClient(event, "TCPServer");
-			}
+			ClientData event = new ClientData(new TCPConnection(client));
+			launchThreadForConnectedClient(event, "TCPServer");
 		}
 	}
 

@@ -30,7 +30,7 @@ public class HTTPRequest {
 
 		buffer.flush();
 
-		this.body = new String(buffer.toByteArray(), StandardCharsets.ISO_8859_1);
+		this.body = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
 
 		String query = http.getRequestURI().getQuery();
 		if (query != null) {
@@ -49,6 +49,10 @@ public class HTTPRequest {
 		return this.body;
 	}
 
+	public boolean hasHeader(String name) {
+		return this.headers.containsKey(name);
+	}
+
 	public HTTPHeader header(String name) {
 		return new HTTPHeader(name, this.headers.get(name));
 	}
@@ -63,6 +67,10 @@ public class HTTPRequest {
 
 	public Map<String, String> params() {
 		return this.params;
+	}
+
+	public boolean hasParam(String name) {
+		return this.params.containsKey(name);
 	}
 
 	public String method() {

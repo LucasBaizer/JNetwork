@@ -53,9 +53,11 @@ public class SSLServer extends TCPServer implements SecureServer {
 	@Override
 	public void start() throws IOException {
 		if (boundAddress == null) {
-			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort());
+			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort(),
+					capacity == -1 ? 0 : capacity);
 		} else {
-			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort(), 0, boundAddress);
+			server = SSLServerSocketFactory.getDefault().createServerSocket(getBoundPort(),
+					capacity == -1 ? 0 : capacity, boundAddress);
 		}
 
 		super.startDispatch();
@@ -71,13 +73,8 @@ public class SSLServer extends TCPServer implements SecureServer {
 				client.close();
 				launchNewThread();
 			} else {
-				if (capacity != -1 && capacity == clients.size()) {
-					client.close();
-					launchNewThread();
-				} else {
-					event = new ClientData(new SSLConnection(client));
-					super.launchThreadForConnectedClient(event, "SSLServer");
-				}
+				event = new ClientData(new SSLConnection(client));
+				super.launchThreadForConnectedClient(event, "SSLServer");
 			}
 		} catch (SocketException e) {
 			if (e.getMessage().equals("socket closed")) {

@@ -11,8 +11,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.jnetwork.HTTPBasicAuthorization;
 import org.jnetwork.HTTPConnection;
-import org.jnetwork.HTTPContentTypes;
-import org.jnetwork.HTTPMethodTypes;
+import org.jnetwork.HTTPContentType;
+import org.jnetwork.HTTPMethodType;
 import org.jnetwork.HTTPResult;
 import org.jnetwork.HTTPSConnection;
 
@@ -42,8 +42,8 @@ public class HTTPSObjectTransferClient {
 
 		HTTPConnection.setKeepAliveEnabled(true);
 		HTTPSConnection connection = new HTTPSConnection("localhost/test", 9191);
-		HTTPResult result = connection.accept(HTTPContentTypes.TEXT_HTML).method(HTTPMethodTypes.GET)
-				.authorization(new HTTPBasicAuthorization("username", "password")).send();
+		HTTPResult result = connection.accept(HTTPContentType.TEXT_HTML)
+				.authorization(new HTTPBasicAuthorization("username", "password")).get();
 		System.out.println("<-- Response -->");
 		System.out.println(result);
 	}

@@ -8,11 +8,14 @@ public class HTTPBasicAuthorization extends HTTPAuthorization {
 	private String username;
 	private String password;
 
-	public HTTPBasicAuthorization(String base64) {
+	public HTTPBasicAuthorization(String base64) throws AuthorizationException {
 		super("Basic");
 
-		String[] split = new String(Base64.getDecoder().decode(base64), StandardCharsets.ISO_8859_1)
+		String[] split = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8)
 				.split(Pattern.quote(":"));
+		if (split.length != 2) {
+			throw new AuthorizationException("Invalid format: should be base64 of username:password");
+		}
 		this.username = split[0];
 		this.password = split[1];
 		this.setBase64();
@@ -27,9 +30,8 @@ public class HTTPBasicAuthorization extends HTTPAuthorization {
 	}
 
 	private void setBase64() {
-		setValue(new String(
-				Base64.getEncoder().encode((username + ":" + password).getBytes(StandardCharsets.ISO_8859_1)),
-				StandardCharsets.ISO_8859_1));
+		setValue(new String(Base64.getEncoder().encode((username + ":" + password).getBytes(StandardCharsets.UTF_8)),
+				StandardCharsets.UTF_8));
 	}
 
 	public String getUsername() {

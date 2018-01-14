@@ -1,6 +1,6 @@
 package org.jnetwork;
 
-public class HTTPContentTypes {
+public class HTTPContentType {
 	public static final String ALL = "*/*";
 	public static final String TEXT_PLAIN = "text/plain";
 	public static final String TEXT_HTML = "text/html";

@@ -1,6 +1,6 @@
 package org.jnetwork;
 
-public class HTTPMethodTypes {
+public class HTTPMethodType {
 	public static final String GET = "GET";
 	public static final String POST = "POST";
 	public static final String HEAD = "HEAD";
