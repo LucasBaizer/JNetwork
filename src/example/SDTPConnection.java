@@ -104,11 +104,11 @@ public class SDTPConnection extends UDPConnection implements SecureConnection {
 	 * Reads AES-encrypted bytes into a buffer, and then decrypts them.
 	 */
 	@Override
-	public void read(byte[] arr, int off, int len) throws IOException {
-		read(arr, off, len, aes);
+	public int read(byte[] arr, int off, int len) throws IOException {
+		return read(arr, off, len, aes);
 	}
 
-	void read(byte[] arr, int off, int len, SecurityService crypto) throws IOException {
+	int read(byte[] arr, int off, int len, SecurityService crypto) throws IOException {
 		DatagramPacket packet = new DatagramPacket(arr, off, len);
 		socket.receive(packet);
 
@@ -119,6 +119,8 @@ public class SDTPConnection extends UDPConnection implements SecureConnection {
 				throw new IOException("Failure reading bytes", e);
 			}
 		}
+		
+		return packet.getLength();
 	}
 
 	@Override

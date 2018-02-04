@@ -26,19 +26,7 @@ public class UDPConnection extends Connection {
 
 		socket = new DatagramSocket();
 		targetAddress = new InetSocketAddress(host, port);
-		in = new InputStream() {
-			@Override
-			public int read() throws IOException {
-				return UDPConnection.this.read();
-			}
-		};
-		out = new OutputStream() {
-			@Override
-			public void write(int b) throws IOException {
-				UDPConnection.this.write(b);
-			}
-		};
-
+		setupStreams();
 	}
 
 	/**
@@ -51,6 +39,27 @@ public class UDPConnection extends Connection {
 		super(socket.getInetAddress() != null ? socket.getInetAddress().getHostAddress() : null, socket.getPort());
 
 		this.socket = socket;
+		setupStreams();
+	}
+	
+	private void setupStreams() {
+		in = new InputStream() {
+			@Override
+			public int read() throws IOException {
+				return UDPConnection.this.read();
+			}
+			
+			@Override
+			public int read(byte[] b) throws IOException {
+				return UDPConnection.this.read(b);
+			}
+		};
+		out = new OutputStream() {
+			@Override
+			public void write(int b) throws IOException {
+				UDPConnection.this.write(b);
+			}
+		};
 	}
 
 	@Override
@@ -97,16 +106,17 @@ public class UDPConnection extends Connection {
 	}
 
 	@Override
-	public void read(byte[] arr) throws IOException {
-		read(arr, 0, arr.length);
+	public int read(byte[] arr) throws IOException {
+		return read(arr, 0, arr.length);
 	}
 
 	@Override
-	public void read(byte[] arr, int off, int len) throws IOException {
+	public int read(byte[] arr, int off, int len) throws IOException {
 		DatagramPacket packet = new DatagramPacket(arr, off, len);
 		socket.receive(packet);
 
-		arr = packet.getData();
+		System.arraycopy(packet.getData(), 0, arr, off, len);
+		return packet.getLength();
 	}
 
 	/**

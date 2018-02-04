@@ -84,14 +84,14 @@ public abstract class Connection implements Closeable {
 	/**
 	 * See {@link java.io.InputStream#read(byte[])}.
 	 */
-	public void read(byte[] arr) throws IOException {
-		read(arr, 0, arr.length);
+	public int read(byte[] arr) throws IOException {
+		return read(arr, 0, arr.length);
 	}
 
 	/**
 	 * See {@link java.io.InputStream#read(byte[], int, int)}.
 	 */
-	public abstract void read(byte[] arr, int off, int len) throws IOException;
+	public abstract int read(byte[] arr, int off, int len) throws IOException;
 
 	public abstract void setOutputStream(OutputStream out);
 

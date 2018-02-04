@@ -1,7 +1,6 @@
 package example;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.jnetwork.HTTPServer;
 
@@ -12,7 +11,9 @@ public class HTTPFileServer {
 		try {
 			server.start();
 			server.serveDirectory(new File("www"));
-		} catch (IOException e) {
+			server.waitUntilClose();
+			server.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

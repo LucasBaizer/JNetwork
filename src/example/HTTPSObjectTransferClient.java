@@ -12,7 +12,6 @@ import javax.net.ssl.X509TrustManager;
 import org.jnetwork.HTTPBasicAuthorization;
 import org.jnetwork.HTTPConnection;
 import org.jnetwork.HTTPContentType;
-import org.jnetwork.HTTPMethodType;
 import org.jnetwork.HTTPResult;
 import org.jnetwork.HTTPSConnection;
 

@@ -182,8 +182,8 @@ public class TCPConnection extends Connection {
 	}
 
 	@Override
-	public void read(byte[] arr, int off, int len) throws IOException {
-		in.read(arr, off, len);
+	public int read(byte[] arr, int off, int len) throws IOException {
+		return in.read(arr, off, len);
 	}
 
 	@Override

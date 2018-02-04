@@ -111,9 +111,9 @@ public class JLSTConnection extends TCPConnection implements SecureConnection {
 	}
 
 	@Override
-	public void read(byte[] arr, int off, int len) throws IOException {
+	public int read(byte[] arr, int off, int len) throws IOException {
 		try {
-			getObjectInputStream().read(aes.decrypt(arr), off, len);
+			return getObjectInputStream().read(aes.decrypt(arr), off, len);
 		} catch (CryptographyException e) {
 			throw new IOException(e);
 		}

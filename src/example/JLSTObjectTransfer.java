@@ -32,8 +32,11 @@ public class JLSTObjectTransfer {
 
 			JLSTConnection client = new JLSTConnection("localhost", 1337);
 			client.getObjectOutputStream().writeObject("Hey, secure server!");
+			client.getObjectOutputStream().flush();
 
 			System.out.println(Thread.currentThread().getName() + ": " + client.getObjectInputStream().readObject());
+			
+			client.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

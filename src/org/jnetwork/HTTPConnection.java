@@ -75,7 +75,7 @@ public class HTTPConnection extends SSLConnection {
 	public HTTPHeader[] headers() {
 		return HTTPHeader.extractFromHeaders(headers);
 	}
-	
+
 	public HTTPConnection accept(String type) {
 		return header(HTTPHeader.ACCEPT, type);
 	}
@@ -178,37 +178,37 @@ public class HTTPConnection extends SSLConnection {
 
 	@Override
 	public SocketAddress getRemoteSocketAddress() {
-		throw new UnsupportedOperationException("getRemoteSocketAddress is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("getRemoteSocketAddress is not supported on HTTPConnection objects");
 	}
 
 	@Override
 	public SocketAddress getLocalSocketAddress() {
-		throw new UnsupportedOperationException("getLocalSocketAddress is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("getLocalSocketAddress is not supported on HTTPConnection objects");
 	}
 
 	@Override
 	public boolean isClosed() {
-		throw new UnsupportedOperationException("isClosed is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("isClosed is not supported on HTTPConnection objects");
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		throw new UnsupportedOperationException("write is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("write is not supported on HTTPConnection objects");
 	}
 
 	@Override
 	public void write(byte[] bytes, int off, int len) throws IOException {
-		throw new UnsupportedOperationException("write is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("write is not supported on HTTPConnection objects");
 	}
 
 	@Override
 	public int read() throws IOException {
-		throw new UnsupportedOperationException("read is not supported on HTTPSConnection objects");
+		throw new UnsupportedOperationException("read is not supported on HTTPConnection objects");
 	}
 
 	@Override
-	public void read(byte[] arr, int off, int len) throws IOException {
-		throw new UnsupportedOperationException("read is not supported on HTTPSConnection objects");
+	public int read(byte[] arr, int off, int len) throws IOException {
+		throw new UnsupportedOperationException("read is not supported on HTTPConnection objects");
 	}
 
 	@Override
