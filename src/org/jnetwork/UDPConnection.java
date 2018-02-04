@@ -41,23 +41,38 @@ public class UDPConnection extends Connection {
 		this.socket = socket;
 		setupStreams();
 	}
-	
+
 	private void setupStreams() {
 		in = new InputStream() {
 			@Override
 			public int read() throws IOException {
 				return UDPConnection.this.read();
 			}
-			
+
 			@Override
 			public int read(byte[] b) throws IOException {
 				return UDPConnection.this.read(b);
+			}
+
+			@Override
+			public int read(byte[] b, int off, int len) throws IOException {
+				return UDPConnection.this.read(b, off, len);
 			}
 		};
 		out = new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
 				UDPConnection.this.write(b);
+			}
+
+			@Override
+			public void write(byte[] b) throws IOException {
+				UDPConnection.this.write(b);
+			}
+
+			@Override
+			public void write(byte[] b, int off, int len) throws IOException {
+				UDPConnection.this.write(b, off, len);
 			}
 		};
 	}
